@@ -1,14 +1,15 @@
 import {app, Menu, nativeImage, nativeTheme, Tray} from 'electron';
 import * as path from 'path';
-import {getMainAssetsPath} from './MainUtil';
+import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getAppVersion, getTimeZone} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 
 let appTray: Tray;
 
 function getLunarDateIcon(lunarDay: number) {
-  const isDark = nativeTheme.shouldUseDarkColors;
-  const icon = nativeImage.createFromPath(path.join(getMainAssetsPath(), `calendar/${isDark ? 'dark' : 'light'}/${lunarDay}.png`));
+  const iconFolder = isTemplateAsset ? 'template' : 'light';
+  const iconPath = `calendar/${iconFolder}/${getAssetName(lunarDay, isTemplateAsset)}.png`;
+  const icon = nativeImage.createFromPath(path.join(getMainAssetsPath(), iconPath));
 
   return icon.resize({height: 18});
 }
@@ -51,9 +52,9 @@ export function showAppTray() {
       {label: 'Thoát', type: 'normal', click: () => app.exit()},
     ]);
 
-    setInterval(() => refreshTray(appTray), 1000);
-
+    nativeTheme.on('updated', () => refreshTray(appTray));
     appTray.setToolTip(getLunarDateExpression(currentLunar));
     appTray.setContextMenu(contextMenu);
+    setInterval(() => refreshTray(appTray), 5000);
   });
 }
