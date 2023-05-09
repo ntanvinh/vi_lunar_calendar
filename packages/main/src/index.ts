@@ -2,7 +2,7 @@ import {app} from 'electron';
 import './SecurityRestrictions';
 import {restoreOrCreateWindow} from './MainWindow';
 import {sum} from '#common';
-import {showAppTray} from '/AppTray';
+import {showAppTray} from './AppTray';
 console.log('From main package:', sum);
 
 /**

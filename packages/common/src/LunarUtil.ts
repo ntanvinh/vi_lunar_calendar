@@ -1,3 +1,5 @@
+// noinspection SpellCheckingInspection
+
 /*
  * Copyright (c) 2006 Ho Ngoc Duc. All Rights Reserved.
  * Astronomical algorithms from the book "Astronomical Algorithms" by Jean Meeus, 1998
@@ -218,11 +220,17 @@ export function convertLunar2Solar(lunarDay: number, lunarMonth: number, lunarYe
   return jdToDate(monthStart + lunarDay - 1);
 }
 
-interface LunarDate {
+export interface LunarDate {
   lunarDay: number;
   lunarMonth: number;
   lunarYear: number;
-  isLunarLeap: boolean;
+  isLeapMonth: boolean;
+  isLeapYear?: boolean;
+}
+
+export function isLunarLeapYear(solarYear: number) {
+  const remainder = solarYear % 19;
+  return [0, 3, 6, 9, 11, 14, 17].includes(remainder);
 }
 
 export function toLunarDate(solar: Date, timeZone: number): LunarDate {
@@ -232,12 +240,97 @@ export function toLunarDate(solar: Date, timeZone: number): LunarDate {
     lunarDay,
     lunarMonth,
     lunarYear,
-    isLunarLeap: lunarLeap !== 0,
+    isLeapMonth: lunarLeap !== 0,
+    isLeapYear: isLunarLeapYear(solar.getFullYear()),
   };
 }
 
 export function toSolarDate(lunar: LunarDate, timeZone: number): Date {
-  const {lunarDay, lunarMonth, lunarYear, isLunarLeap} = lunar;
-  const [day, month, year] = convertLunar2Solar(lunarDay, lunarMonth, lunarYear, isLunarLeap ? 1 : 0, timeZone);
+  const {lunarDay, lunarMonth, lunarYear, isLeapMonth} = lunar;
+  const [day, month, year] = convertLunar2Solar(lunarDay, lunarMonth, lunarYear, isLeapMonth ? 1 : 0, timeZone);
   return new Date(year, month - 1, day);
+}
+
+function calcCan(year: number) {
+  let can = '';
+  switch (year % 10) {
+    case 0:
+      can = 'Canh';
+      break;
+    case 1:
+      can = 'Tân';
+      break;
+    case 2:
+      can = 'Nhâm';
+      break;
+    case 3:
+      can = 'Quý';
+      break;
+    case 4:
+      can = 'Giáp';
+      break;
+    case 5:
+      can = 'Ất';
+      break;
+    case 6:
+      can = 'Bính';
+      break;
+    case 7:
+      can = 'Đinh';
+      break;
+    case 8:
+      can = 'Mậu';
+      break;
+    case 9:
+      can = 'Kỷ';
+      break;
+  }
+  return can;
+}
+
+function calcChi(year: number) {
+  let chi = '';
+  switch (year % 12) {
+    case 0:
+      chi = 'Thân';
+      break;
+    case 1:
+      chi = 'Dậu';
+      break;
+    case 2:
+      chi = 'Tuất';
+      break;
+    case 3:
+      chi = 'Hợi';
+      break;
+    case 4:
+      chi = 'Tý';
+      break;
+    case 5:
+      chi = 'Sửu';
+      break;
+    case 6:
+      chi = 'Dần';
+      break;
+    case 7:
+      chi = 'Mão';
+      break;
+    case 8:
+      chi = 'Thìn';
+      break;
+    case 9:
+      chi = 'Tỵ';
+      break;
+    case 10:
+      chi = 'Ngọ';
+      break;
+    case 11:
+      chi = 'Mùi';
+      break;
+  }
+  return chi;
+}
+
+export function getCanChi(lunarYear: number) {
+  return `${calcCan(lunarYear)} ${calcChi(lunarYear)}`;
 }
