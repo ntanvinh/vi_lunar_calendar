@@ -29,7 +29,10 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
         showWeekNumbers
         activeStartDate={activeStartDate}
         onActiveStartDateChange={({activeStartDate}) => setActiveStartDate(activeStartDate ?? undefined)}
-        tileContent={({date}) => {
+        tileContent={({date, view}) => {
+          if (view !== 'month') {
+            return;
+          }
           return (
             <LunarTileContent date={date} />
           );
@@ -93,15 +96,16 @@ const StyledCalendar = styled(Calendar)`
   .react-calendar__navigation button {
     min-width: 44px;
     background: none;
+    border-radius: 8px;
   }
 
   .react-calendar__navigation button:disabled {
     background-color: #f0f0f0;
   }
 
-  .react-calendar__navigation button:enabled:hover,
-  .react-calendar__navigation button:enabled:focus {
-    background-color: #e6e6e6;
+  .react-calendar__navigation button:enabled:hover {
+    background-color: rgb(59 130 246);
+    color: white;
   }
 
   .react-calendar__month-view__weekdays {
@@ -138,6 +142,7 @@ const StyledCalendar = styled(Calendar)`
   }
 
   .react-calendar__tile {
+    border-radius: 6px;
     max-width: 100%;
     padding: 10px 6.6667px;
     background: none;
@@ -151,23 +156,23 @@ const StyledCalendar = styled(Calendar)`
 
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
-    background-color: #e6e6e6;
+    background-color: rgb(59 130 246);
+    color: white;
   }
 
   .react-calendar__tile--now {
-    background: #ffff76;
-    color: blue;
+    background-color: rgb(217 119 6);
+    color: white;
     font-weight: bold;
-    border-radius: 8px;
   }
 
   .react-calendar__tile--now:enabled:hover,
   .react-calendar__tile--now:enabled:focus {
-    background: #ffffa9;
+    background-color: rgb(245 158 11);
   }
 
   .react-calendar__tile--hasActive {
-    background: #76baff;
+    background: #006edc;
   }
 
   .react-calendar__tile--hasActive:enabled:hover,

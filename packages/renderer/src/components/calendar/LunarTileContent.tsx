@@ -24,15 +24,15 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date}) => {
             className="relative w-full flex justify-center"
           >
             <img
-              className='relative top-0.5'
+              className="relative top-0.5"
               width={fullMoonSize}
               height={fullMoonSize}
               src="assets/full-moon.png" alt="full moon" />
           </div>
           :
           <div
-            className={clsx('text-[12px] ', {
-              'text-gray-700 dark:text-gray-300': !isFirstOrMiddleDay,
+            className={clsx('mt-0.5 text-[12px] ', {
+              // 'text-gray-700 dark:text-gray-300': !isFirstOrMiddleDay,
               'text-amber-700 dark:text-amber-300': isFirstOrMiddleDay,
               'font-bold': isFirstDay,
               'scale-105 animate-pulse': isNewYear,
