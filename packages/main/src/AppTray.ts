@@ -1,9 +1,8 @@
 import {app, Menu, nativeImage, nativeTheme, Tray} from 'electron';
 import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
-import {getAppVersion, getTimeZone} from '../../common/src/MiscUtil';
+import {getTimeZone} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
-import {REFRESH_RATE_IN_S} from '../../common/src/Constant';
 import {getCalendarWindow, toggleCalendarWindow} from '/@/CalendarWindow';
 
 let appTray: Tray;
@@ -44,12 +43,11 @@ export function showAppTray() {
     const icon = getLunarDateIcon(currentLunar.lunarDay);
     appTray = new Tray(icon);
 
-    const version = getAppVersion();
     const introductionMenu = Menu.buildFromTemplate([
-      {label: 'Simple Lunar Calendar', type: 'normal'},
-      {label: `v${version}`, type: 'normal'},
+      {label: app.getName(), type: 'normal'},
+      {label: `v${app.getVersion()}`, type: 'normal'},
       {
-        label: 'by Nguyen Tan Vinh', type: 'normal', click: () => {
+        label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {
           const window = getCalendarWindow();
           if (window && window.isVisible()) {
             window.webContents.openDevTools({mode: 'detach'});
@@ -76,6 +74,29 @@ export function showAppTray() {
     });
 
     // refresh to update tray icon
-    setInterval(() => refreshTray(appTray), REFRESH_RATE_IN_S * 1000);
+    let timerId: NodeJS.Timeout | undefined;
+    function dynamicRefreshTray() {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+      const currentTime = new Date();
+      let timeout;
+      if (currentTime.getHours() === 23 && currentTime.getMinutes() > 29) {
+        timeout = 1000; // increase refresh rate at end of day
+      } else {
+        // reduce refresh rate for energy saving
+        timeout = 30 * 60 * 1000;
+      }
+      // console.log(`refresh tray, timeout ${timeout / 1000}s`);
+
+      refreshTray(appTray);
+
+      timerId = setTimeout(() => {
+        dynamicRefreshTray();
+      }, timeout);
+    }
+
+    dynamicRefreshTray();
+
   });
 }
