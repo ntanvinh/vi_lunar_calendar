@@ -3,15 +3,25 @@ import {join} from 'path';
 import {URL} from 'url';
 import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
 
+function calcWindowPosition(bounds: Electron.Rectangle) {
+  return {
+    x: bounds.x - CALENDAR_WIDTH + bounds.width,
+    y: bounds.y <= CALENDAR_HEIGHT ? 0 : bounds.y - CALENDAR_HEIGHT,
+  };
+}
+
 async function createWindow(bounds: Electron.Rectangle) {
   console.log(bounds);
+  const {x, y} = calcWindowPosition(bounds);
   const browserWindow = new BrowserWindow({
     width: CALENDAR_WIDTH,
     height: CALENDAR_HEIGHT,
-    x: bounds.x - CALENDAR_WIDTH / 2,
-    y: bounds.y <= CALENDAR_HEIGHT ? 0 : bounds.y - CALENDAR_HEIGHT,
+    x,
+    y,
     frame: false,
     resizable: false,
+    alwaysOnTop: true,
+    movable: true,
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
     webPreferences: {
       nodeIntegration: false,
@@ -33,9 +43,9 @@ async function createWindow(bounds: Electron.Rectangle) {
   browserWindow.on('ready-to-show', () => {
     browserWindow?.show();
 
-    if (import.meta.env.DEV) {
-      browserWindow?.webContents.openDevTools({mode: 'detach'});
-    }
+    // if (import.meta.env.DEV) {
+    //   browserWindow?.webContents.openDevTools({mode: 'detach'});
+    // }
   });
 
   /**
@@ -56,10 +66,10 @@ async function createWindow(bounds: Electron.Rectangle) {
 /**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
-export async function toggleCalendarWindow(bounds?: Electron.Rectangle) {
+export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
-  if (!window && bounds) {
+  if (!window) {
     window = await createWindow(bounds);
   }
 
@@ -69,6 +79,8 @@ export async function toggleCalendarWindow(bounds?: Electron.Rectangle) {
 
     } else {
       window.show();
+      const {x, y} = calcWindowPosition(bounds);
+      window.setPosition(x, y);
       window.focus();
     }
   }

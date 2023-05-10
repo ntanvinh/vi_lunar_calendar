@@ -21,54 +21,53 @@ module.exports = async function() {
     mac: {
       type: 'distribution',
       category: 'Utilities',
+      electronLanguages: ['en', 'vi'],
       darkModeSupport: true,
       target: {
-        target: "default",
+        target: 'default',
         arch: [
-          "arm64",
-          "x64"
-        ]
+          'arm64',
+          'x64',
+        ],
       },
       hardenedRuntime: true,
-      // entitlements: "assets/entitlements.mac.plist",
-      // entitlementsInherit: "assets/entitlements.mac.plist",
       gatekeeperAssess: false,
     },
     dmg: {
       contents: [
         {
           x: 130,
-          y: 220
+          y: 220,
         },
         {
           x: 410,
           y: 220,
-          type: "link",
-          path: "/Applications"
-        }
-      ]
+          type: 'link',
+          path: '/Applications',
+        },
+      ],
     },
     win: {
       target: [
-        "nsis"
-      ]
+        'nsis',
+      ],
     },
     linux: {
       target: [
-        "AppImage"
+        'AppImage',
       ],
     },
     directories: {
-      buildResources: "buildResources",
-      output: "dist",
+      buildResources: 'buildResources',
+      output: 'dist',
     },
     extraResources: [
-      "./assets/**"
+      './assets/**',
     ],
     publish: {
-      provider: "github",
-      owner: "ntanvinh",
-      repo: "vi_lunar_calendar"
+      provider: 'github',
+      owner: 'ntanvinh',
+      repo: 'vi_lunar_calendar',
     },
     extraMetadata: {
       version: getVersion(),

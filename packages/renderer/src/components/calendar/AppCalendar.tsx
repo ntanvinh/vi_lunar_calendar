@@ -44,7 +44,14 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 
 export default AppCalendar;
 
-const StyledCalendar = styled(Calendar)`
+const StyledCalendar = styled(Calendar).attrs({
+  todayBgColor: '#eab308',
+  todayBgColor_Hover: '#facc15',
+  weekendText: '#d10000',
+  activeBgColor: '#1d4ed8',
+  activeBgColor_Hover: '#2563eb',
+
+})`
   button:focus {
     outline: none;
   }
@@ -108,7 +115,7 @@ const StyledCalendar = styled(Calendar)`
   }
 
   .react-calendar__navigation button:enabled:hover {
-    background-color: rgb(59 130 246);
+    background-color: ${props => props.activeBgColor_Hover};
     color: white;
   }
 
@@ -134,7 +141,7 @@ const StyledCalendar = styled(Calendar)`
   }
 
   .react-calendar__month-view__days__day--weekend {
-    color: #d10000;
+    color: ${props => props.weekendText};
   }
 
   .react-calendar__month-view__days__day--neighboringMonth {
@@ -163,19 +170,19 @@ const StyledCalendar = styled(Calendar)`
 
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
-    background-color: rgb(59 130 246);
+    background-color: ${props => props.activeBgColor_Hover};
     color: white;
   }
 
   .react-calendar__tile--now {
-    background-color: rgb(217 119 6);
+    background-color: ${props => props.todayBgColor};
     color: white;
     font-weight: bold;
   }
 
   .react-calendar__tile--now:enabled:hover,
   .react-calendar__tile--now:enabled:focus {
-    background-color: rgb(245 158 11);
+    background-color: ${props => props.todayBgColor_Hover};
   }
 
   .react-calendar__tile--hasActive {
@@ -184,20 +191,20 @@ const StyledCalendar = styled(Calendar)`
 
   .react-calendar__tile--hasActive:enabled:hover,
   .react-calendar__tile--hasActive:enabled:focus {
-    background: #a9d4ff;
+    background: ${props => props.activeBgColor_Hover};
   }
 
   .react-calendar__tile--active {
-    background: #006edc;
+    background: ${props => props.activeBgColor};
     color: white;
   }
 
   .react-calendar__tile--active:enabled:hover,
   .react-calendar__tile--active:enabled:focus {
-    background: #1087ff;
+    background: ${props => props.activeBgColor_Hover};
   }
 
   .react-calendar--selectRange .react-calendar__tile--hover {
-    background-color: #e6e6e6;
+    background-color: ${props => props.activeBgColor_Hover};
   }
 `;
