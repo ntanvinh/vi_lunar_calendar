@@ -1,27 +1,63 @@
 import Calendar from 'react-calendar';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
+import {toLunarDate, toSolarDate} from '../../../../common/src/LunarUtil';
+import {getTimeZone} from '../../../../common/src/MiscUtil';
+import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
+import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
 
 interface AppCalendarProps {
 }
 
 const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [activeStartDate, setActiveStartDate] = useState<Date>();
+  const [yearOffset, setYearOffset] = useState(0);
 
   function handleJumpToday() {
-    setActiveStartDate(new Date());
+    setYearOffset(0);
+  }
+
+  useEffect(() => {
+    handleJumpToLunarYear(yearOffset);
+  }, [yearOffset]);
+
+  function handleJumpToLunarYear(yearOffset: number) {
+    const timeZone = getTimeZone();
+    const {lunarYear: currentLunarYear} = toLunarDate(new Date(), timeZone);
+    const firstDayNextLunarYear = toSolarDate({
+      lunarYear: currentLunarYear + yearOffset,
+      lunarMonth: 1,
+      lunarDay: 1,
+      isLeapMonth: false,
+    }, timeZone);
+    setActiveStartDate(firstDayNextLunarYear);
   }
 
   return (
     <div>
       <div
-        className="mt-4 mb-2 w-full flex justify-center"
+        className="mt-4 mb-2 w-full flex justify-center space-x-10"
       >
         <AppButton
+          onClick={() => setYearOffset(offset => offset - 1)}
+          type="text"
+        >
+          <BiChevronLeftCircle size={24} />
+        </AppButton>
+
+        <AppButton
           onClick={handleJumpToday}
-        >Hôm nay</AppButton>
+        >
+          Hôm nay
+        </AppButton>
+        <AppButton
+          onClick={() => setYearOffset(offset => offset + 1)}
+          type="text"
+        >
+          <BiChevronRightCircle size={24} />
+        </AppButton>
       </div>
 
       <StyledCalendar
