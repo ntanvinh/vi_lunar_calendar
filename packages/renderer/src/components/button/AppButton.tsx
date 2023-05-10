@@ -7,13 +7,13 @@ interface AppButtonProps {
 }
 
 const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
-  const {onClick, children, type='primary'} = props;
+  const {onClick, children, type = 'primary'} = props;
 
   return (
     <button
-      className={clsx('px-2 py-1 text-white rounded-lg outline-none',{
-        'bg-blue-700 hover:bg-blue-600': type === 'primary',
-
+      className={clsx('text-white rounded-lg outline-none', {
+        'px-4 py-1 bg-blue-700 hover:bg-blue-600': type === 'primary',
+        'px-2 py-1': type === 'text',
       })}
       onClick={onClick}
     >
