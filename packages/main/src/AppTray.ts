@@ -44,7 +44,7 @@ export function showAppTray() {
     appTray = new Tray(icon);
 
     const introductionMenu = Menu.buildFromTemplate([
-      {label: app.getName(), type: 'normal'},
+      {label: 'Vi Lunar Calendar', type: 'normal'},
       {label: `v${app.getVersion()}`, type: 'normal'},
       {
         label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {
