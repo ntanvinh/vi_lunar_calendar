@@ -9,7 +9,7 @@ async function createWindow(bounds: Electron.Rectangle) {
     width: CALENDAR_WIDTH,
     height: CALENDAR_HEIGHT,
     x: bounds.x - CALENDAR_WIDTH / 2,
-    y: 0,
+    y: bounds.y <= CALENDAR_HEIGHT ? 0 : bounds.y - CALENDAR_HEIGHT,
     frame: false,
     resizable: false,
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
