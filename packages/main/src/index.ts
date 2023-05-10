@@ -1,9 +1,6 @@
 import {app} from 'electron';
 import './SecurityRestrictions';
-import {restoreOrCreateWindow} from './MainWindow';
-import {sum} from '#common';
 import {showAppTray} from './AppTray';
-console.log('From main package:', sum);
 
 /**
  * Prevent electron from running multiple instances.
@@ -13,7 +10,6 @@ if (!isSingleInstance) {
   app.quit();
   process.exit(0);
 }
-app.on('second-instance', restoreOrCreateWindow);
 
 /**
  * Disable Hardware Acceleration to save more system resources.
@@ -30,35 +26,15 @@ app.on('window-all-closed', () => {
 });
 
 /**
- * @see https://www.electronjs.org/docs/latest/api/app#event-activate-macos Event: 'activate'.
- */
-app.on('activate', restoreOrCreateWindow);
-
-/**
  * Create the application window when the background process is ready.
  */
+app.dock.hide();
 app
   .whenReady()
   .then(async () => {
     showAppTray();
-    await restoreOrCreateWindow();
   })
   .catch(e => console.error('Failed create window:', e));
-
-/**
- * Install Vue.js or any other extension in development mode only.
- * Note: You must install `electron-devtools-installer` manually
- */
-// if (import.meta.env.DEV) {
-//   app.whenReady()
-//     .then(() => import('electron-devtools-installer'))
-//     .then(({default: installExtension, VUEJS3_DEVTOOLS}) => installExtension(VUEJS3_DEVTOOLS, {
-//       loadExtensionOptions: {
-//         allowFileAccess: true,
-//       },
-//     }))
-//     .catch(e => console.error('Failed install extension:', e));
-// }
 
 /**
  * Check for new version of the application - production mode only.

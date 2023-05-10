@@ -1,9 +1,17 @@
 import {app, BrowserWindow} from 'electron';
 import {join} from 'path';
 import {URL} from 'url';
+import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
 
-async function createWindow() {
+async function createWindow(bounds: Electron.Rectangle) {
+  console.log(bounds);
   const browserWindow = new BrowserWindow({
+    width: CALENDAR_WIDTH,
+    height: CALENDAR_HEIGHT,
+    x: bounds.x - CALENDAR_WIDTH / 2,
+    y: 0,
+    frame: false,
+    resizable: false,
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
     webPreferences: {
       nodeIntegration: false,
@@ -26,8 +34,12 @@ async function createWindow() {
     browserWindow?.show();
 
     if (import.meta.env.DEV) {
-      browserWindow?.webContents.openDevTools();
+      browserWindow?.webContents.openDevTools({mode: 'detach'});
     }
+  });
+
+  browserWindow.on('blur', () => {
+    browserWindow?.hide();
   });
 
   /**
@@ -48,16 +60,19 @@ async function createWindow() {
 /**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
-export async function restoreOrCreateWindow() {
+export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
-    window = await createWindow();
+    window = await createWindow(bounds);
   }
 
-  if (window.isMinimized()) {
-    window.restore();
+  if (window.isVisible()) {
+    window.hide();
+
+  } else {
+    window.show();
+    window.focus();
   }
 
-  window.focus();
 }

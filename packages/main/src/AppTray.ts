@@ -3,6 +3,8 @@ import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getAppVersion, getTimeZone} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
+import {REFRESH_RATE_IN_S} from '../../common/src/Constant';
+import {toggleCalendarWindow} from '/@/CalendarWindow';
 
 let appTray: Tray;
 
@@ -54,7 +56,17 @@ export function showAppTray() {
 
     nativeTheme.on('updated', () => refreshTray(appTray));
     appTray.setToolTip(getLunarDateExpression(currentLunar));
-    appTray.setContextMenu(contextMenu);
-    setInterval(() => refreshTray(appTray), 5000);
+
+    // set events
+    appTray.on('click', (_event, bounds) => {
+      toggleCalendarWindow(bounds).then();
+    });
+
+    appTray.on('right-click', () => {
+      appTray.popUpContextMenu(contextMenu);
+    });
+
+    // refresh to update tray icon
+    setInterval(() => refreshTray(appTray), REFRESH_RATE_IN_S);
   });
 }
