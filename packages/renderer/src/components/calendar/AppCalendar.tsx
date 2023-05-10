@@ -1,5 +1,5 @@
 import Calendar from 'react-calendar';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
@@ -16,12 +16,8 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [yearOffset, setYearOffset] = useState(0);
 
   function handleJumpToday() {
-    setYearOffset(0);
+    setActiveStartDate(new Date());
   }
-
-  useEffect(() => {
-    handleJumpToLunarYear(yearOffset);
-  }, [yearOffset]);
 
   function handleJumpToLunarYear(yearOffset: number) {
     const timeZone = getTimeZone();
@@ -41,7 +37,10 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
         className="mt-4 mb-2 w-full flex justify-center space-x-10"
       >
         <AppButton
-          onClick={() => setYearOffset(offset => offset - 1)}
+          onClick={() => {
+            setYearOffset(offset => offset - 1);
+            handleJumpToLunarYear(yearOffset - 1);
+          }}
           type="text"
         >
           <BiChevronLeftCircle size={24} />
@@ -53,7 +52,10 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
           Hôm nay
         </AppButton>
         <AppButton
-          onClick={() => setYearOffset(offset => offset + 1)}
+          onClick={() => {
+            setYearOffset(offset => offset + 1);
+            handleJumpToLunarYear(yearOffset + 1);
+          }}
           type="text"
         >
           <BiChevronRightCircle size={24} />
