@@ -4,7 +4,7 @@ import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getAppVersion, getTimeZone} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 import {REFRESH_RATE_IN_S} from '../../common/src/Constant';
-import {toggleCalendarWindow} from '/@/CalendarWindow';
+import {getCalendarWindow, toggleCalendarWindow} from '/@/CalendarWindow';
 
 let appTray: Tray;
 
@@ -48,7 +48,14 @@ export function showAppTray() {
     const introductionMenu = Menu.buildFromTemplate([
       {label: 'Simple Lunar Calendar', type: 'normal'},
       {label: `v${version}`, type: 'normal'},
-      {label: 'by Nguyen Tan Vinh', type: 'normal'},
+      {
+        label: 'by Nguyen Tan Vinh', type: 'normal', click: () => {
+          const window = getCalendarWindow();
+          if (window && window.isVisible()) {
+            window.webContents.openDevTools({mode: 'detach'});
+          }
+        },
+      },
     ]);
     const contextMenu = Menu.buildFromTemplate([
       {label: getLunarDateExpression(currentLunar, true), type: 'normal'},

@@ -45,6 +45,10 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 export default AppCalendar;
 
 const StyledCalendar = styled(Calendar)`
+  button:focus {
+    outline: none;
+  }
+
   .react-calendar {
     width: 350px;
     max-width: 100%;
@@ -113,6 +117,7 @@ const StyledCalendar = styled(Calendar)`
     text-transform: uppercase;
     font-weight: bold;
     font-size: 0.75em;
+    user-select: none;
   }
 
   .react-calendar__month-view__weekdays__weekday {
@@ -125,6 +130,7 @@ const StyledCalendar = styled(Calendar)`
     justify-content: center;
     font-size: 0.75em;
     font-weight: bold;
+    user-select: none;
   }
 
   .react-calendar__month-view__days__day--weekend {
@@ -148,7 +154,7 @@ const StyledCalendar = styled(Calendar)`
     background: none;
     text-align: center;
     line-height: 16px;
-    overflow: visible!important;
+    overflow: visible !important;
   }
 
   .react-calendar__tile:disabled {

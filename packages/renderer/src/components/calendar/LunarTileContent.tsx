@@ -3,6 +3,7 @@ import {getCanChi, toLunarDate} from '../../../../common/src/LunarUtil';
 import {getTimeZone} from '../../../../common/src/MiscUtil';
 import clsx from 'clsx';
 import Tooltip from '/@/components/Tooltip';
+import fullMoonImage from '../../../assets/full-moon.png';
 
 interface LunarTileContentProps {
   date: Date;
@@ -29,7 +30,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date}) => {
               className="relative top-0.5"
               width={fullMoonSize}
               height={fullMoonSize}
-              src="assets/full-moon.png" alt="full moon" />
+              src={fullMoonImage} alt="full moon" />
           </div>
           :
           <div

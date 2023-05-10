@@ -38,12 +38,6 @@ async function createWindow(bounds: Electron.Rectangle) {
     }
   });
 
-  browserWindow.on('blur', () => {
-    if (import.meta.env.PROD) {
-      browserWindow?.hide();
-    }
-  });
-
   /**
    * URL for main window.
    * Vite dev server for development.
@@ -62,19 +56,25 @@ async function createWindow(bounds: Electron.Rectangle) {
 /**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
-export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
+export async function toggleCalendarWindow(bounds?: Electron.Rectangle) {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
-  if (window === undefined) {
+  if (!window && bounds) {
     window = await createWindow(bounds);
   }
 
-  if (window.isVisible()) {
-    window.hide();
+  if (window) {
+    if (window.isVisible()) {
+      window.hide();
 
-  } else {
-    window.show();
-    window.focus();
+    } else {
+      window.show();
+      window.focus();
+    }
   }
+  return window;
+}
 
+export function getCalendarWindow() {
+  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 }
