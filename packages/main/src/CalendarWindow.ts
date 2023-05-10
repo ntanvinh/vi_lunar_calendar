@@ -6,7 +6,7 @@ import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
 function calcWindowPosition(bounds: Electron.Rectangle) {
   return {
     x: bounds.x - CALENDAR_WIDTH + bounds.width,
-    y: bounds.y <= CALENDAR_HEIGHT ? 0 : bounds.y - CALENDAR_HEIGHT,
+    y: bounds.y <= CALENDAR_HEIGHT ? bounds.y : bounds.y - CALENDAR_HEIGHT,
   };
 }
 
