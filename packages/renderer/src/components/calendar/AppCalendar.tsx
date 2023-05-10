@@ -1,5 +1,5 @@
 import Calendar from 'react-calendar';
-import React from 'react';
+import React, {useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
@@ -8,15 +8,16 @@ interface AppCalendarProps {
 }
 
 const AppCalendar: React.FC<AppCalendarProps> = () => {
+  const [activeStartDate, setActiveStartDate] = useState<Date>();
 
   function handleJumpToday() {
-    console.log('show today');
+    setActiveStartDate(new Date());
   }
 
   return (
     <div>
       <div
-        className='mt-4 mb-2 w-full flex justify-center'
+        className="mt-4 mb-2 w-full flex justify-center"
       >
         <AppButton
           onClick={handleJumpToday}
@@ -26,6 +27,8 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
       <StyledCalendar
         locale="vi"
         showWeekNumbers
+        activeStartDate={activeStartDate}
+        onActiveStartDateChange={({activeStartDate}) => setActiveStartDate(activeStartDate ?? undefined)}
         tileContent={({date}) => {
           return (
             <LunarTileContent date={date} />
