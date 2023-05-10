@@ -1,7 +1,8 @@
 import React from 'react';
-import {toLunarDate} from '../../../../common/src/LunarUtil';
+import {getCanChi, toLunarDate} from '../../../../common/src/LunarUtil';
 import {getTimeZone} from '../../../../common/src/MiscUtil';
 import clsx from 'clsx';
+import Tooltip from '/@/components/Tooltip';
 
 interface LunarTileContentProps {
   date: Date;
@@ -16,8 +17,9 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date}) => {
   const isFirstOrMiddleDay = isFirstDay || isMiddleDay;
   const isNewYear = lunar.lunarDay === 1 && lunar.lunarMonth === 1;
   const fullMoonSize = 16;
+  const canChi = getCanChi(lunar.lunarYear);
   return (
-    <>
+    <Tooltip tip={canChi}>
       {
         isMiddleDay ?
           <div
@@ -41,7 +43,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date}) => {
             {lunarDisplay}
           </div>
       }
-    </>
+    </Tooltip>
   );
 };
 

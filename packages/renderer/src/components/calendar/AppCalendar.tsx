@@ -148,6 +148,7 @@ const StyledCalendar = styled(Calendar)`
     background: none;
     text-align: center;
     line-height: 16px;
+    overflow: visible!important;
   }
 
   .react-calendar__tile:disabled {

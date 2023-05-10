@@ -7,7 +7,7 @@ export function getMainAssetsPath() {
 
 export function getAssetName(normalName: string | number, isTemplateAsset: boolean) {
   if (isTemplateAsset) {
-    return `${normalName}_Template`;
+    return `${normalName}Template`;
 
   } else {
     return `${normalName}`;
@@ -16,4 +16,4 @@ export function getAssetName(normalName: string | number, isTemplateAsset: boole
 
 export const isMacOS = process.platform === 'darwin';
 
-export const isTemplateAsset = isMacOS || nativeTheme.shouldUseDarkColors;
+export const isTemplateAsset = isMacOS || !nativeTheme.shouldUseDarkColors;

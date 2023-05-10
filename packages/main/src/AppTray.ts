@@ -9,11 +9,13 @@ import {toggleCalendarWindow} from '/@/CalendarWindow';
 let appTray: Tray;
 
 function getLunarDateIcon(lunarDay: number) {
-  const iconFolder = isTemplateAsset ? 'template' : 'light';
+  const iconFolder = isTemplateAsset ? 'template' : 'dark';
   const iconPath = `calendar/${iconFolder}/${getAssetName(lunarDay, isTemplateAsset)}.png`;
   const icon = nativeImage.createFromPath(path.join(getMainAssetsPath(), iconPath));
+  const resizedIcon = icon.resize({height: 18});
+  resizedIcon.setTemplateImage(isTemplateAsset);
 
-  return icon.resize({height: 18});
+  return resizedIcon;
 }
 
 function getLunarDateExpression(lunar: LunarDate, compact?: boolean) {
@@ -67,6 +69,6 @@ export function showAppTray() {
     });
 
     // refresh to update tray icon
-    setInterval(() => refreshTray(appTray), REFRESH_RATE_IN_S);
+    setInterval(() => refreshTray(appTray), REFRESH_RATE_IN_S * 1000);
   });
 }

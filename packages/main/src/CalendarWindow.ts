@@ -39,8 +39,9 @@ async function createWindow(bounds: Electron.Rectangle) {
   });
 
   browserWindow.on('blur', () => {
-    // todo uncomment this
-    // browserWindow?.hide();
+    if (import.meta.env.PROD) {
+      browserWindow?.hide();
+    }
   });
 
   /**
