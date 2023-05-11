@@ -8,6 +8,8 @@
  * documentation for personal, non-commercial use is hereby granted provided that
  * this copyright notice and appropriate documentation appears in all copies.
  */
+import {getTimeZone} from './MiscUtil';
+
 const PI = Math.PI;
 
 /* Discard the fractional part of a number, e.g., INT(3.2) = 3 */
@@ -333,4 +335,15 @@ function calcChi(year: number) {
 
 export function getCanChi(lunarYear: number) {
   return `${calcCan(lunarYear)} ${calcChi(lunarYear)}`;
+}
+
+export function getFirstDayOfLunarYear(from: Date, offset: number) {
+  const timeZone = getTimeZone();
+  const {lunarYear} = toLunarDate(from, timeZone);
+  return toSolarDate({
+    lunarYear: lunarYear + offset,
+    lunarMonth: 1,
+    lunarDay: 1,
+    isLeapMonth: false,
+  }, timeZone);
 }

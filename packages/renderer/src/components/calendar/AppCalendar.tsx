@@ -3,8 +3,8 @@ import React, {useEffect, useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
-import {toLunarDate, toSolarDate} from '../../../../common/src/LunarUtil';
-import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
+import {getCanChi, getFirstDayOfLunarYear} from '../../../../common/src/LunarUtil';
+import {getDateWithoutTime, getNextDay, getToday} from '../../../../common/src/MiscUtil';
 import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
 import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
 import {Value} from 'react-calendar/dist/esm/shared/types';
@@ -13,7 +13,7 @@ interface AppCalendarProps {
 }
 
 const AppCalendar: React.FC<AppCalendarProps> = () => {
-  const [activeStartDate, setActiveStartDate] = useState<Date>();
+  const [activeStartDate, setActiveStartDate] = useState<Date>(getToday());
   const [yearOffset, setYearOffset] = useState(0);
   const [currentDay, setCurrentDay] = useState<Date>(getToday());
   const [calendarValue, setCalendarValue] = useState<Value>(getToday());
@@ -43,14 +43,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   }
 
   function handleJumpToLunarYear(yearOffset: number) {
-    const timeZone = getTimeZone();
-    const {lunarYear: currentLunarYear} = toLunarDate(new Date(), timeZone);
-    const firstDayOfLunarYear = toSolarDate({
-      lunarYear: currentLunarYear + yearOffset,
-      lunarMonth: 1,
-      lunarDay: 1,
-      isLeapMonth: false,
-    }, timeZone);
+    const firstDayOfLunarYear = getFirstDayOfLunarYear(new Date(), yearOffset);
     setActiveStartDate(firstDayOfLunarYear);
     setCalendarValue(firstDayOfLunarYear);
   }
@@ -66,7 +59,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             handleJumpToLunarYear(yearOffset - 1);
           }}
           type="text"
-          tip="Năm âm lịch trước"
+          tip={`Năm trước ${getCanChi(getFirstDayOfLunarYear(activeStartDate, -1).getFullYear())}`}
           position="bottom"
         >
           <BiChevronLeftCircle size={24} />
@@ -83,7 +76,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             handleJumpToLunarYear(yearOffset + 1);
           }}
           type="text"
-          tip="Năm âm lịch tới"
+          tip={`Năm tới ${getCanChi(getFirstDayOfLunarYear(activeStartDate, 1).getFullYear())}`}
           position="bottom"
         >
           <BiChevronRightCircle size={24} />
@@ -98,7 +91,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
         locale="vi"
         showWeekNumbers
         activeStartDate={activeStartDate}
-        onActiveStartDateChange={({activeStartDate}) => setActiveStartDate(activeStartDate ?? undefined)}
+        onActiveStartDateChange={({activeStartDate}) => activeStartDate && setActiveStartDate(activeStartDate)}
         tileContent={({date, view}) => {
           if (view !== 'month') {
             return;
