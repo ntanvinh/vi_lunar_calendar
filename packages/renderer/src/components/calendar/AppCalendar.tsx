@@ -186,6 +186,7 @@ const StyledCalendar = styled(Calendar).attrs({
 
   .react-calendar__navigation button:disabled {
     background-color: #f0f0f0;
+    color: #bbb;
   }
 
   .react-calendar__navigation button:enabled:hover {
