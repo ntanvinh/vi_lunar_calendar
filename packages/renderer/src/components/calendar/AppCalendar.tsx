@@ -7,6 +7,7 @@ import {toLunarDate, toSolarDate} from '../../../../common/src/LunarUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
 import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
 import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
+import {Value} from 'react-calendar/dist/esm/shared/types';
 
 interface AppCalendarProps {
 }
@@ -15,6 +16,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [activeStartDate, setActiveStartDate] = useState<Date>();
   const [yearOffset, setYearOffset] = useState(0);
   const [currentDay, setCurrentDay] = useState<Date>(getToday());
+  const [calendarValue, setCalendarValue] = useState<Value>(getToday());
 
   useEffect(() => {
     const timerId = setInterval(() => {
@@ -37,18 +39,20 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 
   function handleJumpToday() {
     setActiveStartDate(new Date());
+    setCalendarValue(new Date());
   }
 
   function handleJumpToLunarYear(yearOffset: number) {
     const timeZone = getTimeZone();
     const {lunarYear: currentLunarYear} = toLunarDate(new Date(), timeZone);
-    const firstDayNextLunarYear = toSolarDate({
+    const firstDayOfLunarYear = toSolarDate({
       lunarYear: currentLunarYear + yearOffset,
       lunarMonth: 1,
       lunarDay: 1,
       isLeapMonth: false,
     }, timeZone);
-    setActiveStartDate(firstDayNextLunarYear);
+    setActiveStartDate(firstDayOfLunarYear);
+    setCalendarValue(firstDayOfLunarYear);
   }
 
   return (
@@ -83,6 +87,10 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
       </div>
 
       <StyledCalendar
+        value={calendarValue}
+        onChange={(value) => {
+          value && setCalendarValue(value);
+        }}
         locale="vi"
         showWeekNumbers
         activeStartDate={activeStartDate}
