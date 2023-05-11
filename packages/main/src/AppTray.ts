@@ -37,6 +37,29 @@ function refreshTray(tray: Tray) {
   tray.setToolTip(getLunarDateExpression(currentLunar));
 }
 
+let timerId: NodeJS.Timeout | undefined;
+
+function dynamicRefreshTray(tray: Tray) {
+  if (timerId) {
+    clearTimeout(timerId);
+  }
+  const now = new Date();
+  let timeout;
+  if (now.getHours() === 23 && now.getMinutes() > 29) {
+    timeout = 1000; // increase refresh rate at end of day
+  } else {
+    // reduce refresh rate for energy saving
+    timeout = 30 * 60 * 1000;
+  }
+  // console.log(`refresh tray, timeout ${timeout / 1000}s`);
+
+  refreshTray(tray);
+
+  timerId = setTimeout(() => {
+    dynamicRefreshTray(tray);
+  }, timeout);
+}
+
 export function showAppTray() {
   app.whenReady().then(() => {
     const currentLunar = toLunarDate(new Date(), getTimeZone());
@@ -44,7 +67,12 @@ export function showAppTray() {
     appTray = new Tray(icon);
 
     const introductionMenu = Menu.buildFromTemplate([
-      {label: 'Vi Lunar Calendar', type: 'normal'},
+      {
+        label: 'Vi Lunar Calendar',
+        type: 'normal',
+        click: () => dynamicRefreshTray(appTray),
+        toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
+      },
       {label: `v${app.getVersion()}`, type: 'normal'},
       {
         label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {
@@ -74,29 +102,6 @@ export function showAppTray() {
     });
 
     // refresh to update tray icon
-    let timerId: NodeJS.Timeout | undefined;
-    function dynamicRefreshTray() {
-      if (timerId) {
-        clearTimeout(timerId);
-      }
-      const currentTime = new Date();
-      let timeout;
-      if (currentTime.getHours() === 23 && currentTime.getMinutes() > 29) {
-        timeout = 1000; // increase refresh rate at end of day
-      } else {
-        // reduce refresh rate for energy saving
-        timeout = 30 * 60 * 1000;
-      }
-      // console.log(`refresh tray, timeout ${timeout / 1000}s`);
-
-      refreshTray(appTray);
-
-      timerId = setTimeout(() => {
-        dynamicRefreshTray();
-      }, timeout);
-    }
-
-    dynamicRefreshTray();
-
+    dynamicRefreshTray(appTray);
   });
 }

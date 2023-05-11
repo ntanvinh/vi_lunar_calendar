@@ -1,10 +1,10 @@
 import Calendar from 'react-calendar';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
 import {toLunarDate, toSolarDate} from '../../../../common/src/LunarUtil';
-import {getTimeZone} from '../../../../common/src/MiscUtil';
+import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
 import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
 import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
 
@@ -14,6 +14,26 @@ interface AppCalendarProps {
 const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [activeStartDate, setActiveStartDate] = useState<Date>();
   const [yearOffset, setYearOffset] = useState(0);
+  const [currentDay, setCurrentDay] = useState<Date>(getToday());
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      const nextDay = getNextDay(currentDay);
+
+      // if change date then refresh component
+      const now = new Date();
+      if (now.getTime() >= nextDay.getTime()) {
+        setCurrentDay(nextDay);
+
+      } else if (now.getTime() <= currentDay.getTime()) {
+        setCurrentDay(getDateWithoutTime(now));
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [currentDay]);
 
   function handleJumpToday() {
     setActiveStartDate(new Date());
@@ -83,12 +103,11 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 export default AppCalendar;
 
 const StyledCalendar = styled(Calendar).attrs({
-  todayBgColor: '#eab308',
-  todayBgColor_Hover: '#facc15',
-  weekendText: '#d10000',
-  activeBgColor: '#1d4ed8',
-  activeBgColor_Hover: '#2563eb',
-
+  $todayBgColor: '#eab308',
+  $todayBgColor_Hover: '#facc15',
+  $weekendText: '#d10000',
+  $activeBgColor: '#1d4ed8',
+  $activeBgColor_Hover: '#2563eb',
 })`
   button:focus {
     outline: none;
@@ -153,7 +172,7 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__navigation button:enabled:hover {
-    background-color: ${props => props.activeBgColor_Hover};
+    background-color: ${props => props.$activeBgColor_Hover};
     color: white;
   }
 
@@ -179,7 +198,7 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__month-view__days__day--weekend {
-    color: ${props => props.weekendText};
+    color: ${props => props.$weekendText};
   }
 
   .react-calendar__month-view__days__day--neighboringMonth {
@@ -208,19 +227,19 @@ const StyledCalendar = styled(Calendar).attrs({
 
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
-    background-color: ${props => props.activeBgColor_Hover};
+    background-color: ${props => props.$activeBgColor_Hover};
     color: white;
   }
 
   .react-calendar__tile--now {
-    background-color: ${props => props.todayBgColor};
+    background-color: ${props => props.$todayBgColor};
     color: white;
     font-weight: bold;
   }
 
   .react-calendar__tile--now:enabled:hover,
   .react-calendar__tile--now:enabled:focus {
-    background-color: ${props => props.todayBgColor_Hover};
+    background-color: ${props => props.$todayBgColor_Hover};
   }
 
   .react-calendar__tile--hasActive {
@@ -229,20 +248,20 @@ const StyledCalendar = styled(Calendar).attrs({
 
   .react-calendar__tile--hasActive:enabled:hover,
   .react-calendar__tile--hasActive:enabled:focus {
-    background: ${props => props.activeBgColor_Hover};
+    background: ${props => props.$activeBgColor_Hover};
   }
 
   .react-calendar__tile--active {
-    background: ${props => props.activeBgColor};
+    background: ${props => props.$activeBgColor};
     color: white;
   }
 
   .react-calendar__tile--active:enabled:hover,
   .react-calendar__tile--active:enabled:focus {
-    background: ${props => props.activeBgColor_Hover};
+    background: ${props => props.$activeBgColor_Hover};
   }
 
   .react-calendar--selectRange .react-calendar__tile--hover {
-    background-color: ${props => props.activeBgColor_Hover};
+    background-color: ${props => props.$activeBgColor_Hover};
   }
 `;

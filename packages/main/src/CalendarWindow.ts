@@ -81,7 +81,6 @@ export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
       window.show();
       const {x, y} = calcWindowPosition(bounds);
       window.setPosition(x, y);
-      window.focus();
     }
   }
   return window;
