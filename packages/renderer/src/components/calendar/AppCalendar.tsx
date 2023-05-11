@@ -3,11 +3,12 @@ import React, {useEffect, useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
-import {getCanChi, getFirstDayOfLunarYear} from '../../../../common/src/LunarUtil';
-import {getDateWithoutTime, getNextDay, getToday} from '../../../../common/src/MiscUtil';
+import {getCanChi, getFirstDayOfLunarYear, toSolarDate} from '../../../../common/src/LunarUtil';
+import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
 import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
 import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
 import {Value} from 'react-calendar/dist/esm/shared/types';
+import JumpToDateButton from '/@/components/calendar/JumpToDateButton';
 
 interface AppCalendarProps {
 }
@@ -51,36 +52,50 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   return (
     <div>
       <div
-        className="mt-4 mb-2 w-full flex justify-center space-x-10"
+        className="w-full relative"
       >
-        <AppButton
-          onClick={() => {
-            setYearOffset(offset => offset - 1);
-            handleJumpToLunarYear(yearOffset - 1);
-          }}
-          type="text"
-          tip={`Năm trước ${getCanChi(getFirstDayOfLunarYear(activeStartDate, -1).getFullYear())}`}
-          position="bottom"
-        >
-          <BiChevronLeftCircle size={24} />
-        </AppButton>
 
-        <AppButton
-          onClick={handleJumpToday}
+        <div
+          className="mt-4 mb-2 w-full flex justify-center space-x-10"
         >
-          Hôm nay
-        </AppButton>
-        <AppButton
-          onClick={() => {
-            setYearOffset(offset => offset + 1);
-            handleJumpToLunarYear(yearOffset + 1);
-          }}
-          type="text"
-          tip={`Năm tới ${getCanChi(getFirstDayOfLunarYear(activeStartDate, 1).getFullYear())}`}
-          position="bottom"
+          <AppButton
+            onClick={() => {
+              setYearOffset(offset => offset - 1);
+              handleJumpToLunarYear(yearOffset - 1);
+            }}
+            type="text"
+            tip={`Năm trước ${getCanChi(getFirstDayOfLunarYear(activeStartDate, -1).getFullYear())}`}
+            position="bottom"
+          >
+            <BiChevronLeftCircle size={24} />
+          </AppButton>
+
+          <AppButton
+            onClick={handleJumpToday}
+          >
+            Hôm nay
+          </AppButton>
+          <AppButton
+            onClick={() => {
+              setYearOffset(offset => offset + 1);
+              handleJumpToLunarYear(yearOffset + 1);
+            }}
+            type="text"
+            tip={`Năm tới ${getCanChi(getFirstDayOfLunarYear(activeStartDate, 1).getFullYear())}`}
+            position="bottom"
+          >
+            <BiChevronRightCircle size={24} />
+          </AppButton>
+        </div>
+        <span
+          className="absolute top-1.5 right-3"
         >
-          <BiChevronRightCircle size={24} />
-        </AppButton>
+          <JumpToDateButton onJump={(lunarDate) => {
+            const date = toSolarDate(lunarDate, getTimeZone());
+            setActiveStartDate(date);
+            setCalendarValue(date);
+          }} />
+        </span>
       </div>
 
       <StyledCalendar

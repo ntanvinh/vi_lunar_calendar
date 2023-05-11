@@ -347,3 +347,26 @@ export function getFirstDayOfLunarYear(from: Date, offset: number) {
     isLeapMonth: false,
   }, timeZone);
 }
+
+export function parseLunarDate(str: string): LunarDate | undefined {
+  const parts = str.split('/');
+  if (parts.length !== 3) {
+    return;
+  }
+  const day = parseInt(parts[0]);
+  const isLeapMonth = parts[1].endsWith('*');
+  const month = isLeapMonth ? parseInt(parts[1].replace('*', '')) : parseInt(parts[1]);
+  const year = parseInt(parts[2]);
+  if (isNaN(day) || isNaN(month) || isNaN(year)) {
+    return;
+  }
+  if (day < 1 || day > 30 || month < 1 || month > 12 || year < 100) {
+    return;
+  }
+  return {
+    lunarDay: day,
+    lunarMonth: month,
+    lunarYear: year,
+    isLeapMonth,
+  };
+}
