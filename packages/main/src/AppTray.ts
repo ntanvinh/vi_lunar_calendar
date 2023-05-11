@@ -4,6 +4,8 @@ import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 import {getCalendarWindow, toggleCalendarWindow} from '/@/CalendarWindow';
+import {log} from 'electron-log';
+import {execPath} from 'process';
 
 let appTray: Tray;
 
@@ -67,12 +69,7 @@ export function showAppTray() {
     appTray = new Tray(icon);
 
     const introductionMenu = Menu.buildFromTemplate([
-      {
-        label: 'Vi Lunar Calendar',
-        type: 'normal',
-        click: () => forceRefreshTray(appTray),
-        toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
-      },
+      {label: 'Vi Lunar Calendar', type: 'normal'},
       {label: `v${app.getVersion()}`, type: 'normal'},
       {
         label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {
@@ -83,8 +80,24 @@ export function showAppTray() {
         },
       },
     ]);
+    const loginSettings = app.getLoginItemSettings();
     const contextMenu = Menu.buildFromTemplate([
-      {label: getLunarDateExpression(currentLunar, true), type: 'normal'},
+      {
+        label: getLunarDateExpression(currentLunar, true),
+        type: 'normal',
+        click: () => forceRefreshTray(appTray),
+        toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
+      },
+      {
+        label: 'Khởi động khi đăng nhập', type: 'checkbox', checked: loginSettings.openAtLogin, click: ({checked}) => {
+          const appPath = execPath;
+          log(`Set login to ${checked}: `, appPath);
+          app.setLoginItemSettings({
+            path: appPath,
+            openAtLogin: checked,
+          });
+        },
+      },
       {label: 'Giới thiệu', type: 'submenu', submenu: introductionMenu},
       {label: 'Thoát', type: 'normal', click: () => app.exit()},
     ]);

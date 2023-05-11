@@ -47,7 +47,7 @@ module.exports = async function() {
       ],
     },
     win: {
-      asar: false,
+      asar: true,
       target: [
         'nsis',
       ],
