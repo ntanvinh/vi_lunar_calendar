@@ -66,6 +66,8 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             handleJumpToLunarYear(yearOffset - 1);
           }}
           type="text"
+          tip="Năm âm lịch trước"
+          position="bottom"
         >
           <BiChevronLeftCircle size={24} />
         </AppButton>
@@ -81,6 +83,8 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             handleJumpToLunarYear(yearOffset + 1);
           }}
           type="text"
+          tip="Năm âm lịch tới"
+          position="bottom"
         >
           <BiChevronRightCircle size={24} />
         </AppButton>

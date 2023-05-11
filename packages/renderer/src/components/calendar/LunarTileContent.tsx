@@ -20,7 +20,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date}) => {
   const fullMoonSize = 16;
   const canChi = getCanChi(lunar.lunarYear);
   return (
-    <Tooltip tip={canChi}>
+    <Tooltip tip={canChi} position="tl">
       {
         isMiddleDay ?
           <div

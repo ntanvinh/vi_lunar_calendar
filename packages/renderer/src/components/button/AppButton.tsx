@@ -1,13 +1,14 @@
 import React, {PropsWithChildren} from 'react';
 import clsx from 'clsx';
+import Tooltip, {TooltipProps} from '/@/components/Tooltip';
 
-interface AppButtonProps {
+interface AppButtonProps extends TooltipProps {
   type?: 'primary' | 'text';
   onClick?: () => void;
 }
 
 const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
-  const {onClick, children, type = 'primary'} = props;
+  const {onClick, children, type = 'primary', tip, position} = props;
 
   return (
     <button
@@ -17,7 +18,14 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
       })}
       onClick={onClick}
     >
-      {children}
+      {
+        tip ?
+          <Tooltip tip={tip} position={position}>
+            {children}
+          </Tooltip>
+          :
+          children
+      }
     </button>
   );
 };
