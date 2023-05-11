@@ -1,7 +1,7 @@
 import {app, Menu, nativeImage, nativeTheme, Tray} from 'electron';
 import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
-import {getTimeZone} from '../../common/src/MiscUtil';
+import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 import {getCalendarWindow, toggleCalendarWindow} from '/@/CalendarWindow';
 
@@ -30,7 +30,7 @@ function getLunarDateExpression(lunar: LunarDate, compact?: boolean) {
     ;
 }
 
-function refreshTray(tray: Tray) {
+function forceRefreshTray(tray: Tray) {
   const currentLunar = toLunarDate(new Date(), getTimeZone());
   const icon = getLunarDateIcon(currentLunar.lunarDay);
   tray.setImage(icon);
@@ -38,26 +38,26 @@ function refreshTray(tray: Tray) {
 }
 
 let timerId: NodeJS.Timeout | undefined;
+let currentDay: Date = getToday();
 
 function dynamicRefreshTray(tray: Tray) {
   if (timerId) {
     clearTimeout(timerId);
   }
   const now = new Date();
-  let timeout;
-  if (now.getHours() === 23 && now.getMinutes() > 29) {
-    timeout = 1000; // increase refresh rate at end of day
-  } else {
-    // reduce refresh rate for energy saving
-    timeout = 30 * 60 * 1000;
-  }
-  // console.log(`refresh tray, timeout ${timeout / 1000}s`);
+  const nextDay = getNextDay(currentDay);
+  if (now.getTime() >= nextDay.getTime()) {
+    currentDay = nextDay;
+    forceRefreshTray(tray);
 
-  refreshTray(tray);
+  } else if (now.getTime() <= currentDay.getTime()) {
+    currentDay = getDateWithoutTime(now);
+    forceRefreshTray(tray);
+  }
 
   timerId = setTimeout(() => {
     dynamicRefreshTray(tray);
-  }, timeout);
+  }, 1000);
 }
 
 export function showAppTray() {
@@ -70,7 +70,7 @@ export function showAppTray() {
       {
         label: 'Vi Lunar Calendar',
         type: 'normal',
-        click: () => dynamicRefreshTray(appTray),
+        click: () => forceRefreshTray(appTray),
         toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
       },
       {label: `v${app.getVersion()}`, type: 'normal'},
@@ -89,7 +89,7 @@ export function showAppTray() {
       {label: 'Thoát', type: 'normal', click: () => app.exit()},
     ]);
 
-    nativeTheme.on('updated', () => refreshTray(appTray));
+    nativeTheme.on('updated', () => forceRefreshTray(appTray));
     appTray.setToolTip(getLunarDateExpression(currentLunar));
 
     // set events
