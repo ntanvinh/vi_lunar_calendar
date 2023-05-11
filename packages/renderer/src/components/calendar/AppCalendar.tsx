@@ -15,9 +15,8 @@ interface AppCalendarProps {
 
 const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [activeStartDate, setActiveStartDate] = useState<Date>(getToday());
-  const [yearOffset, setYearOffset] = useState(0);
-  const [currentDay, setCurrentDay] = useState<Date>(getToday());
   const [calendarValue, setCalendarValue] = useState<Value>(getToday());
+  const [currentDay, setCurrentDay] = useState<Date>(getToday());
 
   useEffect(() => {
     const timerId = setInterval(() => {
@@ -44,7 +43,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   }
 
   function handleJumpToLunarYear(yearOffset: number) {
-    const firstDayOfLunarYear = getFirstDayOfLunarYear(new Date(), yearOffset);
+    const firstDayOfLunarYear = getFirstDayOfLunarYear(activeStartDate, yearOffset);
     setActiveStartDate(firstDayOfLunarYear);
     setCalendarValue(firstDayOfLunarYear);
   }
@@ -60,8 +59,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
         >
           <AppButton
             onClick={() => {
-              setYearOffset(offset => offset - 1);
-              handleJumpToLunarYear(yearOffset - 1);
+              handleJumpToLunarYear(-1);
             }}
             type="text"
             tip={`Năm trước ${getCanChi(getFirstDayOfLunarYear(activeStartDate, -1).getFullYear())}`}
@@ -77,8 +75,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
           </AppButton>
           <AppButton
             onClick={() => {
-              setYearOffset(offset => offset + 1);
-              handleJumpToLunarYear(yearOffset + 1);
+              handleJumpToLunarYear(1);
             }}
             type="text"
             tip={`Năm tới ${getCanChi(getFirstDayOfLunarYear(activeStartDate, 1).getFullYear())}`}
