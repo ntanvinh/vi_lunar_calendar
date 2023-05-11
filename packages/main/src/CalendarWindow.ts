@@ -1,7 +1,9 @@
 import {app, BrowserWindow} from 'electron';
+import * as path from 'path';
 import {join} from 'path';
-import {URL} from 'url';
+import * as url from 'url';
 import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
+import {log} from 'electron-log';
 
 function calcWindowPosition(bounds: Electron.Rectangle) {
   return {
@@ -42,6 +44,7 @@ async function createWindow(bounds: Electron.Rectangle) {
    */
   browserWindow.on('ready-to-show', () => {
     browserWindow?.show();
+    browserWindow?.setSkipTaskbar(true);
 
     // if (import.meta.env.DEV) {
     //   browserWindow?.webContents.openDevTools({mode: 'detach'});
@@ -53,11 +56,16 @@ async function createWindow(bounds: Electron.Rectangle) {
    * Vite dev server for development.
    * `file://../renderer/index.html` for production and test.
    */
+  const filePath = path.join(__dirname, '../../renderer/dist/index.html');
+  const fileUrl = url.pathToFileURL(filePath).toString();
+
   const pageUrl =
     import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
       ? import.meta.env.VITE_DEV_SERVER_URL
-      : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
+      : fileUrl;
 
+  log('meta.env', import.meta.env);
+  log('CalendarWindow url', pageUrl);
   await browserWindow.loadURL(pageUrl);
 
   return browserWindow;

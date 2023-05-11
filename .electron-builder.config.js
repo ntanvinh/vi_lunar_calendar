@@ -13,12 +13,11 @@ module.exports = async function() {
   return {
     productName: 'Vi Lunar Calendar',
     executableName: 'Vi Lunar Calendar',
-    asar: true,
     appId: 'me.ntanvinh.vi_lunar_calendar',
-    compression: 'maximum',
-    asarUnpack: '**\\*.{node,dll}',
     files: ['packages/**/dist/**', 'packages/**/assets/**'],
     mac: {
+      asar: true,
+      asarUnpack: '**\\*.{node,dll}',
       type: 'distribution',
       category: 'Utilities',
       electronLanguages: ['en', 'vi'],
@@ -48,9 +47,16 @@ module.exports = async function() {
       ],
     },
     win: {
+      asar: false,
       target: [
         'nsis',
       ],
+      defaultArch: 'x64',
+    },
+    nsis: {
+      oneClick: false,
+      allowToChangeInstallationDirectory: true,
+      deleteAppDataOnUninstall: true,
     },
     linux: {
       target: [

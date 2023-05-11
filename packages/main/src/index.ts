@@ -1,6 +1,7 @@
 import {app} from 'electron';
 import './SecurityRestrictions';
 import {showAppTray} from './AppTray';
+import {isMacOS} from '/@/MainUtil';
 
 /**
  * Prevent electron from running multiple instances.
@@ -28,10 +29,13 @@ app.on('window-all-closed', () => {
 /**
  * Create the application window when the background process is ready.
  */
-app.dock.hide();
 app
   .whenReady()
   .then(async () => {
+
+    if (isMacOS) {
+      app.dock.hide();
+    }
     showAppTray();
   })
   .catch(e => console.error('Failed create window:', e));
