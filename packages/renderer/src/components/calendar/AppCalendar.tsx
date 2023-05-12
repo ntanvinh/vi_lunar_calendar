@@ -4,11 +4,12 @@ import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
 import {getCanChi, getFirstDayOfLunarYear, toSolarDate} from '../../../../common/src/LunarUtil';
-import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
+import {getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
 import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
 import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
 import {Value} from 'react-calendar/dist/esm/shared/types';
 import JumpToDateButton from '/@/components/calendar/JumpToDateButton';
+import {twRgb} from '../../../../common/src/TailwindUtil';
 
 interface AppCalendarProps {
 }
@@ -24,11 +25,12 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 
       // if change date then refresh component
       const now = new Date();
-      if (now.getTime() >= nextDay.getTime()) {
-        setCurrentDay(nextDay);
-
-      } else if (now.getTime() <= currentDay.getTime()) {
-        setCurrentDay(getDateWithoutTime(now));
+      if (now.getTime() >= nextDay.getTime()
+        || now.getTime() <= currentDay.getTime()
+      ) {
+        setCurrentDay(now);
+        setActiveStartDate(now);
+        setCalendarValue(now);
       }
     }, 1000);
 
@@ -120,11 +122,11 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 export default AppCalendar;
 
 const StyledCalendar = styled(Calendar).attrs({
-  $todayBgColor: '#eab308',
-  $todayBgColor_Hover: '#facc15',
+  $todayBgColor: twRgb('yellow-500'),
+  $todayBgColor_Hover: twRgb('yellow-400'),
   $weekendText: '#d10000',
-  $activeBgColor: '#1d4ed8',
-  $activeBgColor_Hover: '#2563eb',
+  $activeBgColor: twRgb('blue-700'),
+  $activeBgColor_Hover: twRgb('blue-600'),
 })`
   button:focus {
     outline: none;

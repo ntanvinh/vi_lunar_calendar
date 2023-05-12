@@ -48,11 +48,9 @@ function dynamicRefreshTray(tray: Tray) {
   }
   const now = new Date();
   const nextDay = getNextDay(currentDay);
-  if (now.getTime() >= nextDay.getTime()) {
-    currentDay = nextDay;
-    forceRefreshTray(tray);
-
-  } else if (now.getTime() <= currentDay.getTime()) {
+  if (now.getTime() >= nextDay.getTime()
+    || now.getTime() <= currentDay.getTime()
+  ) {
     currentDay = getDateWithoutTime(now);
     forceRefreshTray(tray);
   }
