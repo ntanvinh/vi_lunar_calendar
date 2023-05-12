@@ -48,13 +48,19 @@ const JumpToDateButton: React.FC<JumpToDateButtonProps> = ({onJump}) => {
         <MdDateRange size={20} />
       </AppButton>
       <div
-        className={clsx('absolute transition top-8 right-2.5 bg-black/20 rounded-md', {
+        className={clsx('absolute right-0 transition bg-black/20 rounded-sm', {
           'scale-0': !isDialogVisible,
           'scale-100': isDialogVisible,
         })}
       >
         <form onSubmit={e => handleSubmit(e)}>
           <input
+            className={clsx('w-32 text-sm px-2 py-1 text-gray-800 shadow-glow-sm outline-none border-2 rounded-sm', {
+              'shadow-sky-700 focus:shadow-sky-600': !error,
+              'shadow-red-700 focus:shadow-red-600': !!error,
+            })}
+            placeholder="vd 1/12/2022"
+
             ref={jumpDateRef}
             type="text"
             autoFocus
@@ -66,11 +72,6 @@ const JumpToDateButton: React.FC<JumpToDateButtonProps> = ({onJump}) => {
               }
             }}
             name="jumpDateStr"
-            className={clsx('text-sm px-2 py-1 text-gray-800 outline-none border-2 rounded-md', {
-              'border-blue-500 focus:border-blue-600': !error,
-              'border-red-500 focus:border-red-600': !!error,
-            })}
-            placeholder="ví dụ 1/12/2022"
           />
           {
             error ?

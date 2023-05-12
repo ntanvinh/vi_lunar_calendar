@@ -9,4 +9,14 @@ module.exports = {
   corePlugins: {
     preflight: true,
   },
+  theme: {
+    extend: {
+      boxShadow: {
+        'glow-sm': '0px 0px 6px 1px rgba(0, 0, 0, 0.1)',
+        'glow-md': '0px 0px 10px 3px rgba(0, 0, 0, 0.1)',
+        'glow-lg': '0px 0px 15px 6px rgba(0, 0, 0, 0.1)',
+      },
+    },
+  },
+
 };
