@@ -32,12 +32,21 @@ export class NotificationManager {
   }
 
   public static sendTestNotification(event: CalendarEvent) {
-    const today = new Date();
-    const timeZone = getTimeZone();
-    const daysRemaining = this.getDaysRemaining(event, today, timeZone);
-    
-    if (daysRemaining !== null) {
-      this.sendNotification(event, daysRemaining);
+    try {
+      console.log('[NotificationManager] Sending test notification for event:', event.title);
+      const today = new Date();
+      const timeZone = getTimeZone();
+      const daysRemaining = this.getDaysRemaining(event, today, timeZone);
+      console.log('[NotificationManager] Days remaining:', daysRemaining);
+      
+      if (daysRemaining !== null) {
+        this.sendNotification(event, daysRemaining);
+      } else {
+        console.warn('[NotificationManager] Could not calculate days remaining');
+      }
+    } catch (e) {
+      console.error('[NotificationManager] Error sending test notification:', e);
+      throw e;
     }
   }
 
@@ -164,17 +173,27 @@ export class NotificationManager {
       body = `Sự kiện "${event.title}" sẽ diễn ra trong ${daysRemaining} ngày nữa.`;
     }
 
+    console.log('[NotificationManager] Creating notification:', { title: 'Nhắc nhở sự kiện', body });
+
     const notification = new Notification({
       title: 'Nhắc nhở sự kiện',
       body: body,
       silent: false,
+      urgency: 'critical', // Force notification to be more visible and persistent
+      timeoutType: 'never', // Do not auto-close (if supported)
     });
     
     this.activeNotifications.add(notification);
+    console.log('[NotificationManager] Active notifications count:', this.activeNotifications.size);
 
     notification.show();
     
+    notification.on('show', () => {
+      console.log('[NotificationManager] Notification shown');
+    });
+
     notification.on('click', () => {
+      console.log('[NotificationManager] Notification clicked');
       // Focus the app window if possible
       // We might need reference to the main window
       this.activeNotifications.delete(notification);

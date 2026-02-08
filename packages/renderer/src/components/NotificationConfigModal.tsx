@@ -15,6 +15,7 @@ const NotificationConfigModal: React.FC<NotificationConfigModalProps> = ({event,
   const [enabled, setEnabled] = useState(event.notification?.enabled ?? false);
   const [notifyBefore, setNotifyBefore] = useState(event.notification?.notifyBefore ?? 1);
   const [continuous, setContinuous] = useState(event.notification?.continuous ?? false);
+  const [testStatus, setTestStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const handleSave = () => {
     onSave({
@@ -28,17 +29,30 @@ const NotificationConfigModal: React.FC<NotificationConfigModalProps> = ({event,
   };
 
   const handleTest = async () => {
-    const tempEvent = {
-      ...event,
-      notification: {
-        enabled,
-        notifyBefore,
-        continuous,
-      },
-    };
-    const api = (window as any).eventManager;
-    if (api && api.testNotification) {
-      await api.testNotification(tempEvent);
+    if (testStatus === 'sending') return;
+    
+    setTestStatus('sending');
+    try {
+      const tempEvent = {
+        ...event,
+        notification: {
+          enabled,
+          notifyBefore,
+          continuous,
+        },
+      };
+      const api = (window as any).eventManager;
+      if (api && api.testNotification) {
+        await api.testNotification(tempEvent);
+        setTestStatus('sent');
+        setTimeout(() => setTestStatus('idle'), 2000);
+      } else {
+        throw new Error('Event Manager API not available');
+      }
+    } catch (e) {
+      console.error('Test notification failed:', e);
+      setTestStatus('error');
+      setTimeout(() => setTestStatus('idle'), 3000);
     }
   };
 
@@ -103,8 +117,24 @@ const NotificationConfigModal: React.FC<NotificationConfigModalProps> = ({event,
         </div>
 
         <div className="flex justify-between mt-8 pt-4 border-t border-gray-100 dark:border-gray-800">
-          <AppButton onClick={handleTest} type="text" className="!text-[#007AFF] hover:!bg-blue-50 dark:hover:!bg-blue-900/20 font-medium flex items-center gap-2" tip="Gửi thông báo thử nghiệm">
-            <BiSend /> Test
+          <AppButton 
+            onClick={handleTest} 
+            type="text" 
+            className={clsx("!text-[#007AFF] hover:!bg-blue-50 dark:hover:!bg-blue-900/20 font-medium flex items-center gap-2", {
+              '!text-green-600': testStatus === 'sent',
+              '!text-red-600': testStatus === 'error',
+              'opacity-70 cursor-wait': testStatus === 'sending'
+            })}
+          >
+            {testStatus === 'sending' && <span className="animate-spin">⏳</span>}
+            {testStatus === 'sent' && <BiSend />}
+            {testStatus === 'error' && <span>⚠️</span>}
+            {testStatus === 'idle' && <BiSend />}
+            
+            {testStatus === 'idle' && 'Test'}
+            {testStatus === 'sending' && 'Đang gửi...'}
+            {testStatus === 'sent' && 'Đã gửi!'}
+            {testStatus === 'error' && 'Lỗi!'}
           </AppButton>
           <div className="flex gap-3">
             <AppButton onClick={onClose} type="text" className="!bg-gray-100 dark:!bg-gray-800 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-gray-700 font-medium">

@@ -35,10 +35,22 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
-
+    // Force set app name for macOS notifications
     if (isMacOS) {
+      app.setName('V Lunar Calendar');
+    }
+
+    // Set App ID for Windows and Linux
+    if (process.platform === 'win32') {
+      app.setAppUserModelId('me.ntanvinh.vi_lunar_calendar');
+    }
+
+    // On macOS, in development mode, hiding the dock might prevent notifications from showing
+    // because the app is not signed. We only hide the dock in production.
+    if (isMacOS && import.meta.env.PROD) {
       app.dock.hide();
     }
+    
     ThemeManager.init();
     EventManager.init();
     NotificationManager.init();
