@@ -165,33 +165,33 @@ export default function EventManagement() {
             <div className="flex gap-2">
               <button
                 onClick={handleImport}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600"
                 title="Nhập dữ liệu từ file CSV"
               >
-                <MdFileUpload /> Nhập CSV
+                <MdFileUpload size={15} /> Nhập CSV
               </button>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600"
                 title="Xuất dữ liệu ra file CSV"
               >
-                <MdFileDownload /> Xuất CSV
+                <MdFileDownload size={15} /> Xuất CSV
               </button>
-              <div className="w-px bg-gray-300 dark:bg-slate-600 mx-1"></div>
+              <div className="w-px bg-gray-300 dark:bg-slate-600 mx-1 h-6 self-center"></div>
               <button
                 onClick={handleResetDefaults}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded transition"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600"
               >
-                <MdRefresh /> Khôi phục mặc định
+                <MdRefresh size={15} /> Khôi phục
               </button>
               <button
                 onClick={() => {
                   setShowAddForm(true);
                   setEditForm({type: 'solar', isImportant: false});
                 }}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700"
               >
-                <MdAdd /> Thêm mới
+                <MdAdd size={15} /> Thêm mới
               </button>
             </div>
           </div>
@@ -327,9 +327,9 @@ export default function EventManagement() {
                         />
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => handleSave(editForm)} className="text-green-600 hover:text-green-700"><MdCheck size={18} /></button>
-                          <button onClick={cancelEdit} className="text-red-500 hover:text-red-600"><MdClose size={18} /></button>
+                        <div className="flex justify-end gap-1">
+                          <button onClick={() => handleSave(editForm)} className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"><MdCheck size={16} /></button>
+                          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"><MdClose size={16} /></button>
                         </div>
                       </td>
                     </>
@@ -350,9 +350,9 @@ export default function EventManagement() {
                         {event.isImportant && <span className="text-red-500">★</span>}
                       </td>
                       <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => startEdit(event)} className="text-gray-500 hover:text-blue-600 p-1"><MdEdit size={16} /></button>
-                          <button onClick={() => handleDelete(event.id)} className="text-gray-500 hover:text-red-600 p-1"><MdDelete size={16} /></button>
+                        <div className="flex justify-end gap-1">
+                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"><MdEdit size={16} /></button>
+                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-red-600 transition-colors"><MdDelete size={16} /></button>
                         </div>
                       </td>
                     </>
