@@ -276,17 +276,22 @@ export default function EventManagement() {
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-              {showFilters && (
-                <tr className="bg-gray-50/50 dark:bg-slate-700/30">
-                  <td className="px-4 py-2">
+              <tr className={clsx('transition-all duration-300 ease-in-out border-b-0', {
+                'bg-gray-50/50 dark:bg-slate-700/30': showFilters,
+                'bg-transparent': !showFilters,
+              })}>
+                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')}>
+                  <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <input
                       className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
                       placeholder="Tìm kiếm..."
                       value={searchText}
                       onChange={e => setSearchText(e.target.value)}
                     />
-                  </td>
-                  <td className="px-4 py-2">
+                  </div>
+                </td>
+                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')}>
+                  <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <select
                       className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
                       value={filterType}
@@ -296,9 +301,11 @@ export default function EventManagement() {
                       <option value="solar">Dương lịch</option>
                       <option value="lunar">Âm lịch</option>
                     </select>
-                  </td>
-                  <td className="px-4 py-2" colSpan={2}></td>
-                  <td className="px-4 py-2 text-center">
+                  </div>
+                </td>
+                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')} colSpan={2}></td>
+                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none text-center')}>
+                  <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <select
                       className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
                       value={filterImportant}
@@ -308,10 +315,10 @@ export default function EventManagement() {
                       <option value="true">Có</option>
                       <option value="false">Không</option>
                     </select>
-                  </td>
-                  <td className="px-4 py-2"></td>
-                </tr>
-              )}
+                  </div>
+                </td>
+                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')}></td>
+              </tr>
               {showAddForm && (
                 <tr className="bg-blue-50/50 dark:bg-blue-900/10">
                   <td className="px-4 py-3">
