@@ -209,22 +209,22 @@ export default function EventManagement() {
             <div className="flex gap-2">
               <button
                 onClick={handleImport}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
                 title="Nhập dữ liệu từ file CSV"
               >
                 <MdFileUpload size={15} /> Nhập CSV
               </button>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
                 title="Xuất dữ liệu ra file CSV"
               >
                 <MdFileDownload size={15} /> Xuất CSV
               </button>
-              <div className="w-px bg-gray-300 dark:bg-slate-600 mx-1 h-6 self-center"></div>
+              <div className="w-px bg-gray-300 dark:bg-white/10 mx-1 h-6 self-center"></div>
               <button
                 onClick={handleResetDefaults}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-600"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
               >
                 <MdRefresh size={15} /> Khôi phục
               </button>
@@ -260,16 +260,16 @@ export default function EventManagement() {
 
       <div className="flex-1 overflow-hidden px-6 pb-6 no-drag-region flex flex-col">
         <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col min-h-0">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-y-auto">
+          <div className="bg-white dark:bg-[#1e1e1e] rounded-xl shadow-sm border border-gray-200 dark:border-white/10 overflow-y-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-              <tr className="text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 shadow-sm">
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold first:rounded-tl-xl">
+              <tr className="text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-white/10 shadow-sm">
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold first:rounded-tl-xl">
                   <div className="flex items-center gap-2">
                     Tên sự kiện
                     <button 
                       onClick={() => setShowFilters(!showFilters)}
-                      className={clsx('p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors', {
+                      className={clsx('p-1 rounded hover:bg-gray-200 dark:hover:bg-white/10 transition-colors', {
                         'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': showFilters || searchText || filterType !== 'all' || filterImportant !== 'all',
                       })}
                       title="Lọc sự kiện"
@@ -278,22 +278,22 @@ export default function EventManagement() {
                     </button>
                   </div>
                 </th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-32">Loại lịch</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24">Ngày</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24">Tháng</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24 text-center">Quan trọng</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24 text-right last:rounded-tr-xl">Thao tác</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-32">Loại lịch</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24">Ngày</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24">Tháng</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 text-center">Quan trọng</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 text-right last:rounded-tr-xl">Thao tác</th>
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               <tr className={clsx('transition-all duration-300 ease-in-out border-b-0 overflow-hidden', {
-                'bg-gray-50/50 dark:bg-slate-700/30': showFilters,
+                'bg-gray-50/50 dark:bg-[#2c2c2e]': showFilters,
                 'bg-transparent': !showFilters,
               })}>
                 <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')}>
                   <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <input
-                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
+                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1e1e1e] focus:outline-none focus:border-blue-500"
                       placeholder="Tìm kiếm..."
                       value={searchText}
                       onChange={e => setSearchText(e.target.value)}
@@ -303,7 +303,7 @@ export default function EventManagement() {
                 <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')}>
                   <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <select
-                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
+                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1e1e1e] focus:outline-none focus:border-blue-500"
                       value={filterType}
                       onChange={e => setFilterType(e.target.value as any)}
                     >
@@ -317,7 +317,7 @@ export default function EventManagement() {
                 <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none text-center')}>
                   <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <select
-                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
+                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1e1e1e] focus:outline-none focus:border-blue-500"
                       value={filterImportant}
                       onChange={e => setFilterImportant(e.target.value as any)}
                     >
@@ -383,7 +383,7 @@ export default function EventManagement() {
               )}
 
               {filteredEvents.map(event => (
-                <tr key={event.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors group">
+                <tr key={event.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                   {isEditing === event.id ? (
                     <>
                       <td className="px-4 py-3">
