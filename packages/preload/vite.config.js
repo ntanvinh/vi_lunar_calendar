@@ -1,5 +1,4 @@
 import {chrome} from '../../.electron-vendors.cache.json';
-import {preload} from 'unplugin-auto-expose';
 import {join} from 'node:path';
 import {injectAppVersion} from '../../plugins/inject-app-version-plugin.mjs';
 import importCommonPlugin from '../../plugins/import-common-plugin';
@@ -35,7 +34,6 @@ const config = {
     reportCompressedSize: false,
   },
   plugins: [
-    preload.vite(),
     importCommonPlugin({
       commonEntry: join(PACKAGE_ROOT, '../common/dist/index.js'),
     }),

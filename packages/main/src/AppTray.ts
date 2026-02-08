@@ -4,6 +4,7 @@ import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 import {getCalendarWindow, toggleCalendarWindow, preloadCalendarWindow} from '/@/CalendarWindow';
+import {createEventWindow} from '/@/EventWindow';
 import {log} from 'electron-log';
 import {execPath} from 'process';
 import {ThemeManager} from './ThemeManager';
@@ -116,6 +117,11 @@ export function showAppTray() {
           label: 'Giao diện',
           type: 'submenu',
           submenu: themeMenu,
+        },
+        {
+          label: 'Quản lý ngày lễ',
+          type: 'normal',
+          click: () => createEventWindow(),
         },
         {
           label: 'Khởi động khi đăng nhập', type: 'checkbox', checked: loginSettings.openAtLogin, click: ({checked}) => {
