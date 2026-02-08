@@ -214,9 +214,9 @@ export default function EventManagement() {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto px-6 pb-6 no-drag-region">
-        <div className="max-w-4xl mx-auto w-full">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+      <div className="flex-1 overflow-hidden px-6 pb-6 no-drag-region flex flex-col">
+        <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col min-h-0">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-y-auto">
             <table className="w-full text-left border-collapse">
               <thead>
               <tr className="text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 shadow-sm">

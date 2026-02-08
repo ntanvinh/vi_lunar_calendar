@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
 import {getCanChi, getFirstDayOfLunarYear, toSolarDate} from '../../../../common/src/LunarUtil';
 import {getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
+import type {CalendarEvent} from '../../../../common/src/EventData';
 import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
 import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
 import {Value} from 'react-calendar/dist/esm/shared/types';
@@ -18,6 +19,22 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [activeStartDate, setActiveStartDate] = useState<Date>(getToday());
   const [calendarValue, setCalendarValue] = useState<Value>(getToday());
   const [currentDay, setCurrentDay] = useState<Date>(getToday());
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      const api = (window as any).eventManager;
+      if (api) {
+        try {
+          const data = await api.getEvents();
+          setEvents(data);
+        } catch (e) {
+          console.error('Failed to load events in calendar', e);
+        }
+      }
+    };
+    loadEvents();
+  }, []);
 
   useEffect(() => {
     const timerId = setInterval(() => {
@@ -108,7 +125,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             return;
           }
           return (
-            <LunarTileContent date={date} />
+            <LunarTileContent date={date} events={events} />
           );
         }}
       />
