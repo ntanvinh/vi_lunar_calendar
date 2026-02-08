@@ -6,4 +6,6 @@ export const eventManager = {
   saveEvent: (event: Omit<CalendarEvent, 'id'> & { id?: string }): Promise<CalendarEvent[]> => ipcRenderer.invoke('save-event', event),
   deleteEvent: (id: string): Promise<CalendarEvent[]> => ipcRenderer.invoke('delete-event', id),
   resetDefaultEvents: (): Promise<CalendarEvent[]> => ipcRenderer.invoke('reset-default-events'),
+  exportEventsCSV: (): Promise<boolean> => ipcRenderer.invoke('export-events-csv'),
+  importEventsCSV: (): Promise<CalendarEvent[] | null> => ipcRenderer.invoke('import-events-csv'),
 };

@@ -6,6 +6,8 @@ import {MdAdd} from '@react-icons/all-files/md/MdAdd';
 import {MdRefresh} from '@react-icons/all-files/md/MdRefresh';
 import {MdCheck} from '@react-icons/all-files/md/MdCheck';
 import {MdClose} from '@react-icons/all-files/md/MdClose';
+import {MdFileDownload} from '@react-icons/all-files/md/MdFileDownload';
+import {MdFileUpload} from '@react-icons/all-files/md/MdFileUpload';
 import clsx from 'clsx';
 
 export default function EventManagement() {
@@ -13,6 +15,18 @@ export default function EventManagement() {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<CalendarEvent>>({});
   const [showAddForm, setShowAddForm] = useState(false);
+  const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setNotification({message, type});
+  };
 
   const getEventManager = () => {
     return (window as any).eventManager;
@@ -49,7 +63,7 @@ export default function EventManagement() {
 
   const handleSave = async (event: Partial<CalendarEvent>) => {
     if (!event.title || !event.day || !event.month) {
-      alert('Vui lòng điền đầy đủ thông tin');
+      showNotification('Vui lòng điền đầy đủ thông tin', 'error');
       return;
     }
     const api = getEventManager();
@@ -59,6 +73,7 @@ export default function EventManagement() {
       setIsEditing(null);
       setShowAddForm(false);
       setEditForm({});
+      showNotification('Lưu sự kiện thành công', 'success');
     }
   };
 
@@ -84,6 +99,40 @@ export default function EventManagement() {
     }
   };
 
+  const handleExport = async () => {
+    const api = getEventManager();
+    if (api) {
+      try {
+        const success = await api.exportEventsCSV();
+        if (success) {
+          showNotification('Xuất file thành công!', 'success');
+        }
+      } catch (e) {
+        console.error('Export failed', e);
+        showNotification('Xuất file thất bại', 'error');
+      }
+    }
+  };
+
+  const handleImport = async () => {
+    if (!confirm('Hành động này sẽ xóa toàn bộ dữ liệu sự kiện hiện tại và thay thế bằng dữ liệu từ file. Bạn có chắc chắn muốn tiếp tục?')) {
+      return;
+    }
+    const api = getEventManager();
+    if (api) {
+      try {
+        const updated = await api.importEventsCSV();
+        if (updated) {
+          setEvents(updated);
+          showNotification('Nhập file thành công!', 'success');
+        }
+      } catch (e) {
+        console.error('Import failed', e);
+        showNotification('Nhập file thất bại. Vui lòng kiểm tra định dạng file.', 'error');
+      }
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col text-gray-900 dark:text-gray-100 drag-region overflow-hidden">
       <div className="pt-10 px-6 pb-2 shrink-0">
@@ -91,6 +140,21 @@ export default function EventManagement() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Quản lý Ngày lễ & Sự kiện</h1>
             <div className="flex gap-2">
+              <button
+                onClick={handleImport}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition shadow-sm"
+                title="Nhập dữ liệu từ file CSV"
+              >
+                <MdFileUpload /> Nhập CSV
+              </button>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded transition shadow-sm"
+                title="Xuất dữ liệu ra file CSV"
+              >
+                <MdFileDownload /> Xuất CSV
+              </button>
+              <div className="w-px bg-gray-300 dark:bg-slate-600 mx-1"></div>
               <button
                 onClick={handleResetDefaults}
                 className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded transition"
@@ -111,18 +175,31 @@ export default function EventManagement() {
         </div>
       </div>
 
+      {notification && (
+        <div className={clsx(
+          'fixed top-12 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg z-50 text-white transition-all duration-300',
+          {
+            'bg-green-600': notification.type === 'success',
+            'bg-red-600': notification.type === 'error',
+            'bg-blue-600': notification.type === 'info',
+          },
+        )}>
+          {notification.message}
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto px-6 pb-6 no-drag-region">
         <div className="max-w-4xl mx-auto w-full">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
             <table className="w-full text-left border-collapse">
               <thead>
-              <tr className="bg-gray-50 dark:bg-slate-700/50 text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700">
-                <th className="px-4 py-3 font-semibold">Tên sự kiện</th>
-                <th className="px-4 py-3 font-semibold w-32">Loại lịch</th>
-                <th className="px-4 py-3 font-semibold w-24">Ngày</th>
-                <th className="px-4 py-3 font-semibold w-24">Tháng</th>
-                <th className="px-4 py-3 font-semibold w-24 text-center">Quan trọng</th>
-                <th className="px-4 py-3 font-semibold w-24 text-right">Thao tác</th>
+              <tr className="text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 shadow-sm">
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold first:rounded-tl-xl">Tên sự kiện</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-32">Loại lịch</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24">Ngày</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24">Tháng</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24 text-center">Quan trọng</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24 text-right last:rounded-tr-xl">Thao tác</th>
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
