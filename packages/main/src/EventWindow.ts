@@ -1,6 +1,6 @@
 import {BrowserWindow, app, Menu} from 'electron';
 import {join} from 'path';
-import {isMacOS} from '/@/MainUtil';
+import {isMacOS, fadeInWindow} from '/@/MainUtil';
 
 let eventWindow: BrowserWindow | null = null;
 
@@ -26,7 +26,7 @@ export async function createEventWindow() {
     vibrancy: isMacOS ? 'popover' : undefined,
     visualEffectState: 'active',
     backgroundColor: isMacOS ? '#00000000' : '#ffffff',
-    show: true, // Force show for debugging
+    show: false,
   });
 
   /**
@@ -62,7 +62,7 @@ export async function createEventWindow() {
 
   eventWindow.on('ready-to-show', () => {
     console.log('Event Window ready to show');
-    eventWindow?.show();
+    fadeInWindow(eventWindow);
   });
 
   // Open devtools in dev mode

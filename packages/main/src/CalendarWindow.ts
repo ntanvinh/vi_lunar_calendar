@@ -4,7 +4,7 @@ import {join} from 'path';
 import * as url from 'url';
 import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
 import {log} from 'electron-log';
-import {isMacOS} from '/@/MainUtil';
+import {isMacOS, fadeInWindow} from '/@/MainUtil';
 
 let calendarWindow: BrowserWindow | null = null;
 
@@ -51,7 +51,7 @@ async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
    */
   calendarWindow.on('ready-to-show', () => {
     if (showWhenReady) {
-      calendarWindow?.show();
+      fadeInWindow(calendarWindow);
     }
     calendarWindow?.setSkipTaskbar(true);
 
@@ -120,7 +120,7 @@ export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
     } else {
       const {x, y} = calcWindowPosition(bounds);
       calendarWindow.setPosition(x, y);
-      calendarWindow.show();
+      fadeInWindow(calendarWindow);
     }
   }
   return calendarWindow;
@@ -132,7 +132,7 @@ export async function showCalendarWindow(bounds: Electron.Rectangle) {
   } else {
     const {x, y} = calcWindowPosition(bounds);
     calendarWindow.setPosition(x, y);
-    calendarWindow.show();
+    fadeInWindow(calendarWindow);
   }
   return calendarWindow;
 }

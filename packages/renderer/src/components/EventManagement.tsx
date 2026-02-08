@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import type {CalendarEvent} from '../../../common/src/EventData';
+import {DEFAULT_EVENTS, type CalendarEvent} from '../../../common/src/EventData';
 import {MdDelete} from '@react-icons/all-files/md/MdDelete';
 import {MdEdit} from '@react-icons/all-files/md/MdEdit';
 import {MdAdd} from '@react-icons/all-files/md/MdAdd';
@@ -12,6 +12,7 @@ import {MdInfo} from '@react-icons/all-files/md/MdInfo';
 import {MdError} from '@react-icons/all-files/md/MdError';
 import {MdCheckCircle} from '@react-icons/all-files/md/MdCheckCircle';
 import {MdFilterList} from '@react-icons/all-files/md/MdFilterList';
+import {MdPerson} from '@react-icons/all-files/md/MdPerson';
 import clsx from 'clsx';
 
 function removeAccents(str: string) {
@@ -43,6 +44,15 @@ export default function EventManagement() {
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setNotification({message, type});
+  };
+
+  const isUserEvent = (event: CalendarEvent) => {
+    return !DEFAULT_EVENTS.some(def => 
+      def.title === event.title && 
+      def.day === event.day && 
+      def.month === event.month && 
+      def.type === event.type,
+    );
   };
 
   const getEventManager = () => {
@@ -276,7 +286,7 @@ export default function EventManagement() {
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-              <tr className={clsx('transition-all duration-300 ease-in-out border-b-0', {
+              <tr className={clsx('transition-all duration-300 ease-in-out border-b-0 overflow-hidden', {
                 'bg-gray-50/50 dark:bg-slate-700/30': showFilters,
                 'bg-transparent': !showFilters,
               })}>
@@ -425,7 +435,16 @@ export default function EventManagement() {
                     </>
                   ) : (
                     <>
-                      <td className="px-4 py-3 font-medium">{event.title}</td>
+                      <td className="px-4 py-3 font-medium">
+                        <div className="flex items-center gap-2">
+                          {event.title}
+                          {isUserEvent(event) && (
+                            <span className="text-blue-500" title="Sự kiện người dùng tạo">
+                              <MdPerson size={16} />
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <span className={clsx('px-2 py-0.5 rounded-full text-xs', {
                           'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300': event.type === 'lunar',
