@@ -48,7 +48,7 @@ const JumpToDateButton: React.FC<JumpToDateButtonProps> = ({onJump}) => {
         <MdDateRange size={20} />
       </AppButton>
       <div
-        className={clsx('absolute right-0 transition bg-black/20 rounded-sm', {
+        className={clsx('absolute right-2 top-6 transition bg-black/20 rounded-sm', {
           'scale-0': !isDialogVisible,
           'scale-100': isDialogVisible,
         })}
