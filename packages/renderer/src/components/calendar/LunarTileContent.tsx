@@ -51,7 +51,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
             </div>
             :
             <div
-              className={clsx('mt-0.5 text-[10px] leading-none transition-colors duration-200', {
+              className={clsx('lunar-date-text mt-0.5 text-[10px] leading-none transition-colors duration-200', {
                 'text-gray-500 dark:text-gray-400': !isFirstOrMiddleDay && !hasImportantEvent,
                 'text-red-600 dark:text-red-400 font-semibold': isFirstOrMiddleDay || hasImportantEvent,
                 'scale-105 animate-pulse': isNewYear,

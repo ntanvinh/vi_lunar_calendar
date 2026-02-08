@@ -139,22 +139,22 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 export default AppCalendar;
 
 const StyledCalendar = styled(Calendar).attrs({
-  $todayBgColor: twRgb('yellow-500'),
-  $todayBgColor_Hover: twRgb('yellow-400'),
-  $weekendText: '#d10000',
-  $activeBgColor: twRgb('blue-700'),
-  $activeBgColor_Hover: twRgb('blue-600'),
+  $todayBgColor: '#FF3B30', // macOS Red
+  $todayBgColor_Hover: '#FF453A',
+  $weekendText: '#FF3B30',
+  $activeBgColor: '#007AFF', // macOS Blue
+  $activeBgColor_Hover: '#0062CC',
 })`
   button:focus {
     outline: none;
   }
 
   .react-calendar {
-    width: 350px;
+    width: 380px;
     max-width: 100%;
     color: grey;
-    border: 1px solid #a0a096;
-    font-family: Arial, Helvetica, sans-serif;
+    border: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.125em;
   }
 
@@ -263,13 +263,15 @@ const StyledCalendar = styled(Calendar).attrs({
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    border-radius: 6px;
+    border-radius: 12px;
     max-width: 100%;
-    padding: 8px 4px;
+    padding: 6px 4px 16px 4px;
     background: none;
     text-align: center;
     line-height: 16px;
     overflow: visible !important;
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
 
   .react-calendar__tile > abbr {
@@ -280,19 +282,28 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__tile:disabled {
-    background-color: #f0f0f0;
+    background-color: transparent;
+    opacity: 0.5;
   }
 
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
-    background-color: ${props => props.$activeBgColor_Hover};
-    color: white;
+    background-color: rgba(0, 0, 0, 0.05);
+    color: inherit;
+  }
+  
+  :global(.dark) .react-calendar__tile:enabled:hover,
+  :global(.dark) .react-calendar__tile:enabled:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: inherit;
   }
 
   .react-calendar__tile--now {
     background-color: ${props => props.$todayBgColor};
     color: white;
-    font-weight: bold;
+    font-weight: 500;
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
 
   .react-calendar__tile--now:enabled:hover,
@@ -301,7 +312,10 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__tile--hasActive {
-    background: #006edc;
+    background: ${props => props.$activeBgColor};
+    color: white;
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
 
   .react-calendar__tile--hasActive:enabled:hover,
@@ -312,11 +326,26 @@ const StyledCalendar = styled(Calendar).attrs({
   .react-calendar__tile--active {
     background: ${props => props.$activeBgColor};
     color: white;
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
 
   .react-calendar__tile--active:enabled:hover,
   .react-calendar__tile--active:enabled:focus {
     background: ${props => props.$activeBgColor_Hover};
+  }
+
+  /* macOS-style contrast adjustments */
+  .react-calendar__tile--now .lunar-date-text,
+  .react-calendar__tile--active .lunar-date-text,
+  .react-calendar__tile--hasActive .lunar-date-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .react-calendar__tile--now > abbr,
+  .react-calendar__tile--active > abbr,
+  .react-calendar__tile--hasActive > abbr {
+    color: #ffffff !important;
   }
 
   .react-calendar--selectRange .react-calendar__tile--hover {

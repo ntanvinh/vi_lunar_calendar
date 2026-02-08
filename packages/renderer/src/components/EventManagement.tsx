@@ -16,7 +16,14 @@ import {BiCaretUp} from '@react-icons/all-files/bi/BiCaretUp';
 import {BiCaretDown} from '@react-icons/all-files/bi/BiCaretDown';
 import {BiSort} from '@react-icons/all-files/bi/BiSort';
 import {BiUser} from '@react-icons/all-files/bi/BiUser';
+import {BiBell} from '@react-icons/all-files/bi/BiBell';
+import {BiArrowBack} from '@react-icons/all-files/bi/BiArrowBack';
 import clsx from 'clsx';
+import NotificationConfigModal from './NotificationConfigModal';
+
+interface EventManagementProps {
+  onBack: () => void;
+}
 
 function removeAccents(str: string) {
   return str.normalize('NFD')
@@ -31,6 +38,7 @@ export default function EventManagement() {
   const [editForm, setEditForm] = useState<Partial<CalendarEvent>>({});
   const [showAddForm, setShowAddForm] = useState(false);
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
+  const [notificationModal, setNotificationModal] = useState<{visible: boolean; event: CalendarEvent | null}>({visible: false, event: null});
   
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
@@ -114,6 +122,21 @@ export default function EventManagement() {
       setShowAddForm(false);
       setEditForm({});
       showNotification('Lưu sự kiện thành công', 'success');
+    }
+  };
+
+  const handleSaveNotification = async (updatedEvent: CalendarEvent) => {
+    const api = getEventManager();
+    if (api) {
+      try {
+        const updatedEvents = await api.saveEvent(updatedEvent);
+        setEvents(updatedEvents);
+        setNotificationModal({visible: false, event: null});
+        showNotification('Lưu cấu hình thông báo thành công', 'success');
+      } catch (e) {
+        console.error('Failed to save notification config', e);
+        showNotification('Lưu cấu hình thất bại', 'error');
+      }
     }
   };
 
@@ -206,21 +229,24 @@ export default function EventManagement() {
 
     if (sortConfig) {
       filtered.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const key = sortConfig.key;
+        const valA = a[key];
+        const valB = b[key];
+
+        if (valA === undefined && valB === undefined) return 0;
+        if (valA === undefined) return 1;
+        if (valB === undefined) return -1;
+
+        if (valA < valB) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (valA > valB) {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         
         // Secondary sort: if sorting by month, also sort by day
-        if (sortConfig.key === 'month') {
-          if (a.day < b.day) {
-            return sortConfig.direction === 'asc' ? -1 : 1;
-          }
-          if (a.day > b.day) {
-            return sortConfig.direction === 'asc' ? 1 : -1;
-          }
+        if (key === 'month') {
+          return (a.day - b.day) * (sortConfig.direction === 'asc' ? 1 : -1);
         }
         
         return 0;
@@ -557,8 +583,18 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"><BiEdit size={16} /></button>
-                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-red-600 transition-colors"><BiTrash size={16} /></button>
+                          <button 
+                            onClick={() => setNotificationModal({visible: true, event})} 
+                            className={clsx('p-1.5 rounded-md transition-colors', {
+                              'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10': !event.notification?.enabled,
+                              'text-[#007AFF] bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40': event.notification?.enabled
+                            })}
+                            title="Cấu hình thông báo"
+                          >
+                            <BiBell size={16} />
+                          </button>
+                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors" title="Sửa"><BiEdit size={16} /></button>
+                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" title="Xóa"><BiTrash size={16} /></button>
                         </div>
                       </td>
                     </>
@@ -573,6 +609,14 @@ export default function EventManagement() {
           </div>
         </div>
       </div>
+
+      {notificationModal.visible && notificationModal.event && (
+        <NotificationConfigModal
+          event={notificationModal.event}
+          onClose={() => setNotificationModal({visible: false, event: null})}
+          onSave={handleSaveNotification}
+        />
+      )}
     </div>
   );
 }

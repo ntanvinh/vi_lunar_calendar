@@ -9,4 +9,5 @@ export const eventManager = {
   exportEventsCSV: (): Promise<boolean> => ipcRenderer.invoke('export-events-csv'),
   importEventsCSV: (): Promise<CalendarEvent[] | null> => ipcRenderer.invoke('import-events-csv'),
   showConfirmDialog: (options: { title: string; message: string; type?: 'question' | 'warning' | 'info' | 'error'; detail?: string }): Promise<boolean> => ipcRenderer.invoke('show-confirm-dialog', options),
+  testNotification: (event: CalendarEvent): Promise<void> => ipcRenderer.invoke('test-notification', event),
 };

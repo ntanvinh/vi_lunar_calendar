@@ -7,6 +7,11 @@ export interface CalendarEvent {
   day: number;
   month: number;
   isImportant: boolean;
+  notification?: {
+    enabled: boolean;
+    notifyBefore: number; // days
+    continuous: boolean;
+  };
 }
 
 export const DEFAULT_EVENTS: Omit<CalendarEvent, 'id'>[] = [

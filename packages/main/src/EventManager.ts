@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {CalendarEvent, DEFAULT_EVENTS} from '../../common/src/EventData';
 import {v4 as uuidv4} from 'uuid';
+import {NotificationManager} from './NotificationManager';
 
 const EVENTS_FILE_NAME = 'events.json';
 
@@ -10,7 +11,7 @@ function getEventsPath() {
   return path.join(app.getPath('userData'), EVENTS_FILE_NAME);
 }
 
-function loadEvents(): CalendarEvent[] {
+export function loadEvents(): CalendarEvent[] {
   try {
     const eventsPath = getEventsPath();
     if (fs.existsSync(eventsPath)) {
@@ -190,6 +191,10 @@ export const EventManager = {
         noLink: true,
       });
       return response === 1;
+    });
+
+    ipcMain.handle('test-notification', (_, event: CalendarEvent) => {
+      NotificationManager.sendTestNotification(event);
     });
   },
 };

@@ -5,10 +5,11 @@ import Tooltip, {TooltipProps} from '/@/components/Tooltip';
 interface AppButtonProps extends TooltipProps {
   type?: 'primary' | 'text';
   onClick?: () => void;
+  className?: string;
 }
 
 const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
-  const {onClick, children, type = 'primary', tip, position} = props;
+  const {onClick, children, type = 'primary', tip, position, className} = props;
 
   return (
     <button
@@ -21,7 +22,7 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
         // Text (Icon Button)
         'p-1.5 rounded-full hover:bg-gray-200/50 dark:hover:bg-white/10 active:scale-95': type === 'text',
         'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200': type === 'text',
-      })}
+      }, className)}
       onClick={onClick}
       tabIndex={-1}
     >

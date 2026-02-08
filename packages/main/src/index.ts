@@ -4,6 +4,7 @@ import {showAppTray} from './AppTray';
 import {isMacOS} from '/@/MainUtil';
 import {ThemeManager} from './ThemeManager';
 import {EventManager} from './EventManager';
+import {NotificationManager} from './NotificationManager';
 
 /**
  * Prevent electron from running multiple instances.
@@ -40,6 +41,7 @@ app
     }
     ThemeManager.init();
     EventManager.init();
+    NotificationManager.init();
     showAppTray();
   })
   .catch(e => console.error('Failed create window:', e));
