@@ -4,7 +4,7 @@ export default function App() {
 
   return (
     <div
-      className={'dark:bg-slate-900'}
+      className={''}
     >
       <AppCalendar />
     </div>

@@ -1,9 +1,10 @@
-import {app, BrowserWindow} from 'electron';
+import {app, BrowserWindow, screen} from 'electron';
 import * as path from 'path';
 import {join} from 'path';
 import * as url from 'url';
 import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
 import {log} from 'electron-log';
+import {isMacOS} from '/@/MainUtil';
 
 function calcWindowPosition(bounds: Electron.Rectangle) {
   return {
@@ -12,7 +13,7 @@ function calcWindowPosition(bounds: Electron.Rectangle) {
   };
 }
 
-async function createWindow(bounds: Electron.Rectangle) {
+async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
   console.log(bounds);
   const {x, y} = calcWindowPosition(bounds);
   const browserWindow = new BrowserWindow({
@@ -25,6 +26,10 @@ async function createWindow(bounds: Electron.Rectangle) {
     alwaysOnTop: true,
     movable: true,
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
+    transparent: isMacOS,
+    vibrancy: isMacOS ? 'popover' : undefined, // macOS theme consistency
+    visualEffectState: 'active',
+    backgroundColor: isMacOS ? '#00000000' : '#ffffff', // Transparent on Mac, White on others
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -43,12 +48,21 @@ async function createWindow(bounds: Electron.Rectangle) {
    * @see https://github.com/electron/electron/issues/25012 for the afford mentioned issue.
    */
   browserWindow.on('ready-to-show', () => {
-    browserWindow?.show();
+    if (showWhenReady) {
+      browserWindow?.show();
+    }
     browserWindow?.setSkipTaskbar(true);
 
     // if (import.meta.env.DEV) {
     //   browserWindow?.webContents.openDevTools({mode: 'detach'});
     // }
+  });
+
+  // Hide window when clicking outside (blur)
+  browserWindow.on('blur', () => {
+    if (!browserWindow.webContents.isDevToolsOpened()) {
+      browserWindow.hide();
+    }
   });
 
   /**
@@ -72,13 +86,31 @@ async function createWindow(bounds: Electron.Rectangle) {
 }
 
 /**
+ * Preload the calendar window to improve performance
+ */
+export async function preloadCalendarWindow() {
+  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  if (!window) {
+    // Create with dummy bounds, will be repositioned on toggle
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const dummyBounds = {
+      x: primaryDisplay.bounds.x + primaryDisplay.bounds.width - 200,
+      y: 0,
+      width: 0,
+      height: 0,
+    } as Electron.Rectangle;
+    await createWindow(dummyBounds, false);
+  }
+}
+
+/**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
 export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (!window) {
-    window = await createWindow(bounds);
+    window = await createWindow(bounds, true);
   }
 
   if (window) {
@@ -86,9 +118,9 @@ export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
       window.hide();
 
     } else {
-      window.show();
       const {x, y} = calcWindowPosition(bounds);
       window.setPosition(x, y);
+      window.show();
     }
   }
   return window;

@@ -3,9 +3,10 @@ import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
-import {getCalendarWindow, toggleCalendarWindow} from '/@/CalendarWindow';
+import {getCalendarWindow, toggleCalendarWindow, preloadCalendarWindow} from '/@/CalendarWindow';
 import {log} from 'electron-log';
 import {execPath} from 'process';
+import {ThemeManager} from './ThemeManager';
 
 let appTray: Tray;
 
@@ -62,43 +63,75 @@ function dynamicRefreshTray(tray: Tray) {
 
 export function showAppTray() {
   app.whenReady().then(() => {
+    preloadCalendarWindow().then();
     const currentLunar = toLunarDate(new Date(), getTimeZone());
     const icon = getLunarDateIcon(currentLunar.lunarDay);
     appTray = new Tray(icon);
 
-    const introductionMenu = Menu.buildFromTemplate([
-      {label: 'Vi Lunar Calendar', type: 'normal'},
-      {label: `v${app.getVersion()}`, type: 'normal'},
-      {
-        label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {
-          const window = getCalendarWindow();
-          if (window && window.isVisible()) {
-            window.webContents.openDevTools({mode: 'detach'});
-          }
+    const getContextMenu = () => {
+      const introductionMenu = Menu.buildFromTemplate([
+        {label: 'Vi Lunar Calendar', type: 'normal', enabled: false},
+        {label: `v${app.getVersion()}`, type: 'normal', enabled: false},
+        {
+          label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {
+            const window = getCalendarWindow();
+            if (window && window.isVisible()) {
+              window.webContents.openDevTools({mode: 'detach'});
+            }
+          },
         },
-      },
-    ]);
-    const loginSettings = app.getLoginItemSettings();
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: getLunarDateExpression(currentLunar, true),
-        type: 'normal',
-        click: () => forceRefreshTray(appTray),
-        toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
-      },
-      {
-        label: 'Khởi động khi đăng nhập', type: 'checkbox', checked: loginSettings.openAtLogin, click: ({checked}) => {
-          const appPath = execPath;
-          log(`Set login to ${checked}: `, appPath);
-          app.setLoginItemSettings({
-            path: appPath,
-            openAtLogin: checked,
-          });
+      ]);
+
+      const themeMenu = Menu.buildFromTemplate([
+        {
+          label: 'Tự động (Theo hệ thống)',
+          type: 'radio',
+          checked: ThemeManager.getTheme() === 'system',
+          click: () => ThemeManager.setTheme('system'),
         },
-      },
-      {label: 'Giới thiệu', type: 'submenu', submenu: introductionMenu},
-      {label: 'Thoát', type: 'normal', click: () => app.exit()},
-    ]);
+        {
+          label: 'Sáng',
+          type: 'radio',
+          checked: ThemeManager.getTheme() === 'light',
+          click: () => ThemeManager.setTheme('light'),
+        },
+        {
+          label: 'Tối',
+          type: 'radio',
+          checked: ThemeManager.getTheme() === 'dark',
+          click: () => ThemeManager.setTheme('dark'),
+        },
+      ]);
+
+      const loginSettings = app.getLoginItemSettings();
+      return Menu.buildFromTemplate([
+        {
+          label: getLunarDateExpression(currentLunar, true),
+          type: 'normal',
+          click: () => forceRefreshTray(appTray),
+          toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
+        },
+        {type: 'separator'},
+        {
+          label: 'Giao diện',
+          type: 'submenu',
+          submenu: themeMenu,
+        },
+        {
+          label: 'Khởi động khi đăng nhập', type: 'checkbox', checked: loginSettings.openAtLogin, click: ({checked}) => {
+            const appPath = execPath;
+            log(`Set login to ${checked}: `, appPath);
+            app.setLoginItemSettings({
+              path: appPath,
+              openAtLogin: checked,
+            });
+          },
+        },
+        {type: 'separator'},
+        {label: 'Giới thiệu', type: 'submenu', submenu: introductionMenu},
+        {label: 'Thoát', type: 'normal', click: () => app.exit()},
+      ]);
+    };
 
     nativeTheme.on('updated', () => forceRefreshTray(appTray));
     appTray.setToolTip(getLunarDateExpression(currentLunar));
@@ -109,7 +142,7 @@ export function showAppTray() {
     });
 
     appTray.on('right-click', () => {
-      appTray.popUpContextMenu(contextMenu);
+      appTray.popUpContextMenu(getContextMenu());
     });
 
     // refresh to update tray icon

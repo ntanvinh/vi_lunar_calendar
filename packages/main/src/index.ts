@@ -2,6 +2,7 @@ import {app} from 'electron';
 import './SecurityRestrictions';
 import {showAppTray} from './AppTray';
 import {isMacOS} from '/@/MainUtil';
+import {ThemeManager} from './ThemeManager';
 
 /**
  * Prevent electron from running multiple instances.
@@ -36,6 +37,7 @@ app
     if (isMacOS) {
       app.dock.hide();
     }
+    ThemeManager.init();
     showAppTray();
   })
   .catch(e => console.error('Failed create window:', e));
