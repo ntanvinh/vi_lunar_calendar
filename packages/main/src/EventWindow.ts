@@ -23,7 +23,7 @@ export async function createEventWindow() {
       preload: join(app.getAppPath(), 'packages/preload/dist/index.cjs'),
     },
     titleBarStyle: 'hiddenInset',
-    vibrancy: isMacOS ? 'under-window' : undefined,
+    vibrancy: isMacOS ? 'popover' : undefined,
     visualEffectState: 'active',
     backgroundColor: isMacOS ? '#00000000' : '#ffffff',
     show: true, // Force show for debugging
@@ -39,7 +39,26 @@ export async function createEventWindow() {
     : new URL('../renderer/dist/index.html#/events', 'file://' + __dirname).toString();
 
   console.log('Loading URL:', pageUrl);
-  await eventWindow.loadURL(pageUrl);
+  
+  const loadWithRetry = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        if (eventWindow && !eventWindow.isDestroyed()) {
+          await eventWindow.loadURL(pageUrl);
+        }
+        return;
+      } catch (e) {
+        console.warn(`Failed to load URL (attempt ${i + 1}/${retries}):`, e);
+        if (i === retries - 1) {
+          console.error('Max retries reached. Failed to load Event Window.');
+        } else {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+  };
+
+  loadWithRetry();
 
   eventWindow.on('ready-to-show', () => {
     console.log('Event Window ready to show');

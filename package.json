@@ -77,5 +77,13 @@
   "engines": {
     "node": ">=16",
     "pnpm": ">=7"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "playwright",
+      "simple-git-hooks"
+    ]
   }
 }
