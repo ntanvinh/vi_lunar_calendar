@@ -231,11 +231,18 @@ const StyledCalendar = styled(Calendar).attrs({
   .react-calendar__tile {
     border-radius: 6px;
     max-width: 100%;
-    padding: 10px 6.6667px;
+    padding: 8px 4px;
     background: none;
     text-align: center;
     line-height: 16px;
     overflow: visible !important;
+  }
+
+  .react-calendar__tile > abbr {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    display: block;
   }
 
   .react-calendar__tile:disabled {
