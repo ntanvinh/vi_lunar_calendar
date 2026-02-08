@@ -249,6 +249,10 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     border-radius: 6px;
     max-width: 100%;
     padding: 8px 4px;

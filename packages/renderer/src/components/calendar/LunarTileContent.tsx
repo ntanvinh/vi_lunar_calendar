@@ -61,7 +61,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
             </div>
         }
         {hasEvent && (
-          <div className="mt-1 flex gap-1">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 flex gap-1">
             <div className={clsx('w-1 h-1 rounded-full', {
               'bg-red-500 shadow-[0_0_2px_rgba(239,68,68,0.6)]': hasImportantEvent,
               'bg-blue-400 dark:bg-blue-300': !hasImportantEvent,
