@@ -177,5 +177,19 @@ export const EventManager = {
       }
       return null; // Canceled
     });
+
+    ipcMain.handle('show-confirm-dialog', async (_, { title, message, type = 'question', detail }: { title: string; message: string; type?: string; detail?: string }) => {
+      const { response } = await dialog.showMessageBox({
+        type: type as any,
+        title: title,
+        message: message,
+        detail: detail,
+        buttons: ['Cancel', 'OK'],
+        defaultId: 1,
+        cancelId: 0,
+        noLink: true,
+      });
+      return response === 1;
+    });
   },
 };

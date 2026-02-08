@@ -8,6 +8,9 @@ import {MdCheck} from '@react-icons/all-files/md/MdCheck';
 import {MdClose} from '@react-icons/all-files/md/MdClose';
 import {MdFileDownload} from '@react-icons/all-files/md/MdFileDownload';
 import {MdFileUpload} from '@react-icons/all-files/md/MdFileUpload';
+import {MdInfo} from '@react-icons/all-files/md/MdInfo';
+import {MdError} from '@react-icons/all-files/md/MdError';
+import {MdCheckCircle} from '@react-icons/all-files/md/MdCheckCircle';
 import clsx from 'clsx';
 
 export default function EventManagement() {
@@ -52,11 +55,18 @@ export default function EventManagement() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa ngày lễ này?')) {
-      const api = getEventManager();
-      if (api) {
+    const api = getEventManager();
+    if (api) {
+      const confirmed = await api.showConfirmDialog({
+        title: 'Xóa sự kiện',
+        message: 'Bạn có chắc chắn muốn xóa ngày lễ này?',
+        type: 'warning',
+      });
+      
+      if (confirmed) {
         const updated = await api.deleteEvent(id);
         setEvents(updated);
+        showNotification('Đã xóa sự kiện', 'success');
       }
     }
   };
@@ -89,12 +99,19 @@ export default function EventManagement() {
   };
 
   const handleResetDefaults = async () => {
-    if (confirm('Hành động này sẽ xóa tất cả dữ liệu hiện tại và khôi phục về mặc định. Bạn có chắc chắn không?')) {
-      if ((window as any).eventManager) {
-        const updated = await (window as any).eventManager.resetDefaultEvents();
+    const api = getEventManager();
+    if (api) {
+      const confirmed = await api.showConfirmDialog({
+        title: 'Khôi phục mặc định',
+        message: 'Hành động này sẽ xóa tất cả dữ liệu hiện tại và khôi phục về mặc định.',
+        detail: 'Bạn có chắc chắn muốn tiếp tục không?',
+        type: 'warning',
+      });
+
+      if (confirmed) {
+        const updated = await api.resetDefaultEvents();
         setEvents(updated);
-      } else {
-        console.error('eventManager API is missing');
+        showNotification('Đã khôi phục dữ liệu mặc định', 'success');
       }
     }
   };
@@ -115,11 +132,17 @@ export default function EventManagement() {
   };
 
   const handleImport = async () => {
-    if (!confirm('Hành động này sẽ xóa toàn bộ dữ liệu sự kiện hiện tại và thay thế bằng dữ liệu từ file. Bạn có chắc chắn muốn tiếp tục?')) {
-      return;
-    }
     const api = getEventManager();
     if (api) {
+      const confirmed = await api.showConfirmDialog({
+        title: 'Nhập dữ liệu',
+        message: 'Hành động này sẽ xóa toàn bộ dữ liệu sự kiện hiện tại và thay thế bằng dữ liệu từ file.',
+        detail: 'Bạn có chắc chắn muốn tiếp tục?',
+        type: 'warning',
+      });
+
+      if (!confirmed) return;
+
       try {
         const updated = await api.importEventsCSV();
         if (updated) {
@@ -177,14 +200,17 @@ export default function EventManagement() {
 
       {notification && (
         <div className={clsx(
-          'fixed top-12 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded shadow-lg z-50 text-white transition-all duration-300',
+          'fixed top-6 right-6 px-4 py-3 rounded-xl shadow-xl z-50 flex items-center gap-3 transition-all duration-300 transform translate-y-0 opacity-100 backdrop-blur-md border',
           {
-            'bg-green-600': notification.type === 'success',
-            'bg-red-600': notification.type === 'error',
-            'bg-blue-600': notification.type === 'info',
+            'bg-white/90 dark:bg-slate-800/90 border-green-200 dark:border-green-900 text-green-800 dark:text-green-100': notification.type === 'success',
+            'bg-white/90 dark:bg-slate-800/90 border-red-200 dark:border-red-900 text-red-800 dark:text-red-100': notification.type === 'error',
+            'bg-white/90 dark:bg-slate-800/90 border-blue-200 dark:border-blue-900 text-blue-800 dark:text-blue-100': notification.type === 'info',
           },
         )}>
-          {notification.message}
+          {notification.type === 'success' && <MdCheckCircle size={20} className="text-green-500 dark:text-green-400" />}
+          {notification.type === 'error' && <MdError size={20} className="text-red-500 dark:text-red-400" />}
+          {notification.type === 'info' && <MdInfo size={20} className="text-blue-500 dark:text-blue-400" />}
+          <span className="font-medium text-sm">{notification.message}</span>
         </div>
       )}
 
