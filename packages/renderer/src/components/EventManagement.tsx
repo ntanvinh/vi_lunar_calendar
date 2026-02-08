@@ -12,6 +12,9 @@ import {MdInfo} from '@react-icons/all-files/md/MdInfo';
 import {MdError} from '@react-icons/all-files/md/MdError';
 import {MdCheckCircle} from '@react-icons/all-files/md/MdCheckCircle';
 import {MdFilterList} from '@react-icons/all-files/md/MdFilterList';
+import {MdArrowUpward} from '@react-icons/all-files/md/MdArrowUpward';
+import {MdArrowDownward} from '@react-icons/all-files/md/MdArrowDownward';
+import {MdSort} from '@react-icons/all-files/md/MdSort';
 import {MdPerson} from '@react-icons/all-files/md/MdPerson';
 import clsx from 'clsx';
 
@@ -34,6 +37,9 @@ export default function EventManagement() {
   const [searchText, setSearchText] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'solar' | 'lunar'>('all');
   const [filterImportant, setFilterImportant] = useState<'all' | 'true' | 'false'>('all');
+
+  // Sort states
+  const [sortConfig, setSortConfig] = useState<{key: keyof CalendarEvent; direction: 'asc' | 'desc'} | null>(null);
 
   useEffect(() => {
     if (notification) {
@@ -180,25 +186,40 @@ export default function EventManagement() {
     }
   };
 
-  const filteredEvents = events.filter(event => {
-    // Text filter (ignore case and accents)
-    if (searchText) {
-      const searchNormalized = removeAccents(searchText.toLowerCase());
-      const titleNormalized = removeAccents(event.title.toLowerCase());
-      if (!titleNormalized.includes(searchNormalized)) return false;
+  const handleSort = (key: keyof CalendarEvent) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({key, direction});
+  };
+
+  const getFilteredEvents = () => {
+    const filtered = events.filter(event => {
+      const matchText = searchText === '' || removeAccents(event.title.toLowerCase()).includes(removeAccents(searchText.toLowerCase()));
+      const matchType = filterType === 'all' || event.type === filterType;
+      const matchImportant = filterImportant === 'all' || 
+        (filterImportant === 'true' && event.isImportant) || 
+        (filterImportant === 'false' && !event.isImportant);
+      return matchText && matchType && matchImportant;
+    });
+
+    if (sortConfig) {
+      filtered.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
     }
 
-    // Type filter
-    if (filterType !== 'all' && event.type !== filterType) return false;
+    return filtered;
+  };
 
-    // Important filter
-    if (filterImportant !== 'all') {
-      const isImp = filterImportant === 'true';
-      if ((event.isImportant || false) !== isImp) return false;
-    }
-
-    return true;
-  });
+  const filteredEvents = getFilteredEvents();
 
   return (
     <div className="h-screen flex flex-col text-gray-900 dark:text-gray-100 drag-region overflow-hidden">
@@ -281,7 +302,7 @@ export default function EventManagement() {
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-32">Loại lịch</th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24">Ngày</th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24">Tháng</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 text-center">Quan trọng</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-28 text-center">Quan trọng</th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 text-right last:rounded-tr-xl">Thao tác</th>
               </tr>
               </thead>

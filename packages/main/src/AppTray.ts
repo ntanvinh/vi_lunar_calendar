@@ -34,11 +34,27 @@ function getLunarDateExpression(lunar: LunarDate, compact?: boolean) {
     ;
 }
 
+function getTooltipText(lunar: LunarDate) {
+  const now = new Date();
+  const solarDay = now.getDate().toString().padStart(2, '0');
+  const solarMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+  const solarYear = now.getFullYear();
+  const solarStr = `DL: ${solarDay}/${solarMonth}/${solarYear}`;
+
+  const {lunarDay, lunarMonth, lunarYear, isLeapMonth, isLeapYear} = lunar;
+  const canChi = getCanChi(lunarYear);
+  const lDay = lunarDay.toString().padStart(2, '0');
+  const lMonth = lunarMonth.toString().padStart(2, '0');
+  const lunarStr = `AL: ${lDay}/${lMonth}${isLeapMonth ? '*' : ''} ${canChi}${isLeapYear ? ' (Nhuận)' : ''}`;
+
+  return `${solarStr}\n${lunarStr}`;
+}
+
 function forceRefreshTray(tray: Tray) {
   const currentLunar = toLunarDate(new Date(), getTimeZone());
   const icon = getLunarDateIcon(currentLunar.lunarDay);
   tray.setImage(icon);
-  tray.setToolTip(getLunarDateExpression(currentLunar));
+  tray.setToolTip(getTooltipText(currentLunar));
 }
 
 let timerId: NodeJS.Timeout | undefined;
@@ -68,6 +84,7 @@ export function showAppTray() {
     const currentLunar = toLunarDate(new Date(), getTimeZone());
     const icon = getLunarDateIcon(currentLunar.lunarDay);
     appTray = new Tray(icon);
+    appTray.setToolTip(getTooltipText(currentLunar));
 
     const getContextMenu = () => {
       const introductionMenu = Menu.buildFromTemplate([
