@@ -26,7 +26,7 @@ async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
     frame: false,
     resizable: false,
     alwaysOnTop: true,
-    movable: true,
+    movable: false,
     show: false, // Use the 'ready-to-show' event to show the instantiated BrowserWindow.
     transparent: isMacOS,
     vibrancy: isMacOS ? 'popover' : undefined, // macOS theme consistency

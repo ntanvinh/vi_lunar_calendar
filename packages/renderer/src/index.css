@@ -36,3 +36,17 @@ body {
   width: 0px;
   background: transparent;
 }
+
+.drag-region {
+  -webkit-app-region: drag;
+  cursor: default;
+}
+
+.drag-region:active {
+  cursor: default;
+}
+
+.no-drag-region {
+  -webkit-app-region: no-drag;
+  cursor: default;
+}

@@ -68,7 +68,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   }
 
   return (
-    <div className="px-6 flex flex-col items-center">
+    <div className="px-6 flex flex-col items-center h-screen">
       <div
         className="w-full mt-4 mb-2 grid grid-cols-[1fr_auto_1fr] items-center"
       >
@@ -112,23 +112,26 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
         </div>
       </div>
 
-      <StyledCalendar
-        value={calendarValue}
-        onChange={(value) => {
-          value && setCalendarValue(value);
-        }}
-        locale="vi"
-        activeStartDate={activeStartDate}
-        onActiveStartDateChange={({activeStartDate}) => activeStartDate && setActiveStartDate(activeStartDate)}
-        tileContent={({date, view}) => {
-          if (view !== 'month') {
-            return;
-          }
-          return (
-            <LunarTileContent date={date} events={events} />
-          );
-        }}
-      />
+      <div className="w-full">
+        <StyledCalendar
+          value={calendarValue}
+          onChange={(value) => {
+            value && setCalendarValue(value);
+          }}
+          locale="vi"
+          calendarType="iso8601"
+          activeStartDate={activeStartDate}
+          onActiveStartDateChange={({activeStartDate}) => activeStartDate && setActiveStartDate(activeStartDate)}
+          tileContent={({date, view}) => {
+            if (view !== 'month') {
+              return;
+            }
+            return (
+              <LunarTileContent date={date} events={events} />
+            );
+          }}
+        />
+      </div>
     </div>
   );
 };

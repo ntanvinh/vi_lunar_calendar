@@ -1,6 +1,7 @@
 import {BrowserWindow, app, Menu} from 'electron';
 import {join} from 'path';
 import {isMacOS, fadeInWindow} from '/@/MainUtil';
+import {ThemeManager} from './ThemeManager';
 
 let eventWindow: BrowserWindow | null = null;
 
@@ -11,10 +12,14 @@ export async function createEventWindow() {
     return;
   }
 
-  console.log('Creating Event Window...');
+  const savedPosition = ThemeManager.getWindowPosition('eventWindow');
+  console.log('Creating Event Window...', savedPosition ? `at ${savedPosition.x}, ${savedPosition.y}` : 'at default position');
+
   eventWindow = new BrowserWindow({
     width: 900,
     height: 600,
+    x: savedPosition?.x,
+    y: savedPosition?.y,
     title: 'Quản lý ngày lễ',
     webPreferences: {
       nodeIntegration: false,
@@ -89,6 +94,13 @@ export async function createEventWindow() {
       },
     ]);
     menu.popup();
+  });
+
+  eventWindow.on('close', () => {
+    if (eventWindow && !eventWindow.isDestroyed()) {
+      const [x, y] = eventWindow.getPosition();
+      ThemeManager.saveWindowPosition('eventWindow', {x, y});
+    }
   });
 
   eventWindow.on('closed', () => {
