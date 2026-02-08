@@ -87,6 +87,7 @@ export function showAppTray() {
     appTray.setToolTip(getTooltipText(currentLunar));
 
     const getContextMenu = () => {
+      const currentLunar = toLunarDate(new Date(), getTimeZone());
       const introductionMenu = Menu.buildFromTemplate([
         {label: 'V Lunar Calendar', type: 'normal', enabled: false},
         {label: `v${app.getVersion()}`, type: 'normal', enabled: false},
@@ -124,7 +125,7 @@ export function showAppTray() {
       const loginSettings = app.getLoginItemSettings();
       return Menu.buildFromTemplate([
         {
-          label: getLunarDateExpression(currentLunar, true),
+          label: getTooltipText(currentLunar).replace('\n', ' - '),
           type: 'normal',
           click: () => forceRefreshTray(appTray),
           toolTip: 'Click để cập nhật ngày hiển thị trên thanh menu',
@@ -157,7 +158,7 @@ export function showAppTray() {
     };
 
     nativeTheme.on('updated', () => forceRefreshTray(appTray));
-    appTray.setToolTip(getLunarDateExpression(currentLunar));
+    appTray.setToolTip(getTooltipText(currentLunar));
 
     // set events
     appTray.on('click', (_event, bounds) => {

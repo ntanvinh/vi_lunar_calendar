@@ -230,14 +230,16 @@ export default function EventManagement() {
             <div className="flex gap-2">
               <button
                 onClick={handleImport}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
+                tabIndex={-1}
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
                 title="Nhập dữ liệu từ file CSV"
               >
                 <MdFileUpload size={15} /> Nhập CSV
               </button>
               <button
                 onClick={handleExport}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
+                tabIndex={-1}
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
                 title="Xuất dữ liệu ra file CSV"
               >
                 <MdFileDownload size={15} /> Xuất CSV
@@ -245,7 +247,9 @@ export default function EventManagement() {
               <div className="w-px bg-gray-300 dark:bg-white/10 mx-1 h-6 self-center"></div>
               <button
                 onClick={handleResetDefaults}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10"
+                tabIndex={-1}
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
+                title="Khôi phục danh sách mặc định"
               >
                 <MdRefresh size={15} /> Khôi phục
               </button>
@@ -254,7 +258,9 @@ export default function EventManagement() {
                   setShowAddForm(true);
                   setEditForm({type: 'solar', isImportant: false});
                 }}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700"
+                tabIndex={-1}
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
+                title="Thêm sự kiện mới"
               >
                 <MdAdd size={15} /> Thêm mới
               </button>
@@ -285,12 +291,23 @@ export default function EventManagement() {
             <table className="w-full text-left border-collapse">
               <thead>
               <tr className="text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-white/10 shadow-sm">
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold first:rounded-tl-xl">
+                <th 
+                  className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold first:rounded-tl-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
+                  onClick={() => handleSort('title')}
+                >
                   <div className="flex items-center gap-2">
                     Tên sự kiện
+                    {sortConfig?.key === 'title' ? (
+                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                    ) : (
+                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
                     <button 
-                      onClick={() => setShowFilters(!showFilters)}
-                      className={clsx('p-1 rounded hover:bg-gray-200 dark:hover:bg-white/10 transition-colors', {
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowFilters(!showFilters);
+                      }}
+                      className={clsx('ml-auto p-1 rounded hover:bg-gray-200 dark:hover:bg-white/10 transition-colors', {
                         'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': showFilters || searchText || filterType !== 'all' || filterImportant !== 'all',
                       })}
                       title="Lọc sự kiện"
@@ -299,10 +316,58 @@ export default function EventManagement() {
                     </button>
                   </div>
                 </th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-32">Loại lịch</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24">Ngày</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24">Tháng</th>
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-28 text-center">Quan trọng</th>
+                <th 
+                  className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-32 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
+                  onClick={() => handleSort('type')}
+                >
+                  <div className="flex items-center gap-1">
+                    Loại lịch
+                    {sortConfig?.key === 'type' ? (
+                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                    ) : (
+                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
+                </th>
+                <th 
+                  className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
+                  onClick={() => handleSort('day')}
+                >
+                  <div className="flex items-center gap-1">
+                    Ngày
+                    {sortConfig?.key === 'day' ? (
+                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                    ) : (
+                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
+                </th>
+                <th 
+                  className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
+                  onClick={() => handleSort('month')}
+                >
+                  <div className="flex items-center gap-1">
+                    Tháng
+                    {sortConfig?.key === 'month' ? (
+                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                    ) : (
+                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
+                </th>
+                <th 
+                  className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-28 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
+                  onClick={() => handleSort('isImportant')}
+                >
+                  <div className="flex items-center justify-center gap-1">
+                    Quan trọng
+                    {sortConfig?.key === 'isImportant' ? (
+                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                    ) : (
+                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
+                </th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-24 text-right last:rounded-tr-xl">Thao tác</th>
               </tr>
               </thead>
