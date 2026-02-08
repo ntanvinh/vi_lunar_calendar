@@ -51,13 +51,13 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   }
 
   return (
-    <div>
+    <div className="px-6 flex flex-col items-center">
       <div
-        className="w-full relative"
+        className="w-full mt-4 mb-2 grid grid-cols-[1fr_auto_1fr] items-center"
       >
-
+        <div></div>
         <div
-          className="mt-4 mb-2 w-full flex justify-center space-x-10"
+          className="flex justify-center space-x-10"
         >
           <AppButton
             onClick={() => {
@@ -86,15 +86,13 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             <BiChevronRightCircle size={24} />
           </AppButton>
         </div>
-        <span
-          className="absolute top-1.5 right-3"
-        >
+        <div className="flex justify-end pr-3 relative">
           <JumpToDateButton onJump={(lunarDate) => {
             const date = toSolarDate(lunarDate, getTimeZone());
             setActiveStartDate(date);
             setCalendarValue(date);
           }} />
-        </span>
+        </div>
       </div>
 
       <StyledCalendar
@@ -103,7 +101,6 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
           value && setCalendarValue(value);
         }}
         locale="vi"
-        showWeekNumbers
         activeStartDate={activeStartDate}
         onActiveStartDateChange={({activeStartDate}) => activeStartDate && setActiveStartDate(activeStartDate)}
         tileContent={({date, view}) => {
