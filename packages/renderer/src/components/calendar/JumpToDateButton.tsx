@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {MdDateRange} from '@react-icons/all-files/md/MdDateRange';
+import {BiCalendar} from '@react-icons/all-files/bi/BiCalendar';
 import AppButton from '/@/components/button/AppButton';
 import clsx from 'clsx';
 
@@ -45,7 +45,7 @@ const JumpToDateButton: React.FC<JumpToDateButtonProps> = ({onJump}) => {
         tip='Tới ngày âm lịch'
         position="left"
       >
-        <MdDateRange size={20} />
+        <BiCalendar size={18} />
       </AppButton>
       <div
         className={clsx('absolute right-2 top-6 transition bg-black/20 rounded-sm', {

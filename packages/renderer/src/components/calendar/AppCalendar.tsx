@@ -6,8 +6,8 @@ import AppButton from '/@/components/button/AppButton';
 import {getCanChi, getFirstDayOfLunarYear, toSolarDate} from '../../../../common/src/LunarUtil';
 import {getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
 import type {CalendarEvent} from '../../../../common/src/EventData';
-import {BiChevronRightCircle} from '@react-icons/all-files/bi/BiChevronRightCircle';
-import {BiChevronLeftCircle} from '@react-icons/all-files/bi/BiChevronLeftCircle';
+import {BiChevronRight} from '@react-icons/all-files/bi/BiChevronRight';
+import {BiChevronLeft} from '@react-icons/all-files/bi/BiChevronLeft';
 import {Value} from 'react-calendar/dist/esm/shared/types';
 import JumpToDateButton from '/@/components/calendar/JumpToDateButton';
 import {twRgb} from '../../../../common/src/TailwindUtil';
@@ -84,7 +84,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             tip={`Năm trước ${getCanChi(getFirstDayOfLunarYear(activeStartDate, -1).getFullYear())}`}
             position="bottom"
           >
-            <BiChevronLeftCircle size={24} />
+            <BiChevronLeft size={24} />
           </AppButton>
 
           <AppButton
@@ -100,7 +100,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
             tip={`Năm tới ${getCanChi(getFirstDayOfLunarYear(activeStartDate, 1).getFullYear())}`}
             position="bottom"
           >
-            <BiChevronRightCircle size={24} />
+            <BiChevronRight size={24} />
           </AppButton>
         </div>
         <div className="flex justify-end pr-3 relative">
@@ -201,6 +201,7 @@ const StyledCalendar = styled(Calendar).attrs({
     min-width: 44px;
     background: none;
     border-radius: 8px;
+    transition: all 0.2s;
   }
 
   .react-calendar__navigation button:disabled {
@@ -209,8 +210,17 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__navigation button:enabled:hover {
-    background-color: ${props => props.$activeBgColor_Hover};
+    background-color: rgba(229, 231, 235, 0.5);
+    color: inherit;
+  }
+
+  :global(.dark) & .react-calendar__navigation button:enabled:hover {
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
+  }
+
+  .react-calendar__navigation button:enabled:active {
+    transform: scale(0.95);
   }
 
   .react-calendar__month-view__weekdays {

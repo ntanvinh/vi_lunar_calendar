@@ -1,21 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import {DEFAULT_EVENTS, type CalendarEvent} from '../../../common/src/EventData';
-import {MdDelete} from '@react-icons/all-files/md/MdDelete';
-import {MdEdit} from '@react-icons/all-files/md/MdEdit';
-import {MdAdd} from '@react-icons/all-files/md/MdAdd';
-import {MdRefresh} from '@react-icons/all-files/md/MdRefresh';
-import {MdCheck} from '@react-icons/all-files/md/MdCheck';
-import {MdClose} from '@react-icons/all-files/md/MdClose';
-import {MdFileDownload} from '@react-icons/all-files/md/MdFileDownload';
-import {MdFileUpload} from '@react-icons/all-files/md/MdFileUpload';
-import {MdInfo} from '@react-icons/all-files/md/MdInfo';
-import {MdError} from '@react-icons/all-files/md/MdError';
-import {MdCheckCircle} from '@react-icons/all-files/md/MdCheckCircle';
-import {MdFilterList} from '@react-icons/all-files/md/MdFilterList';
-import {MdArrowUpward} from '@react-icons/all-files/md/MdArrowUpward';
-import {MdArrowDownward} from '@react-icons/all-files/md/MdArrowDownward';
-import {MdSort} from '@react-icons/all-files/md/MdSort';
-import {MdPerson} from '@react-icons/all-files/md/MdPerson';
+import {BiTrash} from '@react-icons/all-files/bi/BiTrash';
+import {BiEdit} from '@react-icons/all-files/bi/BiEdit';
+import {BiPlus} from '@react-icons/all-files/bi/BiPlus';
+import {BiReset} from '@react-icons/all-files/bi/BiReset';
+import {BiCheck} from '@react-icons/all-files/bi/BiCheck';
+import {BiX} from '@react-icons/all-files/bi/BiX';
+import {BiDownload} from '@react-icons/all-files/bi/BiDownload';
+import {BiUpload} from '@react-icons/all-files/bi/BiUpload';
+import {BiInfoCircle} from '@react-icons/all-files/bi/BiInfoCircle';
+import {BiErrorCircle} from '@react-icons/all-files/bi/BiErrorCircle';
+import {BiCheckCircle} from '@react-icons/all-files/bi/BiCheckCircle';
+import {BiFilter} from '@react-icons/all-files/bi/BiFilter';
+import {BiCaretUp} from '@react-icons/all-files/bi/BiCaretUp';
+import {BiCaretDown} from '@react-icons/all-files/bi/BiCaretDown';
+import {BiSort} from '@react-icons/all-files/bi/BiSort';
+import {BiUser} from '@react-icons/all-files/bi/BiUser';
 import clsx from 'clsx';
 
 function removeAccents(str: string) {
@@ -245,7 +245,7 @@ export default function EventManagement() {
                 className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
                 title="Nhập dữ liệu từ file CSV"
               >
-                <MdFileUpload size={15} /> Nhập CSV
+                <BiUpload size={15} /> Nhập CSV
               </button>
               <button
                 onClick={handleExport}
@@ -253,7 +253,7 @@ export default function EventManagement() {
                 className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
                 title="Xuất dữ liệu ra file CSV"
               >
-                <MdFileDownload size={15} /> Xuất CSV
+                <BiDownload size={15} /> Xuất CSV
               </button>
               <div className="w-px bg-gray-300 dark:bg-white/10 mx-1 h-6 self-center"></div>
               <button
@@ -262,7 +262,7 @@ export default function EventManagement() {
                 className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
                 title="Khôi phục danh sách mặc định"
               >
-                <MdRefresh size={15} /> Khôi phục
+                <BiReset size={15} /> Khôi phục
               </button>
               <button
                 onClick={() => {
@@ -273,7 +273,7 @@ export default function EventManagement() {
                 className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
                 title="Thêm sự kiện mới"
               >
-                <MdAdd size={15} /> Thêm mới
+                <BiPlus size={15} /> Thêm mới
               </button>
             </div>
           </div>
@@ -289,9 +289,9 @@ export default function EventManagement() {
             'bg-white/90 dark:bg-slate-800/90 border-blue-200 dark:border-blue-900 text-blue-800 dark:text-blue-100': notification.type === 'info',
           },
         )}>
-          {notification.type === 'success' && <MdCheckCircle size={20} className="text-green-500 dark:text-green-400" />}
-          {notification.type === 'error' && <MdError size={20} className="text-red-500 dark:text-red-400" />}
-          {notification.type === 'info' && <MdInfo size={20} className="text-blue-500 dark:text-blue-400" />}
+          {notification.type === 'success' && <BiCheckCircle size={20} className="text-green-500 dark:text-green-400" />}
+          {notification.type === 'error' && <BiErrorCircle size={20} className="text-red-500 dark:text-red-400" />}
+          {notification.type === 'info' && <BiInfoCircle size={20} className="text-blue-500 dark:text-blue-400" />}
           <span className="font-medium text-sm">{notification.message}</span>
         </div>
       )}
@@ -309,9 +309,9 @@ export default function EventManagement() {
                   <div className="flex items-center gap-2">
                     Tên sự kiện
                     {sortConfig?.key === 'title' ? (
-                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                      sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
                     ) : (
-                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <BiSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                     <button 
                       onClick={(e) => {
@@ -323,7 +323,7 @@ export default function EventManagement() {
                       })}
                       title="Lọc sự kiện"
                     >
-                      <MdFilterList size={14} />
+                      <BiFilter size={14} />
                     </button>
                   </div>
                 </th>
@@ -334,9 +334,9 @@ export default function EventManagement() {
                   <div className="flex items-center gap-1">
                     Loại lịch
                     {sortConfig?.key === 'type' ? (
-                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                      sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
                     ) : (
-                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <BiSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                   </div>
                 </th>
@@ -347,9 +347,9 @@ export default function EventManagement() {
                   <div className="flex items-center gap-1">
                     Ngày
                     {sortConfig?.key === 'day' ? (
-                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                      sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
                     ) : (
-                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <BiSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                   </div>
                 </th>
@@ -360,9 +360,9 @@ export default function EventManagement() {
                   <div className="flex items-center gap-1">
                     Tháng
                     {sortConfig?.key === 'month' ? (
-                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                      sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
                     ) : (
-                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <BiSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                   </div>
                 </th>
@@ -373,9 +373,9 @@ export default function EventManagement() {
                   <div className="flex items-center justify-center gap-1">
                     Quan trọng
                     {sortConfig?.key === 'isImportant' ? (
-                      sortConfig.direction === 'asc' ? <MdArrowUpward size={14} /> : <MdArrowDownward size={14} />
+                      sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
                     ) : (
-                      <MdSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <BiSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     )}
                   </div>
                 </th>
@@ -472,8 +472,8 @@ export default function EventManagement() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => handleSave(editForm)} className="text-green-600 hover:text-green-700"><MdCheck size={18} /></button>
-                      <button onClick={cancelEdit} className="text-red-500 hover:text-red-600"><MdClose size={18} /></button>
+                      <button onClick={() => handleSave(editForm)} className="text-green-600 hover:text-green-700"><BiCheck size={18} /></button>
+                      <button onClick={cancelEdit} className="text-red-500 hover:text-red-600"><BiX size={18} /></button>
                     </div>
                   </td>
                 </tr>
@@ -525,8 +525,8 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => handleSave(editForm)} className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"><MdCheck size={16} /></button>
-                          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"><MdClose size={16} /></button>
+                          <button onClick={() => handleSave(editForm)} className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"><BiCheck size={16} /></button>
+                          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"><BiX size={16} /></button>
                         </div>
                       </td>
                     </>
@@ -537,7 +537,7 @@ export default function EventManagement() {
                           {event.title}
                           {isUserEvent(event) && (
                             <span className="text-blue-500" title="Sự kiện người dùng tạo">
-                              <MdPerson size={16} />
+                              <BiUser size={16} />
                             </span>
                           )}
                         </div>
@@ -557,8 +557,8 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"><MdEdit size={16} /></button>
-                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-red-600 transition-colors"><MdDelete size={16} /></button>
+                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"><BiEdit size={16} /></button>
+                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-600 hover:text-red-600 transition-colors"><BiTrash size={16} /></button>
                         </div>
                       </td>
                     </>
