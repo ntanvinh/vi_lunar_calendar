@@ -212,6 +212,17 @@ export default function EventManagement() {
         if (a[sortConfig.key] > b[sortConfig.key]) {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
+        
+        // Secondary sort: if sorting by month, also sort by day
+        if (sortConfig.key === 'month') {
+          if (a.day < b.day) {
+            return sortConfig.direction === 'asc' ? -1 : 1;
+          }
+          if (a.day > b.day) {
+            return sortConfig.direction === 'asc' ? 1 : -1;
+          }
+        }
+        
         return 0;
       });
     }
