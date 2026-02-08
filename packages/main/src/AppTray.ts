@@ -70,7 +70,7 @@ export function showAppTray() {
 
     const getContextMenu = () => {
       const introductionMenu = Menu.buildFromTemplate([
-        {label: 'Vi Lunar Calendar', type: 'normal', enabled: false},
+        {label: 'V Lunar Calendar', type: 'normal', enabled: false},
         {label: `v${app.getVersion()}`, type: 'normal', enabled: false},
         {
           label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {

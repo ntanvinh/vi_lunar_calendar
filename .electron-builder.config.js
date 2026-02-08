@@ -11,8 +11,8 @@ module.exports = async function() {
   const {getVersion} = await import('./version/getVersion.mjs');
 
   return {
-    productName: 'Vi Lunar Calendar',
-    executableName: 'Vi Lunar Calendar',
+    productName: 'V Lunar Calendar',
+    executableName: 'V Lunar Calendar',
     appId: 'me.ntanvinh.vi_lunar_calendar',
     files: ['packages/**/dist/**', 'packages/**/assets/**'],
     mac: {
