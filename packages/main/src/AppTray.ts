@@ -3,8 +3,8 @@ import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
-import {getCalendarWindow, toggleCalendarWindow, preloadCalendarWindow} from '/@/CalendarWindow';
-import {createEventWindow} from '/@/EventWindow';
+import {getCalendarWindow, toggleCalendarWindow, preloadCalendarWindow, showCalendarWindow} from '/@/CalendarWindow';
+import {createEventWindow, getEventWindow} from '/@/EventWindow';
 import {log} from 'electron-log';
 import {execPath} from 'process';
 import {ThemeManager} from './ThemeManager';
@@ -144,7 +144,13 @@ export function showAppTray() {
 
     // set events
     appTray.on('click', (_event, bounds) => {
-      toggleCalendarWindow(bounds).then();
+      const eventWindow = getEventWindow();
+      if (eventWindow && !eventWindow.isDestroyed() && eventWindow.isVisible()) {
+        eventWindow.close();
+        showCalendarWindow(bounds).then();
+      } else {
+        toggleCalendarWindow(bounds).then();
+      }
     });
 
     appTray.on('right-click', () => {

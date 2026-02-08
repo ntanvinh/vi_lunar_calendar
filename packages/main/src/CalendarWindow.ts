@@ -6,6 +6,8 @@ import {CALENDAR_HEIGHT, CALENDAR_WIDTH} from '../../common/src/Constant';
 import {log} from 'electron-log';
 import {isMacOS} from '/@/MainUtil';
 
+let calendarWindow: BrowserWindow | null = null;
+
 function calcWindowPosition(bounds: Electron.Rectangle) {
   return {
     x: bounds.x - CALENDAR_WIDTH + bounds.width,
@@ -16,7 +18,7 @@ function calcWindowPosition(bounds: Electron.Rectangle) {
 async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
   console.log(bounds);
   const {x, y} = calcWindowPosition(bounds);
-  const browserWindow = new BrowserWindow({
+  calendarWindow = new BrowserWindow({
     width: CALENDAR_WIDTH,
     height: CALENDAR_HEIGHT,
     x,
@@ -47,22 +49,26 @@ async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
    *
    * @see https://github.com/electron/electron/issues/25012 for the afford mentioned issue.
    */
-  browserWindow.on('ready-to-show', () => {
+  calendarWindow.on('ready-to-show', () => {
     if (showWhenReady) {
-      browserWindow?.show();
+      calendarWindow?.show();
     }
-    browserWindow?.setSkipTaskbar(true);
+    calendarWindow?.setSkipTaskbar(true);
 
     // if (import.meta.env.DEV) {
-    //   browserWindow?.webContents.openDevTools({mode: 'detach'});
+    //   calendarWindow?.webContents.openDevTools({mode: 'detach'});
     // }
   });
 
   // Hide window when clicking outside (blur)
-  browserWindow.on('blur', () => {
-    if (!browserWindow.webContents.isDevToolsOpened()) {
-      browserWindow.hide();
+  calendarWindow.on('blur', () => {
+    if (!calendarWindow?.webContents.isDevToolsOpened()) {
+      calendarWindow?.hide();
     }
+  });
+
+  calendarWindow.on('closed', () => {
+    calendarWindow = null;
   });
 
   /**
@@ -80,17 +86,16 @@ async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
 
   log('meta.env', import.meta.env);
   log('CalendarWindow url', pageUrl);
-  await browserWindow.loadURL(pageUrl);
+  await calendarWindow.loadURL(pageUrl);
 
-  return browserWindow;
+  return calendarWindow;
 }
 
 /**
  * Preload the calendar window to improve performance
  */
 export async function preloadCalendarWindow() {
-  const window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
-  if (!window) {
+  if (!calendarWindow || calendarWindow.isDestroyed()) {
     // Create with dummy bounds, will be repositioned on toggle
     const primaryDisplay = screen.getPrimaryDisplay();
     const dummyBounds = {
@@ -107,25 +112,31 @@ export async function preloadCalendarWindow() {
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
 export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
-  let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
-
-  if (!window) {
-    window = await createWindow(bounds, true);
-  }
-
-  if (window) {
-    if (window.isVisible()) {
-      window.hide();
-
+  if (!calendarWindow || calendarWindow.isDestroyed()) {
+    await createWindow(bounds, true);
+  } else {
+    if (calendarWindow.isVisible()) {
+      calendarWindow.hide();
     } else {
       const {x, y} = calcWindowPosition(bounds);
-      window.setPosition(x, y);
-      window.show();
+      calendarWindow.setPosition(x, y);
+      calendarWindow.show();
     }
   }
-  return window;
+  return calendarWindow;
+}
+
+export async function showCalendarWindow(bounds: Electron.Rectangle) {
+  if (!calendarWindow || calendarWindow.isDestroyed()) {
+    await createWindow(bounds, true);
+  } else {
+    const {x, y} = calcWindowPosition(bounds);
+    calendarWindow.setPosition(x, y);
+    calendarWindow.show();
+  }
+  return calendarWindow;
 }
 
 export function getCalendarWindow() {
-  return BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
+  return calendarWindow;
 }

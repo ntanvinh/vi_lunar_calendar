@@ -1,4 +1,4 @@
-import {BrowserWindow, app} from 'electron';
+import {BrowserWindow, app, Menu} from 'electron';
 import {join} from 'path';
 import {isMacOS} from '/@/MainUtil';
 
@@ -66,11 +66,36 @@ export async function createEventWindow() {
   });
 
   // Open devtools in dev mode
-  if (import.meta.env.DEV) {
-    eventWindow.webContents.openDevTools();
-  }
+  // if (import.meta.env.DEV) {
+  //   eventWindow.webContents.openDevTools();
+  // }
+
+  // Add context menu to allow opening DevTools when needed
+  eventWindow.webContents.on('context-menu', (_, props) => {
+    const menu = Menu.buildFromTemplate([
+      {
+        label: 'Inspect Element',
+        click: () => {
+          eventWindow?.webContents.inspectElement(props.x, props.y);
+        },
+      },
+      {type: 'separator'},
+      {
+        label: 'Toggle Developer Tools',
+        accelerator: isMacOS ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+        click: () => {
+          eventWindow?.webContents.toggleDevTools();
+        },
+      },
+    ]);
+    menu.popup();
+  });
 
   eventWindow.on('closed', () => {
     eventWindow = null;
   });
+}
+
+export function getEventWindow() {
+  return eventWindow;
 }

@@ -11,7 +11,15 @@ import {MdFileUpload} from '@react-icons/all-files/md/MdFileUpload';
 import {MdInfo} from '@react-icons/all-files/md/MdInfo';
 import {MdError} from '@react-icons/all-files/md/MdError';
 import {MdCheckCircle} from '@react-icons/all-files/md/MdCheckCircle';
+import {MdFilterList} from '@react-icons/all-files/md/MdFilterList';
 import clsx from 'clsx';
+
+function removeAccents(str: string) {
+  return str.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');
+}
 
 export default function EventManagement() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -19,6 +27,12 @@ export default function EventManagement() {
   const [editForm, setEditForm] = useState<Partial<CalendarEvent>>({});
   const [showAddForm, setShowAddForm] = useState(false);
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
+  
+  // Filter states
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'solar' | 'lunar'>('all');
+  const [filterImportant, setFilterImportant] = useState<'all' | 'true' | 'false'>('all');
 
   useEffect(() => {
     if (notification) {
@@ -156,6 +170,26 @@ export default function EventManagement() {
     }
   };
 
+  const filteredEvents = events.filter(event => {
+    // Text filter (ignore case and accents)
+    if (searchText) {
+      const searchNormalized = removeAccents(searchText.toLowerCase());
+      const titleNormalized = removeAccents(event.title.toLowerCase());
+      if (!titleNormalized.includes(searchNormalized)) return false;
+    }
+
+    // Type filter
+    if (filterType !== 'all' && event.type !== filterType) return false;
+
+    // Important filter
+    if (filterImportant !== 'all') {
+      const isImp = filterImportant === 'true';
+      if ((event.isImportant || false) !== isImp) return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="h-screen flex flex-col text-gray-900 dark:text-gray-100 drag-region overflow-hidden">
       <div className="pt-10 px-6 pb-2 shrink-0">
@@ -220,7 +254,20 @@ export default function EventManagement() {
             <table className="w-full text-left border-collapse">
               <thead>
               <tr className="text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-slate-700 shadow-sm">
-                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold first:rounded-tl-xl">Tên sự kiện</th>
+                <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold first:rounded-tl-xl">
+                  <div className="flex items-center gap-2">
+                    Tên sự kiện
+                    <button 
+                      onClick={() => setShowFilters(!showFilters)}
+                      className={clsx('p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors', {
+                        'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': showFilters || searchText || filterType !== 'all' || filterImportant !== 'all',
+                      })}
+                      title="Lọc sự kiện"
+                    >
+                      <MdFilterList size={14} />
+                    </button>
+                  </div>
+                </th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-32">Loại lịch</th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24">Ngày</th>
                 <th className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-700 px-4 py-3 font-semibold w-24">Tháng</th>
@@ -229,6 +276,42 @@ export default function EventManagement() {
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+              {showFilters && (
+                <tr className="bg-gray-50/50 dark:bg-slate-700/30">
+                  <td className="px-4 py-2">
+                    <input
+                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
+                      placeholder="Tìm kiếm..."
+                      value={searchText}
+                      onChange={e => setSearchText(e.target.value)}
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    <select
+                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
+                      value={filterType}
+                      onChange={e => setFilterType(e.target.value as any)}
+                    >
+                      <option value="all">Tất cả</option>
+                      <option value="solar">Dương lịch</option>
+                      <option value="lunar">Âm lịch</option>
+                    </select>
+                  </td>
+                  <td className="px-4 py-2" colSpan={2}></td>
+                  <td className="px-4 py-2 text-center">
+                    <select
+                      className="w-full text-sm px-2 py-1 rounded border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:border-blue-500"
+                      value={filterImportant}
+                      onChange={e => setFilterImportant(e.target.value as any)}
+                    >
+                      <option value="all">Tất cả</option>
+                      <option value="true">Có</option>
+                      <option value="false">Không</option>
+                    </select>
+                  </td>
+                  <td className="px-4 py-2"></td>
+                </tr>
+              )}
               {showAddForm && (
                 <tr className="bg-blue-50/50 dark:bg-blue-900/10">
                   <td className="px-4 py-3">
@@ -282,7 +365,7 @@ export default function EventManagement() {
                 </tr>
               )}
 
-              {events.map(event => (
+              {filteredEvents.map(event => (
                 <tr key={event.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors group">
                   {isEditing === event.id ? (
                     <>
