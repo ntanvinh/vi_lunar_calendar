@@ -19,7 +19,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
   const isMiddleDay = lunar.lunarDay === 15;
   const isFirstOrMiddleDay = isFirstDay || isMiddleDay;
   const isNewYear = lunar.lunarDay === 1 && lunar.lunarMonth === 1;
-  const fullMoonSize = 16;
+  const fullMoonSize = 12;
   const canChi = getCanChi(lunar.lunarYear);
 
   const dayEvents = events.filter(e => {
@@ -61,7 +61,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
             </div>
         }
         {hasEvent && (
-          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0.5 flex gap-1">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex gap-1">
             <div className={clsx('w-1 h-1 rounded-full', {
               'bg-red-500 shadow-[0_0_2px_rgba(239,68,68,0.6)]': hasImportantEvent,
               'bg-blue-400 dark:bg-blue-300': !hasImportantEvent,
