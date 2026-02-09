@@ -17,6 +17,8 @@ export interface CalendarEvent {
 export const DEFAULT_EVENTS: Omit<CalendarEvent, 'id'>[] = [
   // Solar Holidays
   { title: 'Tết Dương Lịch', type: 'solar', day: 1, month: 1, isImportant: true },
+  { title: 'Ngày tình yêu', type: 'solar', day: 14, month: 2, isImportant: false },
+  { title: 'Quốc tế Phụ nữ', type: 'solar', day: 8, month: 3, isImportant: true },
   { title: 'Ngày Chiến thắng', type: 'solar', day: 30, month: 4, isImportant: true },
   { title: 'Quốc tế Lao động', type: 'solar', day: 1, month: 5, isImportant: true },
   { title: 'Quốc khánh', type: 'solar', day: 2, month: 9, isImportant: true },

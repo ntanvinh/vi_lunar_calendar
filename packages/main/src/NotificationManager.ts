@@ -1,4 +1,4 @@
-import {app, Notification} from 'electron';
+import {app, Notification, powerMonitor} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import type {CalendarEvent} from '../../common/src/EventData';
@@ -29,6 +29,17 @@ export class NotificationManager {
     this.checkInterval = setInterval(() => {
       this.checkNotifications();
     }, 60 * 60 * 1000);
+
+    // Re-check when system resumes or unlocks
+    powerMonitor.on('resume', () => {
+      console.log('[NotificationManager] System resumed, checking notifications...');
+      this.checkNotifications();
+    });
+    
+    powerMonitor.on('unlock-screen', () => {
+      console.log('[NotificationManager] Screen unlocked, checking notifications...');
+      this.checkNotifications();
+    });
   }
 
   public static sendTestNotification(event: CalendarEvent) {
