@@ -176,12 +176,18 @@ export default function EventManagement() {
     notifyBefore: number;
     applyContinuous: boolean;
     continuous: boolean;
+    onlyImportant: boolean;
   }) => {
     const api = getEventManager();
     if (api) {
       try {
         // Clone current events to avoid direct mutation
         const updatedEvents = events.map(event => {
+          // Skip if only applying to important events and this event is not important
+          if (config.onlyImportant && !event.isImportant) {
+            return event;
+          }
+
           // Create a new notification config based on current one or default
           const currentNotification = event.notification || {
             enabled: true,

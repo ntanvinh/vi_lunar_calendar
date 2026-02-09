@@ -13,6 +13,7 @@ interface GlobalNotificationConfigModalProps {
     notifyBefore: number;
     applyContinuous: boolean;
     continuous: boolean;
+    onlyImportant: boolean;
   }) => void;
 }
 
@@ -28,6 +29,8 @@ const GlobalNotificationConfigModal: React.FC<GlobalNotificationConfigModalProps
 
   const [applyContinuous, setApplyContinuous] = useState(false);
   const [continuous, setContinuous] = useState(false);
+  
+  const [onlyImportant, setOnlyImportant] = useState(false);
 
   const handleSave = () => {
     onSave({
@@ -37,6 +40,7 @@ const GlobalNotificationConfigModal: React.FC<GlobalNotificationConfigModalProps
       notifyBefore,
       applyContinuous,
       continuous,
+      onlyImportant,
     });
   };
 
@@ -57,6 +61,20 @@ const GlobalNotificationConfigModal: React.FC<GlobalNotificationConfigModalProps
           Chọn các cài đặt bạn muốn áp dụng cho <strong>tất cả</strong> sự kiện. Các cài đặt không
           được chọn sẽ giữ nguyên giá trị hiện tại của từng sự kiện.
         </p>
+
+        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/30">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={onlyImportant}
+              onChange={e => setOnlyImportant(e.target.checked)}
+              className="w-4 h-4 text-yellow-600 rounded border-gray-300 focus:ring-yellow-500 cursor-pointer accent-yellow-600"
+            />
+            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+              Chỉ áp dụng cho các sự kiện quan trọng (Important)
+            </span>
+          </label>
+        </div>
 
         <div className="space-y-4">
           {/* Enabled Config */}
@@ -140,11 +158,14 @@ const GlobalNotificationConfigModal: React.FC<GlobalNotificationConfigModalProps
 
           {/* Continuous Config */}
           <div className="p-3 bg-gray-50 dark:bg-[#252525] rounded-lg border border-transparent hover:border-blue-200 dark:hover:border-blue-900 transition-colors">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 checked={applyContinuous}
-                onChange={e => setApplyContinuous(e.target.checked)}
+                onChange={e => {
+                  setApplyContinuous(e.target.checked);
+                  setContinuous(e.target.checked);
+                }}
                 className="w-4 h-4 text-[#007AFF] rounded border-gray-300 focus:ring-[#007AFF] cursor-pointer accent-[#007AFF]"
                 id="applyContinuous"
               />
@@ -152,25 +173,7 @@ const GlobalNotificationConfigModal: React.FC<GlobalNotificationConfigModalProps
                 htmlFor="applyContinuous"
                 className="text-sm font-semibold text-gray-800 dark:text-gray-200 cursor-pointer flex-1"
               >
-                Chế độ nhắc hàng ngày
-              </label>
-            </div>
-
-            <div
-              className={clsx('pl-7 transition-all', {
-                'opacity-50 pointer-events-none': !applyContinuous,
-              })}
-            >
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={continuous}
-                  onChange={e => setContinuous(e.target.checked)}
-                  className="w-4 h-4 text-[#007AFF] rounded border-gray-300 focus:ring-[#007AFF] accent-[#007AFF]"
-                />
-                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                  Bật nhắc nhở hàng ngày
-                </span>
+                Bật nhắc nhở hàng ngày (cho đến khi sự kiện diễn ra)
               </label>
             </div>
           </div>
