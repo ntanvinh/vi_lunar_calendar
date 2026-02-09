@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import LunarTileContent from '/@/components/calendar/LunarTileContent';
 import styled from 'styled-components';
 import AppButton from '/@/components/button/AppButton';
-import {getCanChi, getFirstDayOfLunarYear, toSolarDate} from '../../../../common/src/LunarUtil';
+import {getCanChi, getFirstDayOfLunarYear} from '../../../../common/src/LunarUtil';
 import {getNextDay, getTimeZone, getToday} from '../../../../common/src/MiscUtil';
 import type {CalendarEvent} from '../../../../common/src/EventData';
 import {BiChevronRight} from '@react-icons/all-files/bi/BiChevronRight';
@@ -104,8 +104,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
           </AppButton>
         </div>
         <div className="flex justify-end pr-3 relative">
-          <JumpToDateButton onJump={(lunarDate) => {
-            const date = toSolarDate(lunarDate, getTimeZone());
+          <JumpToDateButton onJump={(date) => {
             setActiveStartDate(date);
             setCalendarValue(date);
           }} />
