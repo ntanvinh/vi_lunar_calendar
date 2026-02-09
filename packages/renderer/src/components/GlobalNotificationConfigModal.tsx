@@ -71,7 +71,7 @@ const GlobalNotificationConfigModal: React.FC<GlobalNotificationConfigModalProps
               className="w-4 h-4 text-yellow-600 rounded border-gray-300 focus:ring-yellow-500 cursor-pointer accent-yellow-600"
             />
             <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-              Chỉ áp dụng cho các sự kiện quan trọng (Important)
+              Chỉ áp dụng cho các sự kiện quan trọng
             </span>
           </label>
         </div>

@@ -226,6 +226,21 @@ export default function EventManagement() {
     }
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    const oldTitle = editForm.title || '';
+    
+    let newType = editForm.type;
+    
+    // Auto-switch to Lunar if "Giỗ" is typed (case insensitive)
+    // Only switch if the keyword is newly added to allow user to switch back to solar manually
+    if (newTitle.toLowerCase().includes('giỗ') && !oldTitle.toLowerCase().includes('giỗ')) {
+      newType = 'lunar';
+    }
+    
+    setEditForm({...editForm, title: newTitle, type: newType});
+  };
+
   const startEdit = (event: CalendarEvent) => {
     setIsEditing(event.id);
     setEditForm({...event});
@@ -554,7 +569,7 @@ export default function EventManagement() {
                         <input
                           className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
                           value={editForm.title || ''}
-                          onChange={e => setEditForm({...editForm, title: e.target.value})}
+                          onChange={handleTitleChange}
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -649,7 +664,7 @@ export default function EventManagement() {
                       className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
                       placeholder="Tên sự kiện..."
                       value={editForm.title || ''}
-                      onChange={e => setEditForm({...editForm, title: e.target.value})}
+                      onChange={handleTitleChange}
                       autoFocus
                     />
                   </td>
