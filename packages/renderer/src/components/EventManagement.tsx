@@ -17,9 +17,11 @@ import {BiCaretDown} from '@react-icons/all-files/bi/BiCaretDown';
 import {BiSort} from '@react-icons/all-files/bi/BiSort';
 import {BiUser} from '@react-icons/all-files/bi/BiUser';
 import {BiBell} from '@react-icons/all-files/bi/BiBell';
+import {BiCog} from '@react-icons/all-files/bi/BiCog';
 import {BiArrowBack} from '@react-icons/all-files/bi/BiArrowBack';
 import clsx from 'clsx';
 import NotificationConfigModal from './NotificationConfigModal';
+import GlobalNotificationConfigModal from './GlobalNotificationConfigModal';
 
 interface EventManagementProps {
   onBack: () => void;
@@ -39,6 +41,7 @@ export default function EventManagement() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [notificationModal, setNotificationModal] = useState<{visible: boolean; event: CalendarEvent | null}>({visible: false, event: null});
+  const [showGlobalConfigModal, setShowGlobalConfigModal] = useState(false);
   
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
@@ -136,6 +139,57 @@ export default function EventManagement() {
       } catch (e) {
         console.error('Failed to save notification config', e);
         showNotification('Lưu cấu hình thất bại', 'error');
+      }
+    }
+  };
+
+  const handleSaveGlobalConfig = async (config: {
+    applyEnabled: boolean;
+    enabled: boolean;
+    applyNotifyBefore: boolean;
+    notifyBefore: number;
+    applyContinuous: boolean;
+    continuous: boolean;
+  }) => {
+    const api = getEventManager();
+    if (api) {
+      try {
+        // Clone current events to avoid direct mutation
+        const updatedEvents = events.map(event => {
+          // Create a new notification config based on current one or default
+          const currentNotification = event.notification || {
+            enabled: true,
+            notifyBefore: 1,
+            continuous: false
+          };
+          
+          const newNotification = {...currentNotification};
+          
+          if (config.applyEnabled) {
+            newNotification.enabled = config.enabled;
+          }
+          
+          if (config.applyNotifyBefore) {
+            newNotification.notifyBefore = config.notifyBefore;
+          }
+          
+          if (config.applyContinuous) {
+            newNotification.continuous = config.continuous;
+          }
+          
+          return {
+            ...event,
+            notification: newNotification
+          };
+        });
+        
+        const savedEvents = await api.saveAllEvents(updatedEvents);
+        setEvents(savedEvents);
+        setShowGlobalConfigModal(false);
+        showNotification('Đã áp dụng cài đặt cho tất cả sự kiện', 'success');
+      } catch (e) {
+        console.error('Failed to save global config', e);
+        showNotification('Áp dụng cài đặt thất bại', 'error');
       }
     }
   };
@@ -280,6 +334,14 @@ export default function EventManagement() {
                 title="Xuất dữ liệu ra file CSV"
               >
                 <BiDownload size={15} /> Xuất CSV
+              </button>
+              <button
+                onClick={() => setShowGlobalConfigModal(true)}
+                tabIndex={-1}
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
+                title="Cài đặt thông báo chung"
+              >
+                <BiCog size={15} /> Cài đặt chung
               </button>
               <div className="w-px bg-gray-300 dark:bg-white/10 mx-1 h-6 self-center"></div>
               <button
@@ -615,6 +677,13 @@ export default function EventManagement() {
           event={notificationModal.event}
           onClose={() => setNotificationModal({visible: false, event: null})}
           onSave={handleSaveNotification}
+        />
+      )}
+
+      {showGlobalConfigModal && (
+        <GlobalNotificationConfigModal
+          onClose={() => setShowGlobalConfigModal(false)}
+          onSave={handleSaveGlobalConfig}
         />
       )}
     </div>

@@ -121,6 +121,11 @@ export const EventManager = {
       return events;
     });
 
+    ipcMain.handle('save-all-events', (_, updatedEvents: CalendarEvent[]) => {
+      saveEvents(updatedEvents);
+      return updatedEvents;
+    });
+
     ipcMain.handle('delete-event', (_, id: string) => {
       let events = loadEvents();
       events = events.filter(e => e.id !== id);
