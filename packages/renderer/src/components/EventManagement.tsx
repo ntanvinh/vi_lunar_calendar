@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {DEFAULT_EVENTS, type CalendarEvent} from '../../../common/src/EventData';
 import {BiTrash} from '@react-icons/all-files/bi/BiTrash';
 import {BiEdit} from '@react-icons/all-files/bi/BiEdit';
@@ -35,6 +35,7 @@ function removeAccents(str: string) {
 }
 
 export default function EventManagement() {
+  const isMac = navigator.userAgent.includes('Mac');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<CalendarEvent>>({});
@@ -51,6 +52,14 @@ export default function EventManagement() {
 
   // Sort states
   const [sortConfig, setSortConfig] = useState<{key: keyof CalendarEvent; direction: 'asc' | 'desc'} | null>(null);
+  
+  const addFormRef = useRef<HTMLTableRowElement>(null);
+
+  useEffect(() => {
+    if (showAddForm && addFormRef.current) {
+      addFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [showAddForm]);
 
   useEffect(() => {
     if (notification) {
@@ -58,6 +67,23 @@ export default function EventManagement() {
       return () => clearTimeout(timer);
     }
   }, [notification]);
+
+  // Hotkey listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Alt + A (Option + A on Mac) to add new event
+      // Using code 'KeyA' to be layout independent
+      if (e.altKey && (e.code === 'KeyA' || e.key.toLowerCase() === 'a' || e.key === 'å')) {
+        e.preventDefault();
+        console.log('Hotkey triggered: Alt+A');
+        setShowAddForm(true);
+        setEditForm({type: 'solar', isImportant: false});
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setNotification({message, type});
@@ -359,7 +385,7 @@ export default function EventManagement() {
                 }}
                 tabIndex={-1}
                 className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
-                title="Thêm sự kiện mới"
+                title={isMac ? "Thêm sự kiện mới (⌥A)" : "Thêm sự kiện mới (Alt + A)"}
               >
                 <BiPlus size={15} /> Thêm mới
               </button>
@@ -514,59 +540,6 @@ export default function EventManagement() {
                 </td>
                 <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')}></td>
               </tr>
-              {showAddForm && (
-                <tr className="bg-blue-50/50 dark:bg-blue-900/10">
-                  <td className="px-4 py-3">
-                    <input
-                      className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
-                      placeholder="Tên sự kiện..."
-                      value={editForm.title || ''}
-                      onChange={e => setEditForm({...editForm, title: e.target.value})}
-                      autoFocus
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      className="bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
-                      value={editForm.type}
-                      onChange={e => setEditForm({...editForm, type: e.target.value as any})}
-                    >
-                      <option value="solar">Dương lịch</option>
-                      <option value="lunar">Âm lịch</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
-                      value={editForm.day || ''}
-                      onChange={e => setEditForm({...editForm, day: parseInt(e.target.value)})}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
-                      value={editForm.month || ''}
-                      onChange={e => setEditForm({...editForm, month: parseInt(e.target.value)})}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={editForm.isImportant || false}
-                      onChange={e => setEditForm({...editForm, isImportant: e.target.checked})}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button onClick={() => handleSave(editForm)} className="text-green-600 hover:text-green-700"><BiCheck size={18} /></button>
-                      <button onClick={cancelEdit} className="text-red-500 hover:text-red-600"><BiX size={18} /></button>
-                    </div>
-                  </td>
-                </tr>
-              )}
-
               {filteredEvents.map(event => (
                 <tr key={event.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                   {isEditing === event.id ? (
@@ -663,6 +636,58 @@ export default function EventManagement() {
                   )}
                 </tr>
               ))}
+              {showAddForm && (
+                <tr ref={addFormRef} className="bg-blue-50/50 dark:bg-blue-900/10">
+                  <td className="px-4 py-3">
+                    <input
+                      className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
+                      placeholder="Tên sự kiện..."
+                      value={editForm.title || ''}
+                      onChange={e => setEditForm({...editForm, title: e.target.value})}
+                      autoFocus
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <select
+                      className="bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
+                      value={editForm.type}
+                      onChange={e => setEditForm({...editForm, type: e.target.value as any})}
+                    >
+                      <option value="solar">Dương lịch</option>
+                      <option value="lunar">Âm lịch</option>
+                    </select>
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="number"
+                      className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
+                      value={editForm.day || ''}
+                      onChange={e => setEditForm({...editForm, day: parseInt(e.target.value)})}
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="number"
+                      className="w-full bg-transparent border-b border-blue-300 focus:border-blue-500 outline-none"
+                      value={editForm.month || ''}
+                      onChange={e => setEditForm({...editForm, month: parseInt(e.target.value)})}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={editForm.isImportant || false}
+                      onChange={e => setEditForm({...editForm, isImportant: e.target.checked})}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => handleSave(editForm)} className="text-green-600 hover:text-green-700"><BiCheck size={18} /></button>
+                      <button onClick={cancelEdit} className="text-red-500 hover:text-red-600"><BiX size={18} /></button>
+                    </div>
+                  </td>
+                </tr>
+              )}
               </tbody>
             </table>
             {events.length === 0 && (
