@@ -15,7 +15,7 @@ export async function createPaymentWindow() {
 
   paymentWindow = new BrowserWindow({
     width: 480,
-    height: 680,
+    height: 850,
     title: 'Thông tin thanh toán',
     webPreferences: {
       nodeIntegration: false,
@@ -28,7 +28,7 @@ export async function createPaymentWindow() {
     visualEffectState: 'active',
     backgroundColor: isMacOS ? '#00000000' : '#ffffff',
     show: false,
-    resizable: false, // Keep it fixed size
+    resizable: true, // Allow resizing
     minimizable: true,
     maximizable: false,
   });

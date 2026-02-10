@@ -80,7 +80,7 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
               <div className="flex items-center gap-1.5">
                 {children}
                 {isLocked && (
-                  <BiCrown size={12} className="text-yellow-500 absolute -bottom-1 -right-1 drop-shadow-sm animate-pulse" />
+                  <BiCrown size={14} className="text-yellow-500 absolute -top-2 -right-2 drop-shadow-md transform rotate-12 z-10" />
                 )}
               </div>
             </Tooltip>
@@ -88,7 +88,7 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
             <div className="flex items-center gap-1.5 relative">
               {children}
               {isLocked && (
-                <BiCrown size={12} className="text-yellow-500 absolute -bottom-1 -right-1 drop-shadow-sm animate-pulse" />
+                <BiCrown size={14} className="text-yellow-500 absolute -top-2 -right-2 drop-shadow-md transform rotate-12 z-10" />
               )}
             </div>
         }

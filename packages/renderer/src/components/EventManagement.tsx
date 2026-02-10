@@ -18,8 +18,6 @@ import {BiSort} from '@react-icons/all-files/bi/BiSort';
 import {BiUser} from '@react-icons/all-files/bi/BiUser';
 import {BiBell} from '@react-icons/all-files/bi/BiBell';
 import {BiCog} from '@react-icons/all-files/bi/BiCog';
-import {BiArrowBack} from '@react-icons/all-files/bi/BiArrowBack';
-import {BiCrown} from '@react-icons/all-files/bi/BiCrown';
 import clsx from 'clsx';
 import NotificationConfigModal from './NotificationConfigModal';
 import GlobalNotificationConfigModal from './GlobalNotificationConfigModal';
