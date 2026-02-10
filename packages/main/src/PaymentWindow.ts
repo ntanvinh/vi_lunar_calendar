@@ -15,7 +15,7 @@ export async function createPaymentWindow() {
 
   paymentWindow = new BrowserWindow({
     width: 480,
-    height: 850,
+    height: 800,
     title: 'Thông tin thanh toán',
     webPreferences: {
       nodeIntegration: false,
