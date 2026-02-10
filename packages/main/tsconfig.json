@@ -13,7 +13,7 @@
       "#common": ["../common/src/index"],
       "/@/*": ["./src/*"]
     },
-    "importsNotUsedAsValues": "error"
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts", "../../types/**/*.d.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]

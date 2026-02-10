@@ -9,7 +9,7 @@
     "isolatedModules": true,
     "types": ["node"],
     "baseUrl": ".",
-    "importsNotUsedAsValues": "error",
+    "verbatimModuleSyntax": true,
     "paths": {
       "#common": ["../common/src/index"]
     }

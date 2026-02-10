@@ -2,7 +2,7 @@ import {app, Menu, nativeImage, nativeTheme, Tray} from 'electron';
 import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
-import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
+import {getCanChi, type LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 import {getCalendarWindow, toggleCalendarWindow, preloadCalendarWindow, showCalendarWindow} from '/@/CalendarWindow';
 import {createEventWindow, getEventWindow} from '/@/EventWindow';
 import {createPaymentWindow} from '/@/PaymentWindow';

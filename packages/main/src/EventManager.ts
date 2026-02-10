@@ -1,7 +1,7 @@
 import {app, ipcMain, dialog} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import {CalendarEvent, DEFAULT_EVENTS} from '../../common/src/EventData';
+import {type CalendarEvent, DEFAULT_EVENTS} from '../../common/src/EventData';
 import {v4 as uuidv4} from 'uuid';
 import {NotificationManager} from './NotificationManager';
 
