@@ -12,6 +12,20 @@ export class TrustLicenseManager implements ILicenseManager {
   constructor(config: LicenseConfig) {
     this.config = config;
     this.state = this.loadState();
+
+    // Listen for storage changes (cross-window sync)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (
+          e.key === STORAGE_KEY_PREMIUM || 
+          e.key === STORAGE_KEY_FEATURES || 
+          e.key === STORAGE_KEY_ID
+        ) {
+          this.state = this.loadState();
+          this.notify();
+        }
+      });
+    }
   }
 
   private loadState(): LicenseState {

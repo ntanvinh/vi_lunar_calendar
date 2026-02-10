@@ -10,7 +10,7 @@ export function initPaymentIPC() {
   });
 }
  
-export async function createPaymentWindow() {
+export async function createPaymentWindow(showQr: boolean = false) {
   if (paymentWindow && !paymentWindow.isDestroyed()) {
     if (paymentWindow.isMinimized()) paymentWindow.restore();
     paymentWindow.focus();
@@ -42,9 +42,13 @@ export async function createPaymentWindow() {
   /**
    * URL for payment window.
    */
-  const pageUrl = import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
+  let pageUrl = import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
     ? import.meta.env.VITE_DEV_SERVER_URL + '#/payment'
     : new URL('../renderer/dist/index.html#/payment', 'file://' + __dirname).toString();
+
+  if (showQr) {
+    pageUrl += '?view=payment';
+  }
 
   console.log('Loading URL:', pageUrl);
   

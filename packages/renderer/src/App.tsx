@@ -48,11 +48,18 @@ export default function App() {
       return <EventManagement />;
     }
     
-    if (hash === '#/payment') {
+    if (hash.startsWith('#/payment')) {
+      const urlParams = new URLSearchParams(hash.split('?')[1]);
+      const viewParam = urlParams.get('view');
+      const view = (viewParam === 'intro' || viewParam === 'payment' || viewParam === 'thankyou') 
+        ? viewParam 
+        : undefined;
+      
       return (
         <div className="h-screen w-full bg-white dark:bg-[#1E1E1E] flex items-center justify-center">
           <TrustModal 
             onClose={() => window.close()} 
+            initialView={view}
           />
         </div>
       );

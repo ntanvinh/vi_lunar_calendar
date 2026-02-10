@@ -24,13 +24,17 @@ const QUOTES = [
 interface TrustModalProps {
   onClose: () => void;
   featureId?: string; // If provided, shows specific feature pricing
+  initialView?: 'intro' | 'payment' | 'thankyou';
 }
 
-export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId }) => {
+export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, initialView }) => {
   const { manager, config, state } = useLicense();
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedBank, setCopiedBank] = useState(false);
-  const [view, setView] = useState<'intro' | 'payment' | 'thankyou'>('intro');
+  const [view, setView] = useState<'intro' | 'payment' | 'thankyou'>(() => {
+    if (initialView) return initialView;
+    return state.isPremium ? 'payment' : 'intro';
+  });
   const [randomQuote, setRandomQuote] = useState({ content: '', author: '' });
 
   useEffect(() => {
