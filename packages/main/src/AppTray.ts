@@ -5,6 +5,7 @@ import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../commo
 import {getCanChi, LunarDate, toLunarDate} from '../../common/src/LunarUtil';
 import {getCalendarWindow, toggleCalendarWindow, preloadCalendarWindow, showCalendarWindow} from '/@/CalendarWindow';
 import {createEventWindow, getEventWindow} from '/@/EventWindow';
+import {createPaymentWindow} from '/@/PaymentWindow';
 import {log} from 'electron-log';
 import {execPath} from 'process';
 import {ThemeManager} from './ThemeManager';
@@ -140,6 +141,11 @@ export function showAppTray() {
           label: 'Quản lý ngày lễ',
           type: 'normal',
           click: () => createEventWindow(),
+        },
+        {
+          label: 'Thông tin thanh toán',
+          type: 'normal',
+          click: () => createPaymentWindow(),
         },
         {
           label: 'Khởi động khi đăng nhập', type: 'checkbox', checked: loginSettings.openAtLogin, click: ({checked}) => {

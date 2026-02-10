@@ -19,9 +19,12 @@ import {BiUser} from '@react-icons/all-files/bi/BiUser';
 import {BiBell} from '@react-icons/all-files/bi/BiBell';
 import {BiCog} from '@react-icons/all-files/bi/BiCog';
 import {BiArrowBack} from '@react-icons/all-files/bi/BiArrowBack';
+import {BiCrown} from '@react-icons/all-files/bi/BiCrown';
 import clsx from 'clsx';
 import NotificationConfigModal from './NotificationConfigModal';
 import GlobalNotificationConfigModal from './GlobalNotificationConfigModal';
+import { TrustModal, useLicense } from '/@/lib/trust-license';
+import AppButton from '/@/components/button/AppButton';
 
 interface EventManagementProps {
   onBack: () => void;
@@ -35,6 +38,7 @@ function removeAccents(str: string) {
 }
 
 export default function EventManagement() {
+  const { manager } = useLicense();
   const isMac = navigator.userAgent.includes('Mac');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -43,7 +47,15 @@ export default function EventManagement() {
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [notificationModal, setNotificationModal] = useState<{visible: boolean; event: CalendarEvent | null}>({visible: false, event: null});
   const [showGlobalConfigModal, setShowGlobalConfigModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   
+  useEffect(() => {
+    const cleanup = (window as any).ipc?.onPaymentRequested(() => {
+      setShowPaymentModal(true);
+    });
+    return cleanup;
+  }, []);
+
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -271,6 +283,12 @@ export default function EventManagement() {
   };
 
   const handleExport = async () => {
+    // Check for premium (using a direct check since this function is called from a button)
+    // The button itself will handle the blocking and modal display via AppButton's premiumFeature prop.
+    // However, if called programmatically or if the check fails for some reason, we do a safety check.
+    // Since we are migrating to AppButton for these actions, the logic moves there.
+    // For now, let's keep the function as is, but we will wrap the UI elements with AppButton
+    
     const api = getEventManager();
     if (api) {
       try {
@@ -366,27 +384,30 @@ export default function EventManagement() {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Quản lý Ngày lễ & Sự kiện</h1>
             <div className="flex gap-2">
-              <button
+              <AppButton
                 onClick={handleImport}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
-                title="Nhập dữ liệu từ file CSV"
+                className="bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
+                tip="Nhập dữ liệu từ file CSV"
+                premiumFeature="import_export"
               >
                 <BiDownload size={15} /> Nhập CSV
-              </button>
-              <button
+              </AppButton>
+              <AppButton
                 onClick={handleExport}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
-                title="Xuất dữ liệu ra file CSV"
+                className="bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
+                tip="Xuất dữ liệu ra file CSV"
+                premiumFeature="import_export"
               >
                 <BiUpload size={15} /> Xuất CSV
-              </button>
-              <button
+              </AppButton>
+              <AppButton
                 onClick={() => setShowGlobalConfigModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
-                title="Cài đặt thông báo chung"
+                className="bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
+                tip="Cài đặt thông báo chung"
+                premiumFeature="global_config"
               >
                 <BiCog size={15} /> Cài đặt chung
-              </button>
+              </AppButton>
               <div className="w-px bg-gray-300 dark:bg-white/10 mx-1 h-6 self-center"></div>
               <button
                 onClick={handleResetDefaults}
@@ -725,6 +746,12 @@ export default function EventManagement() {
         <GlobalNotificationConfigModal
           onClose={() => setShowGlobalConfigModal(false)}
           onSave={handleSaveGlobalConfig}
+        />
+      )}
+
+      {showPaymentModal && (
+        <TrustModal
+          onClose={() => setShowPaymentModal(false)}
         />
       )}
     </div>
