@@ -8,6 +8,7 @@ import { BiShield } from '@react-icons/all-files/bi/BiShield';
 import { BiReset } from '@react-icons/all-files/bi/BiReset';
 import { useLicense } from '../context';
 import clsx from 'clsx';
+import PaymentQrImg from '../../../../assets/MaQR.png';
 
 const QUOTES = [
   { content: "Sự chính trực là làm điều đúng đắn ngay cả khi không có ai nhìn thấy.", author: "C.S. Lewis" },
@@ -61,8 +62,6 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
   const content = isCombo 
     ? `${config.appName.toUpperCase()} COMBO` 
     : `${config.appName.toUpperCase()} ${feature?.id.toUpperCase()}`;
-  
-  const qrUrl = manager.generatePaymentQrUrl(amount, content);
 
   const handleCopy = (text: string, setCopied: (v: boolean) => void) => {
     navigator.clipboard.writeText(text);
@@ -360,13 +359,13 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
             </p>
 
             <div className="flex justify-center">
-              <div className="relative group">
+              <div className="relative group px-4">
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                 <div className="relative bg-white dark:bg-[#252525] p-2 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                   <img 
-                    src={qrUrl} 
+                    src={PaymentQrImg} 
                     alt="VietQR Payment" 
-                    className="w-48 h-48 object-contain rounded"
+                    className="w-full object-contain rounded"
                   />
                 </div>
               </div>
@@ -392,12 +391,6 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
 
         {/* Footer */}
         <div className="p-4 bg-gray-50 dark:bg-[#252525] border-t border-gray-100 dark:border-gray-800 shrink-0 flex gap-3">
-          <button 
-            onClick={onClose}
-            className="flex-1 py-2.5 px-4 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-all text-sm"
-          >
-            Để sau
-          </button>
           
           <button 
             onClick={handlePaid}

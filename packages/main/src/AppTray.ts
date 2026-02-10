@@ -143,11 +143,6 @@ export function showAppTray() {
           click: () => createEventWindow(),
         },
         {
-          label: 'Thông tin thanh toán',
-          type: 'normal',
-          click: () => createPaymentWindow(),
-        },
-        {
           label: 'Khởi động khi đăng nhập', type: 'checkbox', checked: loginSettings.openAtLogin, click: ({checked}) => {
             const appPath = execPath;
             log(`Set login to ${checked}: `, appPath);
@@ -159,6 +154,11 @@ export function showAppTray() {
         },
         {type: 'separator'},
         {label: 'Giới thiệu', type: 'submenu', submenu: introductionMenu},
+        {
+          label: 'Thông tin thanh toán',
+          type: 'normal',
+          click: () => createPaymentWindow(true),
+        },
         {label: 'Thoát', type: 'normal', click: () => app.exit()},
       ]);
     };
