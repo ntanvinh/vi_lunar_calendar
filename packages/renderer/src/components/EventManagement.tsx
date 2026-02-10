@@ -368,24 +368,21 @@ export default function EventManagement() {
             <div className="flex gap-2">
               <button
                 onClick={handleImport}
-                tabIndex={-1}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
                 title="Nhập dữ liệu từ file CSV"
               >
-                <BiUpload size={15} /> Nhập CSV
+                <BiDownload size={15} /> Nhập CSV
               </button>
               <button
                 onClick={handleExport}
-                tabIndex={-1}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
                 title="Xuất dữ liệu ra file CSV"
               >
-                <BiDownload size={15} /> Xuất CSV
+                <BiUpload size={15} /> Xuất CSV
               </button>
               <button
                 onClick={() => setShowGlobalConfigModal(true)}
-                tabIndex={-1}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
                 title="Cài đặt thông báo chung"
               >
                 <BiCog size={15} /> Cài đặt chung
@@ -393,8 +390,7 @@ export default function EventManagement() {
               <div className="w-px bg-gray-300 dark:bg-white/10 mx-1 h-6 self-center"></div>
               <button
                 onClick={handleResetDefaults}
-                tabIndex={-1}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-white dark:bg-[#2c2c2e] border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
                 title="Khôi phục danh sách mặc định"
               >
                 <BiReset size={15} /> Khôi phục
@@ -404,8 +400,7 @@ export default function EventManagement() {
                   setShowAddForm(true);
                   setEditForm({type: 'solar', isImportant: false});
                 }}
-                tabIndex={-1}
-                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none"
+                className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
                 title={isMac ? "Thêm sự kiện mới (⌥A)" : "Thêm sự kiện mới (Alt + A)"}
               >
                 <BiPlus size={15} /> Thêm mới
@@ -453,7 +448,7 @@ export default function EventManagement() {
                         e.stopPropagation();
                         setShowFilters(!showFilters);
                       }}
-                      className={clsx('ml-auto p-1 rounded hover:bg-gray-200 dark:hover:bg-white/10 transition-colors', {
+                      className={clsx('ml-auto p-1 rounded hover:bg-gray-200 dark:hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]', {
                         'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': showFilters || searchText || filterType !== 'all' || filterImportant !== 'all',
                       })}
                       title="Lọc sự kiện"
@@ -607,8 +602,8 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => handleSave(editForm)} className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"><BiCheck size={16} /></button>
-                          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"><BiX size={16} /></button>
+                          <button onClick={() => handleSave(editForm)} className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"><BiCheck size={16} /></button>
+                          <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"><BiX size={16} /></button>
                         </div>
                       </td>
                     </>
@@ -641,7 +636,7 @@ export default function EventManagement() {
                         <div className="flex justify-end gap-1">
                           <button 
                             onClick={() => setNotificationModal({visible: true, event})} 
-                            className={clsx('p-1.5 rounded-md transition-colors', {
+                            className={clsx('p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]', {
                               'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10': !event.notification?.enabled,
                               'text-[#007AFF] bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40': event.notification?.enabled
                             })}
@@ -649,8 +644,8 @@ export default function EventManagement() {
                           >
                             <BiBell size={16} />
                           </button>
-                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors" title="Sửa"><BiEdit size={16} /></button>
-                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" title="Xóa"><BiTrash size={16} /></button>
+                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]" title="Sửa"><BiEdit size={16} /></button>
+                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]" title="Xóa"><BiTrash size={16} /></button>
                         </div>
                       </td>
                     </>
@@ -703,8 +698,8 @@ export default function EventManagement() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => handleSave(editForm)} className="text-green-600 hover:text-green-700"><BiCheck size={18} /></button>
-                      <button onClick={cancelEdit} className="text-red-500 hover:text-red-600"><BiX size={18} /></button>
+                      <button onClick={() => handleSave(editForm)} className="p-1.5 rounded-md text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"><BiCheck size={18} /></button>
+                      <button onClick={cancelEdit} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"><BiX size={18} /></button>
                     </div>
                   </td>
                 </tr>

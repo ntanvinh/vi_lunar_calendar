@@ -7,10 +7,11 @@ interface AppButtonProps extends TooltipProps {
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
+  tabIndex?: number;
 }
 
 const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
-  const {onClick, children, type = 'primary', tip, position, className, disabled} = props;
+  const {onClick, children, type = 'primary', tip, position, className, disabled, tabIndex} = props;
 
   return (
     <button
@@ -18,6 +19,9 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
         // Disabled state
         'opacity-50 cursor-not-allowed': disabled,
         
+        // Focus styles (macOS style)
+        'focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]': !disabled,
+
         // Primary (Standard Push Button)
         'px-3 py-1 border shadow-sm active:scale-95': type === 'primary' && !disabled,
         'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100': type === 'primary' && !disabled, // Light
@@ -31,7 +35,7 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
         'text-gray-300 dark:text-gray-600': type === 'text' && disabled,
       }, className)}
       onClick={disabled ? undefined : onClick}
-      tabIndex={-1}
+      tabIndex={tabIndex}
       disabled={disabled}
     >
       {

@@ -29,6 +29,7 @@ module.exports = async function() {
           'x64',
         ],
       },
+      identity: null,
       hardenedRuntime: true,
       gatekeeperAssess: false,
     },
