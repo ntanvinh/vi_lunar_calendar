@@ -1,9 +1,15 @@
-import {BrowserWindow, app, Menu} from 'electron';
+import {BrowserWindow, app, Menu, ipcMain} from 'electron';
 import {join} from 'path';
 import {isMacOS, fadeInWindow} from '/@/MainUtil';
 
 let paymentWindow: BrowserWindow | null = null;
 
+export function initPaymentIPC() {
+  ipcMain.handle('open-payment-window', () => {
+    createPaymentWindow();
+  });
+}
+ 
 export async function createPaymentWindow() {
   if (paymentWindow && !paymentWindow.isDestroyed()) {
     if (paymentWindow.isMinimized()) paymentWindow.restore();
@@ -15,7 +21,7 @@ export async function createPaymentWindow() {
 
   paymentWindow = new BrowserWindow({
     width: 480,
-    height: 800,
+    height: 960,
     title: 'Thông tin thanh toán',
     webPreferences: {
       nodeIntegration: false,

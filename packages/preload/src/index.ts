@@ -16,6 +16,7 @@ const ipc = {
       ipcRenderer.removeListener('show-payment-modal', subscription);
     };
   },
+  openPaymentWindow: () => ipcRenderer.invoke('open-payment-window'),
 };
 
 console.log('Preload script loaded!');

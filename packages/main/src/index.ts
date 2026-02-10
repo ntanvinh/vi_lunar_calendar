@@ -5,6 +5,7 @@ import {isMacOS} from '/@/MainUtil';
 import {ThemeManager} from './ThemeManager';
 import {EventManager} from './EventManager';
 import {NotificationManager} from './NotificationManager';
+import {initPaymentIPC} from '/@/PaymentWindow';
 
 /**
  * Prevent electron from running multiple instances.
@@ -54,6 +55,7 @@ app
     ThemeManager.init();
     EventManager.init();
     NotificationManager.init();
+    initPaymentIPC();
     showAppTray();
   })
   .catch(e => console.error('Failed create window:', e));

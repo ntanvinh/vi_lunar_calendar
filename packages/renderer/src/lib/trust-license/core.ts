@@ -86,6 +86,32 @@ export class TrustLicenseManager implements ILicenseManager {
     this.notify();
   }
 
+  public verifyKey(key: string): { valid: boolean; featureId?: string; isCombo?: boolean } {
+    try {
+      // Simple format: LICENSE-{Base64(featureId|salt)}
+      // salt is ignored for now, just used to make key look longer/random
+      if (!key.startsWith('LICENSE-')) return { valid: false };
+      
+      const encoded = key.replace('LICENSE-', '');
+      const decoded = atob(encoded);
+      const [featureId] = decoded.split('|');
+
+      if (featureId === 'ALL_FEATURES_COMBO') {
+        return { valid: true, isCombo: true };
+      }
+      
+      // Check if feature exists in config
+      const feature = this.config.features.find(f => f.id === featureId);
+      if (feature) {
+        return { valid: true, featureId: feature.id };
+      }
+
+      return { valid: false };
+    } catch (e) {
+      return { valid: false };
+    }
+  }
+
   public generatePaymentQrUrl(amount: number, content: string): string {
     const { bankId, accountNo, template } = this.config.bankInfo;
     const cleanContent = content.replace(/[^a-zA-Z0-9 ]/g, ''); // Basic sanitation

@@ -21,12 +21,8 @@ import {BiCog} from '@react-icons/all-files/bi/BiCog';
 import clsx from 'clsx';
 import NotificationConfigModal from './NotificationConfigModal';
 import GlobalNotificationConfigModal from './GlobalNotificationConfigModal';
-import { TrustModal, useLicense } from '/@/lib/trust-license';
 import AppButton from '/@/components/button/AppButton';
 
-interface EventManagementProps {
-  onBack: () => void;
-}
 
 function removeAccents(str: string) {
   return str.normalize('NFD')
@@ -36,7 +32,6 @@ function removeAccents(str: string) {
 }
 
 export default function EventManagement() {
-  const { manager } = useLicense();
   const isMac = navigator.userAgent.includes('Mac');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -45,15 +40,7 @@ export default function EventManagement() {
   const [notification, setNotification] = useState<{message: string; type: 'success' | 'error' | 'info'} | null>(null);
   const [notificationModal, setNotificationModal] = useState<{visible: boolean; event: CalendarEvent | null}>({visible: false, event: null});
   const [showGlobalConfigModal, setShowGlobalConfigModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   
-  useEffect(() => {
-    const cleanup = (window as any).ipc?.onPaymentRequested(() => {
-      setShowPaymentModal(true);
-    });
-    return cleanup;
-  }, []);
-
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -744,12 +731,6 @@ export default function EventManagement() {
         <GlobalNotificationConfigModal
           onClose={() => setShowGlobalConfigModal(false)}
           onSave={handleSaveGlobalConfig}
-        />
-      )}
-
-      {showPaymentModal && (
-        <TrustModal
-          onClose={() => setShowPaymentModal(false)}
         />
       )}
     </div>

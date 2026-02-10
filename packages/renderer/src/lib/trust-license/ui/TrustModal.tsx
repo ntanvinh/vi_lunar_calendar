@@ -133,11 +133,6 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId }) =>
                   ? "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-75" 
                   : "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-blue-500/30 hover:border-blue-500 shadow-sm hover:shadow-md"
               )}>
-                {state.isPremium && (
-                  <div className="absolute top-2 right-2 text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
-                    <BiCheck /> Đã sở hữu
-                  </div>
-                )}
                 {!state.isPremium && (
                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
                     TIẾT KIỆM NHẤT
@@ -154,10 +149,22 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId }) =>
                       {config.comboDescription || 'Mở khóa toàn bộ tính năng'}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className="block text-xl font-bold text-blue-600 dark:text-blue-400">
-                      {(config.comboPrice || 100000).toLocaleString('vi-VN')}đ
-                    </span>
+                  <div className="text-right flex flex-col items-end gap-1">
+                    {state.isPremium ? (
+                      <>
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm text-xs font-bold">
+                          <BiCheck size={16} className="bg-white/20 rounded-full p-0.5" />
+                          <span>Đã sở hữu</span>
+                        </div>
+                        <span className="text-sm text-gray-400 line-through">
+                          {(config.comboPrice || 100000).toLocaleString('vi-VN')}đ
+                        </span>
+                      </>
+                    ) : (
+                      <span className="block text-xl font-bold text-blue-600 dark:text-blue-400">
+                        {(config.comboPrice || 100000).toLocaleString('vi-VN')}đ
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -193,20 +200,27 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId }) =>
                           <h3 className="font-bold text-gray-900 dark:text-white">
                             {feat.name}
                           </h3>
-                          {isUnlocked && (
-                            <span className="text-green-600 bg-green-100 dark:bg-green-900/30 px-1.5 py-0.5 rounded text-[10px] font-bold flex items-center gap-0.5">
-                              <BiCheck size={12} /> Đã có
-                            </span>
-                          )}
                          </div>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                           {feat.description}
                         </p>
                       </div>
-                      <div className="text-right shrink-0 ml-4">
-                        <span className="block font-bold text-gray-700 dark:text-gray-300">
-                          {feat.price.toLocaleString('vi-VN')}đ
-                        </span>
+                      <div className="text-right shrink-0 ml-4 flex flex-col items-end gap-1">
+                        {isUnlocked ? (
+                          <>
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm text-[10px] font-bold">
+                              <BiCheck size={12} className="bg-white/20 rounded-full p-0.5" />
+                              <span>Đã có</span>
+                            </div>
+                            <span className="text-xs text-gray-400 line-through">
+                              {feat.price.toLocaleString('vi-VN')}đ
+                            </span>
+                          </>
+                        ) : (
+                          <span className="block font-bold text-gray-700 dark:text-gray-300">
+                            {feat.price.toLocaleString('vi-VN')}đ
+                          </span>
+                        )}
                       </div>
                     </div>
 

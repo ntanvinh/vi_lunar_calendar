@@ -1,8 +1,8 @@
-import React, {PropsWithChildren, useState} from 'react';
+import React, {PropsWithChildren} from 'react';
 import clsx from 'clsx';
 import Tooltip, {TooltipProps} from '/@/components/Tooltip';
 import {BiCrown} from '@react-icons/all-files/bi/BiCrown';
-import {useLicense, TrustModal} from '/@/lib/trust-license';
+import {useLicense} from '/@/lib/trust-license';
 
 interface AppButtonProps extends TooltipProps {
   type?: 'primary' | 'text';
@@ -11,7 +11,6 @@ interface AppButtonProps extends TooltipProps {
   disabled?: boolean;
   tabIndex?: number;
   premiumFeature?: string; // If set, this button requires premium
-  premiumFeatureName?: string; // Display name for the modal
 }
 
 const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
@@ -25,11 +24,9 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
     disabled, 
     tabIndex,
     premiumFeature,
-    premiumFeatureName
   } = props;
 
   const {manager} = useLicense();
-  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Check if button is locked
   // It is locked if premiumFeature is set AND it is NOT unlocked
@@ -41,7 +38,8 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
     if (isLocked) {
       e.stopPropagation();
       e.preventDefault();
-      setShowPremiumModal(true);
+      // Open payment window via IPC
+      (window as any).ipc.openPaymentWindow();
       return;
     }
 
@@ -93,13 +91,6 @@ const AppButton: React.FC<PropsWithChildren<AppButtonProps>> = (props) => {
             </div>
         }
       </button>
-
-      {showPremiumModal && (
-        <TrustModal 
-          onClose={() => setShowPremiumModal(false)} 
-          featureId={premiumFeature}
-        />
-      )}
     </>
   );
 };

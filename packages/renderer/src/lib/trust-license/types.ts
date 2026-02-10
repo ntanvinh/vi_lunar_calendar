@@ -41,6 +41,7 @@ export interface ILicenseManager {
   unlockFeature(featureId: string): void;
   unlockAll(): void;
   resetLicense(): void;
+  verifyKey(key: string): { valid: boolean; featureId?: string; isCombo?: boolean };
   
   // Helpers
   generatePaymentQrUrl(amount: number, content: string): string;
