@@ -16,18 +16,18 @@ const licenseConfig: LicenseConfig = {
       id: 'import_export',
       name: 'Nhập/Xuất dữ liệu',
       price: 60000,
-      description: 'Hỗ trợ nhập xuất dữ liệu CSV'
+      description: 'Hỗ trợ nhập xuất dữ liệu CSV',
     },
     {
       id: 'global_config',
       name: 'Cấu hình thông báo chung',
       price: 60000,
-      description: 'Tùy chỉnh cấu hình thông báo chung cho các sự kiện'
-    }
+      description: 'Tùy chỉnh cấu hình thông báo chung cho các sự kiện',
+    },
   ],
   comboPrice: 100000,
   comboName: 'Gói Trọn Đời (Combo)',
-  comboDescription: 'Mở khóa TOÀN BỘ tính năng'
+  comboDescription: 'Mở khóa TOÀN BỘ tính năng',
 };
 
 export default function App() {

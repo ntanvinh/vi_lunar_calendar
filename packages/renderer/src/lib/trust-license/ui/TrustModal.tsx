@@ -11,24 +11,23 @@ import clsx from 'clsx';
 import PaymentQrImg from '../../../../assets/MaQR.png';
 
 const QUOTES = [
-  { content: "Sự chính trực là làm điều đúng đắn ngay cả khi không có ai nhìn thấy.", author: "C.S. Lewis" },
-  { content: "Không di sản nào quý giá bằng lòng trung thực.", author: "William Shakespeare" },
-  { content: "Tôi không bắt buộc phải chiến thắng, nhưng tôi bắt buộc phải trung thực.", author: "Abraham Lincoln" },
-  { content: "Bất cứ ai bất cẩn với sự thật trong những việc nhỏ thì không thể tin cậy trong những việc lớn.", author: "Albert Einstein" },
-  { content: "Lòng trung thực là chương đầu tiên trong cuốn sách của sự khôn ngoan.", author: "Thomas Jefferson" },
-  { content: "Trung thực là món quà vô giá. Đừng mong đợi nó từ những kẻ rẻ tiền.", author: "Warren Buffett" },
-  { content: "Hạnh phúc là khi những gì bạn nghĩ, những gì bạn nói và những gì bạn làm hòa hợp với nhau.", author: "Mahatma Gandhi" },
-  { content: "Người không có chữ Tín, chẳng biết làm sao có thể đứng được trong đời.", author: "Khổng Tử" },
-  { content: "Được trung thực trọn vẹn với chính mình là một bài tập tốt.", author: "Sigmund Freud" }
+  { content: 'Sự chính trực là làm điều đúng đắn ngay cả khi không có ai nhìn thấy.', author: 'C.S. Lewis' },
+  { content: 'Không di sản nào quý giá bằng lòng trung thực.', author: 'William Shakespeare' },
+  { content: 'Tôi không bắt buộc phải chiến thắng, nhưng tôi bắt buộc phải trung thực.', author: 'Abraham Lincoln' },
+  { content: 'Bất cứ ai bất cẩn với sự thật trong những việc nhỏ thì không thể tin cậy trong những việc lớn.', author: 'Albert Einstein' },
+  { content: 'Lòng trung thực là chương đầu tiên trong cuốn sách của sự khôn ngoan.', author: 'Thomas Jefferson' },
+  { content: 'Trung thực là món quà vô giá. Đừng mong đợi nó từ những kẻ rẻ tiền.', author: 'Warren Buffett' },
+  { content: 'Hạnh phúc là khi những gì bạn nghĩ, những gì bạn nói và những gì bạn làm hòa hợp với nhau.', author: 'Mahatma Gandhi' },
+  { content: 'Người không có chữ Tín, chẳng biết làm sao có thể đứng được trong đời.', author: 'Khổng Tử' },
+  { content: 'Được trung thực trọn vẹn với chính mình là một bài tập tốt.', author: 'Sigmund Freud' },
 ];
 
 interface TrustModalProps {
   onClose: () => void;
-  featureId?: string; // If provided, shows specific feature pricing
   initialView?: 'intro' | 'payment' | 'thankyou';
 }
 
-export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, initialView }) => {
+export const TrustModal: React.FC<TrustModalProps> = ({ onClose, initialView }) => {
   const { manager, config, state } = useLicense();
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedBank, setCopiedBank] = useState(false);
@@ -71,10 +70,10 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
 
   const handleActivate = (itemId?: string, itemPrice?: number) => {
     const isConfirmed = confirm(
-      "Xác nhận kích hoạt trước - Trả tiền sau?\n\n" +
-      "Bạn sẽ nhận được License ngay lập tức để sử dụng.\n" +
-      "Chúng tôi tin tưởng bạn sẽ thực hiện thanh toán sau khi kích hoạt.\n\n" +
-      "Nhấn OK để đồng ý và kích hoạt ngay."
+      'Xác nhận kích hoạt trước - Trả tiền sau?\n\n' +
+      'Bạn sẽ nhận được License ngay lập tức để sử dụng.\n' +
+      'Chúng tôi tin tưởng bạn sẽ thực hiện thanh toán sau khi kích hoạt.\n\n' +
+      'Nhấn OK để đồng ý và kích hoạt ngay.',
     );
 
     if (!isConfirmed) return;
@@ -131,10 +130,10 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
             <div className="space-y-4 max-h-[60vh] overflow-y-auto px-1 custom-scrollbar">
               {/* Combo Option */}
               <div className={clsx(
-                "rounded-xl p-4 border-2 transition-all relative overflow-hidden text-left",
+                'rounded-xl p-4 border-2 transition-all relative overflow-hidden text-left',
                 state.isPremium 
-                  ? "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-75" 
-                  : "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-blue-500/30 hover:border-blue-500 shadow-sm hover:shadow-md"
+                  ? 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 opacity-75' 
+                  : 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-blue-500/30 hover:border-blue-500 shadow-sm hover:shadow-md',
               )}>
                 {!state.isPremium && (
                    <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
@@ -176,10 +175,10 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
                     disabled={state.isPremium}
                     onClick={() => handleActivate(undefined, config.comboPrice || 100000)}
                     className={clsx(
-                      "flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2",
+                      'flex-1 py-2 px-4 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
                       state.isPremium
-                        ? "bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 active:scale-95"
+                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 active:scale-95',
                     )}
                   >
                     {state.isPremium ? 'Đã kích hoạt' : 'Kích hoạt ngay (Trả sau)'}
@@ -192,10 +191,10 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
                 const isUnlocked = manager.isFeatureUnlocked(feat.id);
                 return (
                   <div key={feat.id} className={clsx(
-                    "rounded-xl p-4 border transition-all text-left",
+                    'rounded-xl p-4 border transition-all text-left',
                     isUnlocked
-                      ? "bg-gray-50 dark:bg-[#252525] border-gray-200 dark:border-gray-700 opacity-75"
-                      : "bg-white dark:bg-[#252525] border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      ? 'bg-gray-50 dark:bg-[#252525] border-gray-200 dark:border-gray-700 opacity-75'
+                      : 'bg-white dark:bg-[#252525] border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
                   )}>
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -231,10 +230,10 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
                       disabled={isUnlocked}
                       onClick={() => handleActivate(feat.id, feat.price)}
                       className={clsx(
-                        "w-full mt-2 py-1.5 px-3 rounded-lg font-medium text-xs transition-all",
+                        'w-full mt-2 py-1.5 px-3 rounded-lg font-medium text-xs transition-all',
                         isUnlocked
-                          ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
-                          : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                          ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
+                          : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300',
                       )}
                     >
                       {isUnlocked ? 'Đã mở khóa' : 'Mua riêng gói này'}
@@ -287,7 +286,7 @@ export const TrustModal: React.FC<TrustModalProps> = ({ onClose, featureId, init
           <div className="relative p-6 bg-gray-50 dark:bg-[#252525] rounded-xl mb-8 border border-gray-100 dark:border-gray-800">
             <BiCheck size={40} className="absolute -top-5 left-1/2 -translate-x-1/2 text-white bg-green-500 rounded-full p-1 border-4 border-white dark:border-[#1E1E1E]" />
             <p className="text-gray-600 dark:text-gray-300 italic font-serif text-lg leading-relaxed pt-2">
-              "{randomQuote.content}"
+              &quot;{randomQuote.content}&quot;
             </p>
             <p className="text-right text-sm text-gray-500 dark:text-gray-400 mt-3 font-medium">
               — {randomQuote.author}

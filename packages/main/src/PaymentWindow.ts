@@ -10,7 +10,7 @@ export function initPaymentIPC() {
   });
 }
  
-export async function createPaymentWindow(showQr: boolean = false) {
+export async function createPaymentWindow(showQr = false) {
   if (paymentWindow && !paymentWindow.isDestroyed()) {
     if (paymentWindow.isMinimized()) paymentWindow.restore();
     paymentWindow.focus();

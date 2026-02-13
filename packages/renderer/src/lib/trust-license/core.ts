@@ -95,7 +95,7 @@ export class TrustLicenseManager implements ILicenseManager {
     this.state = {
       isPremium: false,
       unlockedFeatures: [],
-      licenseKey: this.state.licenseKey
+      licenseKey: this.state.licenseKey,
     };
     this.notify();
   }

@@ -41,7 +41,7 @@ const NotificationConfigModal: React.FC<NotificationConfigModalProps> = ({event,
           continuous,
         },
       };
-      const api = (window as any).eventManager;
+      const api = window.eventManager;
       if (api && api.testNotification) {
         await api.testNotification(tempEvent);
         setTestStatus('sent');
@@ -77,7 +77,7 @@ const NotificationConfigModal: React.FC<NotificationConfigModalProps> = ({event,
 
           <div className={clsx('space-y-4 transition-all duration-300', {
             'opacity-50 pointer-events-none grayscale': !enabled,
-            'opacity-100': enabled
+            'opacity-100': enabled,
           })}>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
@@ -120,10 +120,10 @@ const NotificationConfigModal: React.FC<NotificationConfigModalProps> = ({event,
           <AppButton 
             onClick={handleTest} 
             type="text" 
-            className={clsx("!text-[#007AFF] hover:!bg-blue-50 dark:hover:!bg-blue-900/20 font-medium flex items-center gap-2", {
+            className={clsx('!text-[#007AFF] hover:!bg-blue-50 dark:hover:!bg-blue-900/20 font-medium flex items-center gap-2', {
               '!text-green-600': testStatus === 'sent',
               '!text-red-600': testStatus === 'error',
-              'opacity-70 cursor-wait': testStatus === 'sending'
+              'opacity-70 cursor-wait': testStatus === 'sending',
             })}
           >
             {testStatus === 'sending' && <span className="animate-spin">⏳</span>}

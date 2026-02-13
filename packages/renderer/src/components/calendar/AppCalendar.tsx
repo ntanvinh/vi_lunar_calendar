@@ -22,7 +22,7 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
 
   useEffect(() => {
     const loadEvents = async () => {
-      const api = (window as any).eventManager;
+      const api = window.eventManager;
       if (api) {
         try {
           const data = await api.getEvents();

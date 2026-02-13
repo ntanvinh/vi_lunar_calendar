@@ -96,7 +96,7 @@ export default function EventManagement() {
   };
 
   const getEventManager = () => {
-    return (window as any).eventManager;
+    return window.eventManager;
   };
 
   useEffect(() => {
@@ -189,7 +189,7 @@ export default function EventManagement() {
           const currentNotification = event.notification || {
             enabled: true,
             notifyBefore: 1,
-            continuous: false
+            continuous: false,
           };
           
           const newNotification = {...currentNotification};
@@ -208,7 +208,7 @@ export default function EventManagement() {
           
           return {
             ...event,
-            notification: newNotification
+            notification: newNotification,
           };
         });
         
@@ -407,7 +407,7 @@ export default function EventManagement() {
                   setEditForm({type: 'solar', isImportant: false});
                 }}
                 className="flex items-center gap-1.5 px-3 py-1 text-[13px] font-medium rounded-md transition-all duration-200 border shadow-sm active:scale-95 bg-blue-500 dark:bg-blue-600 border-blue-600 dark:border-blue-500 text-white hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]"
-                title={isMac ? "Thêm sự kiện mới (⌥A)" : "Thêm sự kiện mới (Alt + A)"}
+                title={isMac ? 'Thêm sự kiện mới (⌥A)' : 'Thêm sự kiện mới (Alt + A)'}
               >
                 <BiPlus size={15} /> Thêm mới
               </button>
@@ -644,7 +644,7 @@ export default function EventManagement() {
                             onClick={() => setNotificationModal({visible: true, event})} 
                             className={clsx('p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]', {
                               'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10': !event.notification?.enabled,
-                              'text-[#007AFF] bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40': event.notification?.enabled
+                              'text-[#007AFF] bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40': event.notification?.enabled,
                             })}
                             title="Cấu hình thông báo"
                           >

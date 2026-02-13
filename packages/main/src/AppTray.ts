@@ -9,6 +9,7 @@ import {createPaymentWindow} from '/@/PaymentWindow';
 import {log} from 'electron-log';
 import {execPath} from 'process';
 import {ThemeManager} from './ThemeManager';
+import {UpdateManager} from './UpdateManager';
 
 let appTray: Tray;
 
@@ -141,6 +142,11 @@ export function showAppTray() {
         },
         {type: 'separator'},
         {label: 'Giới thiệu', type: 'submenu', submenu: introductionMenu},
+        {
+          label: 'Kiểm tra cập nhật',
+          type: 'normal',
+          click: () => UpdateManager.checkForUpdatesManual(),
+        },
         {
           label: 'Thông tin thanh toán',
           type: 'normal',

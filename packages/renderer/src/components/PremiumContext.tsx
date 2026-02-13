@@ -11,8 +11,8 @@ interface PremiumContextType {
 const PremiumContext = createContext<PremiumContextType>({
   isPremium: false,
   unlockedFeatures: [],
-  unlockFeature: () => {},
-  unlockAll: () => {},
+  unlockFeature: () => { /* empty */ },
+  unlockAll: () => { /* empty */ },
   isFeatureUnlocked: () => false,
 });
 
@@ -59,7 +59,7 @@ export const PremiumProvider: React.FC<{children: React.ReactNode}> = ({children
       unlockedFeatures, 
       unlockFeature, 
       unlockAll,
-      isFeatureUnlocked
+      isFeatureUnlocked,
     }}>
       {children}
     </PremiumContext.Provider>

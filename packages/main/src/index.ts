@@ -6,6 +6,7 @@ import {ThemeManager} from './ThemeManager';
 import {EventManager} from './EventManager';
 import {NotificationManager} from './NotificationManager';
 import {initPaymentIPC} from '/@/PaymentWindow';
+import {UpdateManager} from './UpdateManager';
 
 /**
  * Prevent electron from running multiple instances.
@@ -57,16 +58,8 @@ app
     NotificationManager.init();
     initPaymentIPC();
     showAppTray();
+    UpdateManager.init();
   })
   .catch(e => console.error('Failed create window:', e));
 
-/**
- * Check for new version of the application - production mode only.
- */
-if (import.meta.env.PROD) {
-  app
-    .whenReady()
-    .then(() => import('electron-updater'))
-    .then(({autoUpdater}) => autoUpdater.checkForUpdatesAndNotify())
-    .catch(e => console.error('Failed check updates:', e));
-}
+
