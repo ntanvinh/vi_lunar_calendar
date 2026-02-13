@@ -186,7 +186,7 @@ export const EventManager = {
 
     ipcMain.handle('show-confirm-dialog', async (_, { title, message, type = 'question', detail }: { title: string; message: string; type?: string; detail?: string }) => {
       const { response } = await dialog.showMessageBox({
-        type: type as any,
+        type: type,
         title: title,
         message: message,
         detail: detail,

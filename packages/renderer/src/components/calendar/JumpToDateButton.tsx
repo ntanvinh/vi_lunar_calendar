@@ -3,7 +3,7 @@ import {BiCalendar} from '@react-icons/all-files/bi/BiCalendar';
 import AppButton from '/@/components/button/AppButton';
 import clsx from 'clsx';
 
-import {LunarDate, parseLunarDate, toSolarDate} from '../../../../common/src/LunarUtil';
+import {parseLunarDate, toSolarDate} from '../../../../common/src/LunarUtil';
 import {getTimeZone} from '../../../../common/src/MiscUtil';
 
 interface JumpToDateButtonProps {
@@ -129,7 +129,7 @@ const JumpToDateButton: React.FC<JumpToDateButtonProps> = ({onJump}) => {
                 {
                   'border-gray-300 dark:border-gray-600 focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/20': !error,
                   'border-[#FF3B30] focus:border-[#FF3B30] focus:ring-2 focus:ring-[#FF3B30]/20': !!error,
-                }
+                },
               )}
               placeholder="vd: 1/12/2024"
               ref={jumpDateRef}

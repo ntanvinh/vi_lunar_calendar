@@ -150,7 +150,7 @@ export class NotificationManager {
         lunarDay: event.day,
         lunarMonth: event.month,
         lunarYear: currentLunar.lunarYear,
-        isLeapMonth: false // Assuming non-leap for event definition
+        isLeapMonth: false, // Assuming non-leap for event definition
       }, timeZone);
 
       // If date passed, try next lunar year
@@ -159,7 +159,7 @@ export class NotificationManager {
           lunarDay: event.day,
           lunarMonth: event.month,
           lunarYear: currentLunar.lunarYear + 1,
-          isLeapMonth: false
+          isLeapMonth: false,
         }, timeZone);
       }
       targetDate = targetSolar;

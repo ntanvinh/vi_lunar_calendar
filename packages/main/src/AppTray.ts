@@ -22,19 +22,6 @@ function getLunarDateIcon(lunarDay: number) {
   return resizedIcon;
 }
 
-function getLunarDateExpression(lunar: LunarDate, compact?: boolean) {
-  const {lunarDay, lunarMonth, lunarYear, isLeapMonth, isLeapYear} = lunar;
-  const canChi = getCanChi(lunarYear);
-  const day = lunarDay.toString().padStart(2, '0');
-  const month = lunarMonth.toString().padStart(2, '0');
-
-  return compact ?
-    `${day}/${month}${isLeapMonth ? '*' : ''}/${lunarYear} ${canChi} ${isLeapYear ? 'nhuận' : ''}`
-    :
-    `${day} tháng ${month}${isLeapMonth ? '*' : ''} năm ${lunarYear} ${canChi} ${isLeapYear ? 'nhuận' : ''}`
-    ;
-}
-
 function getTooltipText(lunar: LunarDate) {
   const now = new Date();
   const solarDay = now.getDate().toString().padStart(2, '0');
