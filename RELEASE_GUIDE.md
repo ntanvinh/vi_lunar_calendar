@@ -11,6 +11,7 @@
 - Menu đã gọi check update ở [AppTray.ts](file:///Users/vinh/Documents/Developments/MyProjects/vi_lunar_calendar/packages/main/src/AppTray.ts#L146-L149).
 - Auto update được xử lý ở [UpdateManager.ts](file:///Users/vinh/Documents/Developments/MyProjects/vi_lunar_calendar/packages/main/src/UpdateManager.ts).
 - Publish provider đang dùng GitHub ở [.electron-builder.config.js](file:///Users/vinh/Documents/Developments/MyProjects/vi_lunar_calendar/.electron-builder.config.js#L68-L72) và [dev-app-update.yml](file:///Users/vinh/Documents/Developments/MyProjects/vi_lunar_calendar/dev-app-update.yml).
+- Repo release/update hiện tại: `https://github.com/ntanvinh/vi_lunar_calendar_releases`.
 
 ## 3) Lệnh release theo máy đang dùng
 

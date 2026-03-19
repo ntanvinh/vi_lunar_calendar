@@ -68,7 +68,7 @@ module.exports = async function() {
     publish: {
       provider: 'github',
       owner: 'ntanvinh',
-      repo: 'vi_lunar_calendar',
+      repo: 'vi_lunar_calendar_releases',
     },
     extraMetadata: {
       version: getVersion(),
