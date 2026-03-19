@@ -1,6 +1,8 @@
 import { autoUpdater, type UpdateInfo } from 'electron-updater';
 import { dialog } from 'electron';
 import log from 'electron-log';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * UpdateManager - Quản lý cập nhật tự động cho ứng dụng Electron.
@@ -73,6 +75,7 @@ export class UpdateManager {
   private isManualCheck = false;
   private pendingReleaseNotes = '';
   private pendingVersion = '';
+  private hasConfiguredFallbackFeed = false;
 
   private constructor() {
     // Configure logging
@@ -112,13 +115,59 @@ export class UpdateManager {
     this.pendingReleaseNotes = '';
     this.pendingVersion = '';
     log.info(`Checking for updates (Manual: ${isManual})...`);
+    this.ensureUpdateFeedConfig();
     autoUpdater.checkForUpdates().catch(err => {
       log.error('Error checking for updates:', err);
+      if (this.tryFallbackFeedFromError(err)) {
+        return;
+      }
       if (this.isManualCheck) {
         dialog.showErrorBox('Lỗi kiểm tra cập nhật', 'Không thể kiểm tra cập nhật. Vui lòng thử lại sau.');
         this.isManualCheck = false;
       }
     });
+  }
+
+  private getAppUpdateYmlPath() {
+    return path.join(process.resourcesPath, 'app-update.yml');
+  }
+
+  private ensureUpdateFeedConfig() {
+    if (import.meta.env.DEV || this.hasConfiguredFallbackFeed) {
+      return;
+    }
+    if (fs.existsSync(this.getAppUpdateYmlPath())) {
+      return;
+    }
+
+    log.warn('app-update.yml is missing. Falling back to explicit GitHub feed config.');
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      owner: 'ntanvinh',
+      repo: 'vi_lunar_calendar_releases',
+    });
+    this.hasConfiguredFallbackFeed = true;
+  }
+
+  private tryFallbackFeedFromError(error: unknown) {
+    if (this.hasConfiguredFallbackFeed || import.meta.env.DEV) {
+      return false;
+    }
+
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes('app-update.yml')) {
+      return false;
+    }
+
+    this.ensureUpdateFeedConfig();
+    autoUpdater.checkForUpdates().catch(retryError => {
+      log.error('Retry checking for updates failed:', retryError);
+      if (this.isManualCheck) {
+        dialog.showErrorBox('Lỗi kiểm tra cập nhật', 'Không thể kiểm tra cập nhật. Vui lòng thử lại sau.');
+        this.isManualCheck = false;
+      }
+    });
+    return true;
   }
 
   private formatReleaseNotes(info: UpdateInfo) {

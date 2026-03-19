@@ -21,6 +21,10 @@
 pnpm run release
 ```
 
+- Sau khi upload artifact xong, script sẽ yêu cầu dev nhập release notes trong terminal.
+- Kết thúc nhập bằng dòng `:end`.
+- Script sẽ tự chuyển release từ Draft sang Published.
+
 - Script này tự chọn target đúng với máy hiện tại:
   - macOS ARM -> `--mac --arm64`
   - macOS Intel -> `--mac --x64`
@@ -79,6 +83,14 @@ Exit code: 6. Command failed: hdiutil resize ... 1.dmg
 ## 8) Điều kiện bắt buộc để update hoạt động
 
 - GitHub token hợp lệ (`GH_TOKEN`) khi publish.
+- Dùng `.env` ở root project và thêm:
+
+```bash
+GH_TOKEN=your_github_token
+```
+
+- Script release đã tự nạp `.env` qua `dotenv-cli`.
 - GitHub Release public hoặc có quyền truy cập phù hợp.
-- Asset update được upload đầy đủ (`latest*.yml`, `.zip`, `.dmg`/`.exe`/`.AppImage`, blockmap).
+- `latest*.yml` là bắt buộc cho auto-update.
+- `.blockmap` nên giữ để hỗ trợ differential update (tải nhanh hơn ở các lần cập nhật nhỏ).
 - Người dùng chạy bản cài từ build production (không phải dev mode).

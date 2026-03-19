@@ -14,6 +14,7 @@ module.exports = async function() {
     productName: 'VLunar Calendar',
     executableName: 'VLunar Calendar',
     appId: 'me.ntanvinh.vi_lunar_calendar',
+    artifactName: '${productName}-${version}-${arch}.${ext}',
     files: ['packages/**/dist/**', 'packages/**/assets/**'],
     mac: {
       asar: true,
@@ -64,6 +65,10 @@ module.exports = async function() {
     },
     extraResources: [
       './assets/**',
+      {
+        from: 'app-update.yml',
+        to: 'app-update.yml',
+      },
     ],
     publish: {
       provider: 'github',

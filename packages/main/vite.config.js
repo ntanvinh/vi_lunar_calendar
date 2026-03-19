@@ -19,6 +19,12 @@ const config = {
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
     },
   },
+  ssr: {
+    noExternal: [
+      'electron-updater',
+      'builder-util-runtime',
+    ],
+  },
   build: {
     ssr: true,
     sourcemap: 'inline',

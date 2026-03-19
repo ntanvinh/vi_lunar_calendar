@@ -7,6 +7,7 @@ import {getTimeZone} from '../../common/src/MiscUtil';
 import {loadEvents} from './EventManager';
 
 const NOTIFICATION_HISTORY_FILE = 'notification_history.json';
+const NOTIFICATION_PERMISSION_FILE = 'notification_permission_requested.json';
 
 interface NotificationHistory {
   [eventId: string]: string; // date string YYYY-MM-DD
@@ -19,6 +20,7 @@ export class NotificationManager {
 
   static init() {
     this.loadHistory();
+    this.requestPermissionOnFirstRun();
     
     // Check immediately on startup (after a short delay to ensure app is fully ready)
     setTimeout(() => {
@@ -63,6 +65,60 @@ export class NotificationManager {
 
   private static getHistoryPath() {
     return path.join(app.getPath('userData'), NOTIFICATION_HISTORY_FILE);
+  }
+
+  private static getPermissionPath() {
+    return path.join(app.getPath('userData'), NOTIFICATION_PERMISSION_FILE);
+  }
+
+  private static hasRequestedPermission() {
+    try {
+      return fs.existsSync(this.getPermissionPath());
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  private static markPermissionRequested() {
+    try {
+      fs.writeFileSync(this.getPermissionPath(), JSON.stringify({requestedAt: new Date().toISOString()}), 'utf-8');
+    } catch (error) {
+      console.error('Failed to save notification permission state', error);
+    }
+  }
+
+  private static requestPermissionOnFirstRun() {
+    if (this.hasRequestedPermission()) {
+      return;
+    }
+    if (!Notification.isSupported()) {
+      this.markPermissionRequested();
+      return;
+    }
+
+    const notification = new Notification({
+      title: 'V Lunar Calendar',
+      body: 'Ứng dụng cần quyền gửi thông báo để nhắc sự kiện.',
+      silent: true,
+    });
+
+    notification.on('show', () => {
+      this.markPermissionRequested();
+    });
+
+    notification.on('close', () => {
+      this.markPermissionRequested();
+    });
+
+    notification.on('failed', () => {
+      this.markPermissionRequested();
+    });
+
+    try {
+      notification.show();
+    } catch (_error) {
+      this.markPermissionRequested();
+    }
   }
 
   private static loadHistory() {
