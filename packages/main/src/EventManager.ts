@@ -1,4 +1,4 @@
-import {app, ipcMain, dialog} from 'electron';
+import {app, ipcMain, dialog, BrowserWindow} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import {type CalendarEvent, DEFAULT_EVENTS} from '../../common/src/EventData';
@@ -38,6 +38,15 @@ function saveEvents(events: CalendarEvent[]) {
   } catch (error) {
     console.error('Failed to save events:', error);
   }
+}
+
+function broadcastEventsUpdated(events: CalendarEvent[]) {
+  const windows = BrowserWindow.getAllWindows();
+  windows.forEach(window => {
+    if (!window.isDestroyed()) {
+      window.webContents.send('events-updated', events);
+    }
+  });
 }
 
 // CSV Helpers
@@ -118,11 +127,13 @@ export const EventManager = {
         });
       }
       saveEvents(events);
+      broadcastEventsUpdated(events);
       return events;
     });
 
     ipcMain.handle('save-all-events', (_, updatedEvents: CalendarEvent[]) => {
       saveEvents(updatedEvents);
+      broadcastEventsUpdated(updatedEvents);
       return updatedEvents;
     });
 
@@ -130,6 +141,7 @@ export const EventManager = {
       let events = loadEvents();
       events = events.filter(e => e.id !== id);
       saveEvents(events);
+      broadcastEventsUpdated(events);
       return events;
     });
 
@@ -139,6 +151,7 @@ export const EventManager = {
         id: uuidv4(),
       }));
       saveEvents(defaultEvents);
+      broadcastEventsUpdated(defaultEvents);
       return defaultEvents;
     });
 
@@ -175,6 +188,7 @@ export const EventManager = {
           const updatedEvents = newEvents.map(e => ({ ...e, id: uuidv4() }));
           
           saveEvents(updatedEvents);
+          broadcastEventsUpdated(updatedEvents);
           return updatedEvents;
         } catch (e) {
           console.error('Import failed:', e);

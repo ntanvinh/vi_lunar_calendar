@@ -1,4 +1,4 @@
-import {ipcRenderer} from 'electron';
+import {ipcRenderer, type IpcRendererEvent} from 'electron';
 import type {CalendarEvent} from '../../common/src/EventData';
 
 export const eventManager = {
@@ -11,4 +11,11 @@ export const eventManager = {
   importEventsCSV: (): Promise<CalendarEvent[] | null> => ipcRenderer.invoke('import-events-csv'),
   showConfirmDialog: (options: { title: string; message: string; type?: 'question' | 'warning' | 'info' | 'error'; detail?: string }): Promise<boolean> => ipcRenderer.invoke('show-confirm-dialog', options),
   testNotification: (event: CalendarEvent): Promise<void> => ipcRenderer.invoke('test-notification', event),
+  onEventsUpdated: (callback: (events: CalendarEvent[]) => void) => {
+    const subscription = (_event: IpcRendererEvent, events: CalendarEvent[]) => callback(events);
+    ipcRenderer.on('events-updated', subscription);
+    return () => {
+      ipcRenderer.removeListener('events-updated', subscription);
+    };
+  },
 };

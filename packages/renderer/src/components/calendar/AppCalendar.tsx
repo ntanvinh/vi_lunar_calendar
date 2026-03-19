@@ -21,18 +21,31 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+    const api = window.eventManager;
+
     const loadEvents = async () => {
-      const api = window.eventManager;
       if (api) {
         try {
           const data = await api.getEvents();
-          setEvents(data);
+          if (isMounted) {
+            setEvents(data);
+          }
         } catch (e) {
           console.error('Failed to load events in calendar', e);
         }
       }
     };
-    loadEvents();
+
+    void loadEvents();
+    const unsubscribe = api?.onEventsUpdated((updatedEvents) => {
+      setEvents(updatedEvents);
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe?.();
+    };
   }, []);
 
   useEffect(() => {

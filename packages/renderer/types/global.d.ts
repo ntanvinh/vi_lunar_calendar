@@ -11,6 +11,7 @@ export interface EventManagerApi {
   importEventsCSV: () => Promise<CalendarEvent[] | null>;
   showConfirmDialog: (options: { title: string; message: string; type?: 'question' | 'warning' | 'info' | 'error'; detail?: string }) => Promise<boolean>;
   testNotification: (event: CalendarEvent) => Promise<void>;
+  onEventsUpdated: (callback: (events: CalendarEvent[]) => void) => () => void;
 }
 
 declare global {

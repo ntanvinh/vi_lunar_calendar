@@ -80,6 +80,11 @@ export class UpdateManager {
     // Disable auto download to ask user first
     autoUpdater.autoDownload = false;
 
+    // Force dev update config if in development
+    if (import.meta.env.DEV) {
+      autoUpdater.forceDevUpdateConfig = true;
+    }
+
     this.initListeners();
   }
 

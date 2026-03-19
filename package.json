@@ -1,7 +1,7 @@
 {
   "name": "vi_lunar_calendar",
   "description": "Lunar Calendar for Vietnamese",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "private": true,
   "author": {
     "email": "ntanvinh@gmail.com",
@@ -32,6 +32,7 @@
     "test:preload": "vitest run -r packages/preload --passWithNoTests",
     "test:renderer": "vitest run -r packages/renderer --passWithNoTests",
     "watch": "node scripts/watch.mjs",
+    "dev": "node scripts/watch.mjs",
     "lint": "eslint . --ext js,mjs,cjs,ts,mts,cts,tsx",
     "lint:fix": "eslint . --ext js,mjs,cjs,ts,mts,cts,tsx --fix",
     "typecheck:main": "tsc --noEmit -p packages/main/tsconfig.json",
