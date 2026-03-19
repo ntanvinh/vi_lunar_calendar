@@ -1,5 +1,5 @@
 import { autoUpdater, type UpdateInfo } from 'electron-updater';
-import { dialog } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import log from 'electron-log';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -76,6 +76,7 @@ export class UpdateManager {
   private pendingReleaseNotes = '';
   private pendingVersion = '';
   private hasConfiguredFallbackFeed = false;
+  private lastProgressPercent = -1;
 
   private constructor() {
     // Configure logging
@@ -174,10 +175,115 @@ export class UpdateManager {
     if (!info.releaseNotes) {
       return '';
     }
-    if (typeof info.releaseNotes === 'string') {
-      return info.releaseNotes;
+    const rawNotes = typeof info.releaseNotes === 'string'
+      ? info.releaseNotes
+      : info.releaseNotes.map(note => note.note).join('\n');
+
+    return this.htmlToPlainText(rawNotes);
+  }
+
+  private htmlToPlainText(html: string) {
+    const listReplaced = html
+      .replace(/<li[^>]*>/gi, '• ')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<\/ul>/gi, '\n');
+
+    const stripped = listReplaced.replace(/<[^>]+>/g, '');
+    const decoded = stripped
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+
+    return decoded
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  private getReleaseNotesDetail() {
+    if (!this.pendingReleaseNotes) {
+      return undefined;
     }
-    return info.releaseNotes.map(note => note.note).join('\n');
+    return `Nội dung cập nhật\n\n${this.pendingReleaseNotes}`;
+  }
+
+  private updateDownloadProgress(percent: number) {
+    const normalized = Math.max(0, Math.min(100, percent));
+    const progressValue = normalized / 100;
+    BrowserWindow.getAllWindows().forEach(window => {
+      if (!window.isDestroyed()) {
+        window.setProgressBar(progressValue);
+      }
+    });
+    app.setBadgeCount(Math.round(normalized));
+  }
+
+  private clearDownloadProgress() {
+    BrowserWindow.getAllWindows().forEach(window => {
+      if (!window.isDestroyed()) {
+        window.setProgressBar(-1);
+      }
+    });
+    app.setBadgeCount(0);
+    this.lastProgressPercent = -1;
+  }
+
+  private showUpdateAvailableDialog(version: string) {
+    const detail = this.getReleaseNotesDetail();
+    return dialog.showMessageBox({
+      type: 'info',
+      title: 'Bản cập nhật mới',
+      message: `Đã có phiên bản ${version}`,
+      detail,
+      buttons: ['Tải và cài đặt', 'Để sau'],
+      defaultId: 0,
+      cancelId: 1,
+      noLink: true,
+    }).then(({ response }) => {
+      if (response === 0) {
+        log.info('User accepted update. Downloading...');
+        autoUpdater.downloadUpdate();
+      } else {
+        log.info('User declined update.');
+      }
+    });
+  }
+
+  private showManualDownloadStartedDialog(version: string) {
+    const detail = this.getReleaseNotesDetail();
+    return dialog.showMessageBox({
+      type: 'info',
+      title: 'Đang tải bản cập nhật',
+      message: `Đang tải phiên bản ${version}`,
+      detail,
+      buttons: ['OK'],
+      noLink: true,
+    });
+  }
+
+  private showInstallDialog() {
+    const detail = this.getReleaseNotesDetail();
+    const versionLabel = this.pendingVersion ? ` ${this.pendingVersion}` : '';
+    return dialog.showMessageBox({
+      type: 'question',
+      title: 'Sẵn sàng cài đặt',
+      message: `Bản cập nhật${versionLabel} đã tải xong`,
+      detail,
+      buttons: ['Khởi động lại để cài đặt', 'Để sau'],
+      defaultId: 0,
+      cancelId: 1,
+      noLink: true,
+    }).then(({ response }) => {
+      if (response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
   }
 
   private initListeners() {
@@ -193,33 +299,12 @@ export class UpdateManager {
 
       if (this.isManualCheck) {
         this.isManualCheck = false;
-        dialog.showMessageBox({
-          type: 'info',
-          title: 'Đang tải bản cập nhật',
-          message: `Đang tải phiên bản ${info.version}. Ứng dụng sẽ hỏi cài đặt ngay sau khi tải xong.`,
-          detail: releaseNotes ? `Nội dung cập nhật:\n${releaseNotes}` : undefined,
-          buttons: ['OK'],
-        });
+        this.showManualDownloadStartedDialog(info.version);
         autoUpdater.downloadUpdate();
         return;
       }
 
-      dialog.showMessageBox({
-        type: 'info',
-        title: 'Cập nhật mới',
-        message: `Đã có phiên bản mới ${info.version}. Bạn có muốn tải về ngay không?`,
-        detail: releaseNotes ? `Nội dung cập nhật:\n${releaseNotes}` : undefined,
-        buttons: ['Cập nhật', 'Để sau'],
-        defaultId: 0,
-        cancelId: 1,
-      }).then(({ response }) => {
-        if (response === 0) {
-          log.info('User accepted update. Downloading...');
-          autoUpdater.downloadUpdate();
-        } else {
-          log.info('User declined update.');
-        }
-      });
+      this.showUpdateAvailableDialog(info.version);
     });
 
     autoUpdater.on('update-not-available', (info) => {
@@ -237,6 +322,7 @@ export class UpdateManager {
 
     autoUpdater.on('error', (err) => {
       log.error('Error in auto-updater:', err);
+      this.clearDownloadProgress();
       if (this.isManualCheck) {
         dialog.showErrorBox('Lỗi cập nhật', 'Đã xảy ra lỗi trong quá trình cập nhật: ' + (err.message || err));
         this.isManualCheck = false;
@@ -244,31 +330,19 @@ export class UpdateManager {
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
-      let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
-      log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-      log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
-      log.info(log_message);
-      // Optional: Send progress to renderer if you want a progress bar UI
+      const roundedPercent = Math.round(progressObj.percent);
+      if (roundedPercent !== this.lastProgressPercent) {
+        this.lastProgressPercent = roundedPercent;
+        const logMessage = `Downloading update: ${roundedPercent}% (${progressObj.transferred}/${progressObj.total})`;
+        log.info(logMessage);
+      }
+      this.updateDownloadProgress(progressObj.percent);
     });
 
     autoUpdater.on('update-downloaded', (_info) => {
       log.info('Update downloaded');
-      const detail = this.pendingReleaseNotes ? `Nội dung cập nhật:\n${this.pendingReleaseNotes}` : undefined;
-      const versionLabel = this.pendingVersion ? ` ${this.pendingVersion}` : '';
-
-      dialog.showMessageBox({
-        type: 'question',
-        title: 'Cài đặt cập nhật',
-        message: `Bản cập nhật${versionLabel} đã được tải về. Bạn có muốn khởi động lại để cài đặt ngay không?`,
-        detail,
-        buttons: ['Khởi động lại ngay', 'Để sau'],
-        defaultId: 0,
-        cancelId: 1,
-      }).then(({ response }) => {
-        if (response === 0) {
-          autoUpdater.quitAndInstall();
-        }
-      });
+      this.clearDownloadProgress();
+      this.showInstallDialog();
     });
   }
 }
