@@ -12,6 +12,7 @@ interface LunarTileContentProps {
 }
 
 const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) => {
+  const isSystemEvent = (event: CalendarEvent) => event.source === 'dynamic-yearly' || event.isReadOnly;
   const lunar = toLunarDate(date, getTimeZone());
 
   const lunarDisplay = `${lunar.lunarDay}/${lunar.lunarMonth}${lunar.isLeapMonth ? '*' : ''}`;
@@ -31,7 +32,8 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
   });
 
   const hasEvent = dayEvents.length > 0;
-  const hasImportantEvent = dayEvents.some(e => e.isImportant);
+  const hasSystemEvent = dayEvents.some(isSystemEvent);
+  const hasImportantEvent = dayEvents.some(e => !isSystemEvent(e) && e.isImportant);
   const eventNames = dayEvents.map(e => e.title).join(', ');
   const tooltipContent = eventNames ? `${canChi} • ${eventNames}` : canChi;
 
@@ -63,8 +65,9 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
         {hasEvent && (
           <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 flex gap-1">
             <div className={clsx('w-1 h-1 rounded-full', {
+              'bg-purple-500 shadow-[0_0_2px_rgba(168,85,247,0.7)]': hasSystemEvent,
               'bg-red-500 shadow-[0_0_2px_rgba(239,68,68,0.6)]': hasImportantEvent,
-              'bg-blue-400 dark:bg-blue-300': !hasImportantEvent,
+              'bg-blue-400 dark:bg-blue-300': !hasImportantEvent && !hasSystemEvent,
             })} />
           </div>
         )}
