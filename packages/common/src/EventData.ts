@@ -7,6 +7,8 @@ export interface CalendarEvent {
   day: number;
   month: number;
   isImportant: boolean;
+  isReadOnly?: boolean;
+  source?: 'default' | 'user' | 'dynamic-yearly';
   notification?: {
     enabled: boolean;
     notifyBefore: number; // days

@@ -86,7 +86,14 @@ export default function EventManagement() {
     setNotification({message, type});
   };
 
+  const isDynamicYearlyEvent = (event: CalendarEvent) => {
+    return event.source === 'dynamic-yearly' || event.isReadOnly === true;
+  };
+
   const isUserEvent = (event: CalendarEvent) => {
+    if (event.source) {
+      return event.source === 'user';
+    }
     return !DEFAULT_EVENTS.some(def => 
       def.title === event.title && 
       def.day === event.day && 
@@ -119,6 +126,12 @@ export default function EventManagement() {
   }, []);
 
   const handleDelete = async (id: string) => {
+    const targetEvent = events.find(event => event.id === id);
+    if (targetEvent && isDynamicYearlyEvent(targetEvent)) {
+      showNotification('Sự kiện tiết khí theo năm không thể xóa', 'info');
+      return;
+    }
+
     const api = getEventManager();
     if (api) {
       const confirmed = await api.showConfirmDialog({
@@ -239,6 +252,10 @@ export default function EventManagement() {
   };
 
   const startEdit = (event: CalendarEvent) => {
+    if (isDynamicYearlyEvent(event)) {
+      showNotification('Sự kiện tiết khí theo năm không thể chỉnh sửa', 'info');
+      return;
+    }
     setIsEditing(event.id);
     setEditForm({...event});
   };
@@ -623,6 +640,11 @@ export default function EventManagement() {
                               <BiUser size={16} />
                             </span>
                           )}
+                          {isDynamicYearlyEvent(event) && (
+                            <span className="text-purple-500" title="Sự kiện thay đổi theo năm">
+                              <BiCog size={16} />
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm">
@@ -640,6 +662,9 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex justify-end gap-1">
+                          {isDynamicYearlyEvent(event) && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">Tự động theo năm</span>
+                          )}
                           <button 
                             onClick={() => setNotificationModal({visible: true, event})} 
                             className={clsx('p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]', {
@@ -650,8 +675,12 @@ export default function EventManagement() {
                           >
                             <BiBell size={16} />
                           </button>
-                          <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]" title="Sửa"><BiEdit size={16} /></button>
-                          <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]" title="Xóa"><BiTrash size={16} /></button>
+                          {!isDynamicYearlyEvent(event) && (
+                            <button onClick={() => startEdit(event)} className="p-1.5 rounded-md text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]" title="Sửa"><BiEdit size={16} /></button>
+                          )}
+                          {!isDynamicYearlyEvent(event) && (
+                            <button onClick={() => handleDelete(event.id)} className="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]" title="Xóa"><BiTrash size={16} /></button>
+                          )}
                         </div>
                       </td>
                     </>

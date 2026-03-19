@@ -2,10 +2,13 @@ import {BrowserWindow, app, Menu} from 'electron';
 import {join} from 'path';
 import {isMacOS, fadeInWindow} from '/@/MainUtil';
 import {ThemeManager} from './ThemeManager';
+import {refreshDynamicEventsForCurrentYear} from './EventManager';
 
 let eventWindow: BrowserWindow | null = null;
 
 export async function createEventWindow() {
+  refreshDynamicEventsForCurrentYear();
+
   if (eventWindow && !eventWindow.isDestroyed()) {
     if (eventWindow.isMinimized()) eventWindow.restore();
     eventWindow.focus();
