@@ -4,7 +4,7 @@ import EventManagement from '/@/components/EventManagement';
 import { LicenseProvider, LicenseConfig, TrustModal } from '/@/lib/trust-license';
 
 const licenseConfig: LicenseConfig = {
-  appName: 'V Lunar Calendar',
+  appName: 'VLunar Calendar',
   bankInfo: {
     bankId: 'VPBank',
     accountNo: '0988181872',

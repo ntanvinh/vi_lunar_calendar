@@ -78,7 +78,7 @@ export function showAppTray() {
     const getContextMenu = () => {
       const currentLunar = toLunarDate(new Date(), getTimeZone());
       const introductionMenu = Menu.buildFromTemplate([
-        {label: 'V Lunar Calendar', type: 'normal', enabled: false},
+        {label: 'VLunar Calendar', type: 'normal', enabled: false},
         {label: `v${app.getVersion()}`, type: 'normal', enabled: false},
         {
           label: `by Nguyen Tan Vinh`, type: 'normal', click: () => {

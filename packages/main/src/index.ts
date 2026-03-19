@@ -39,7 +39,7 @@ app
   .then(async () => {
     // Force set app name for macOS notifications
     if (isMacOS) {
-      app.setName('V Lunar Calendar');
+      app.setName('VLunar Calendar');
     }
 
     // Set App ID for Windows and Linux

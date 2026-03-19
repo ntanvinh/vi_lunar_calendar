@@ -71,6 +71,8 @@ import log from 'electron-log';
 export class UpdateManager {
   private static instance: UpdateManager;
   private isManualCheck = false;
+  private pendingReleaseNotes = '';
+  private pendingVersion = '';
 
   private constructor() {
     // Configure logging
@@ -107,6 +109,8 @@ export class UpdateManager {
 
   public checkForUpdates(isManual = false) {
     this.isManualCheck = isManual;
+    this.pendingReleaseNotes = '';
+    this.pendingVersion = '';
     log.info(`Checking for updates (Manual: ${isManual})...`);
     autoUpdater.checkForUpdates().catch(err => {
       log.error('Error checking for updates:', err);
@@ -117,18 +121,39 @@ export class UpdateManager {
     });
   }
 
+  private formatReleaseNotes(info: UpdateInfo) {
+    if (!info.releaseNotes) {
+      return '';
+    }
+    if (typeof info.releaseNotes === 'string') {
+      return info.releaseNotes;
+    }
+    return info.releaseNotes.map(note => note.note).join('\n');
+  }
+
   private initListeners() {
     autoUpdater.on('checking-for-update', () => {
       log.info('Checking for update...');
     });
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
-      this.isManualCheck = false; // Reset manual check flag as we will show dialog
       log.info('Update available:', info);
-      
-      const releaseNotes = info.releaseNotes 
-        ? (typeof info.releaseNotes === 'string' ? info.releaseNotes : info.releaseNotes.map(n => n.note).join('\n'))
-        : '';
+      const releaseNotes = this.formatReleaseNotes(info);
+      this.pendingReleaseNotes = releaseNotes;
+      this.pendingVersion = info.version;
+
+      if (this.isManualCheck) {
+        this.isManualCheck = false;
+        dialog.showMessageBox({
+          type: 'info',
+          title: 'Đang tải bản cập nhật',
+          message: `Đang tải phiên bản ${info.version}. Ứng dụng sẽ hỏi cài đặt ngay sau khi tải xong.`,
+          detail: releaseNotes ? `Nội dung cập nhật:\n${releaseNotes}` : undefined,
+          buttons: ['OK'],
+        });
+        autoUpdater.downloadUpdate();
+        return;
+      }
 
       dialog.showMessageBox({
         type: 'info',
@@ -179,11 +204,14 @@ export class UpdateManager {
 
     autoUpdater.on('update-downloaded', (_info) => {
       log.info('Update downloaded');
-      
+      const detail = this.pendingReleaseNotes ? `Nội dung cập nhật:\n${this.pendingReleaseNotes}` : undefined;
+      const versionLabel = this.pendingVersion ? ` ${this.pendingVersion}` : '';
+
       dialog.showMessageBox({
         type: 'question',
         title: 'Cài đặt cập nhật',
-        message: 'Bản cập nhật đã được tải về. Bạn có muốn khởi động lại để cài đặt ngay không?',
+        message: `Bản cập nhật${versionLabel} đã được tải về. Bạn có muốn khởi động lại để cài đặt ngay không?`,
+        detail,
         buttons: ['Khởi động lại ngay', 'Để sau'],
         defaultId: 0,
         cancelId: 1,

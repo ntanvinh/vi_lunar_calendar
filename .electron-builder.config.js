@@ -11,8 +11,8 @@ module.exports = async function() {
   const {getVersion} = await import('./version/getVersion.mjs');
 
   return {
-    productName: 'V Lunar Calendar',
-    executableName: 'V Lunar Calendar',
+    productName: 'VLunar Calendar',
+    executableName: 'VLunar Calendar',
     appId: 'me.ntanvinh.vi_lunar_calendar',
     files: ['packages/**/dist/**', 'packages/**/assets/**'],
     mac: {
@@ -22,13 +22,7 @@ module.exports = async function() {
       category: 'Utilities',
       electronLanguages: ['en', 'vi'],
       darkModeSupport: true,
-      target: {
-        target: 'default',
-        arch: [
-          'arm64',
-          'x64',
-        ],
-      },
+      target: 'default',
       identity: null,
       hardenedRuntime: true,
       gatekeeperAssess: false,
