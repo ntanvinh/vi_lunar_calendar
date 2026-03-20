@@ -127,22 +127,29 @@ export class UpdateManager {
       return this.updateDialogIconDataUrl;
     }
 
-    try {
-      const iconPath = path.join(app.getAppPath(), 'buildResources', 'icon.png');
-      if (!fs.existsSync(iconPath)) {
-        return null;
+    const candidatePaths = [
+      path.join(process.resourcesPath, 'buildResources', 'icon.png'),
+      path.join(app.getAppPath(), 'buildResources', 'icon.png'),
+    ];
+
+    for (const iconPath of candidatePaths) {
+      try {
+        if (!iconPath || !fs.existsSync(iconPath)) {
+          continue;
+        }
+        const image = nativeImage.createFromPath(iconPath);
+        if (image.isEmpty()) {
+          continue;
+        }
+        const resized = image.resize({width: 128, height: 128});
+        this.updateDialogIconDataUrl = resized.toDataURL();
+        return this.updateDialogIconDataUrl;
+      } catch (error) {
+        log.warn('Failed to load update dialog icon', {iconPath, error});
       }
-      const image = nativeImage.createFromPath(iconPath);
-      if (image.isEmpty()) {
-        return null;
-      }
-      const resized = image.resize({ width: 128, height: 128 });
-      this.updateDialogIconDataUrl = resized.toDataURL();
-      return this.updateDialogIconDataUrl;
-    } catch (error) {
-      log.warn('Failed to load update dialog icon', error);
-      return null;
     }
+
+    return null;
   }
 
   public static init() {
@@ -305,22 +312,23 @@ export class UpdateManager {
       .replace(/javascript:/gi, '');
   }
 
+  private decodeHtmlEntities(value: string) {
+    return value
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/&#96;/gi, '`');
+  }
+
   private normalizeReleaseNotesHtml(rawNotes: string) {
     const input = rawNotes.trim();
     if (!input) {
       return '';
     }
-    const sanitized = this.sanitizeHtml(input);
-    if (/<[^>]+>/.test(sanitized)) {
-      return sanitized;
-    }
-
-    return sanitized
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(Boolean)
-      .map(line => `<p>${this.escapeHtml(line)}</p>`)
-      .join('');
+    const decoded = this.decodeHtmlEntities(input);
+    return this.sanitizeHtml(decoded);
   }
 
   private htmlToPlainText(html: string) {
