@@ -112,7 +112,7 @@ export function showAppTray() {
       ]);
 
       const loginSettings = app.getLoginItemSettings();
-      return Menu.buildFromTemplate([
+      const menuTemplate: Electron.MenuItemConstructorOptions[] = [
         {
           label: getTooltipText(currentLunar).replace('\n', ' - '),
           type: 'normal',
@@ -147,13 +147,73 @@ export function showAppTray() {
           type: 'normal',
           click: () => UpdateManager.checkForUpdatesManual(),
         },
+      ];
+
+      if (import.meta.env.DEV) {
+        const devSigningMode = UpdateManager.getDevSigningMode();
+        menuTemplate.push({
+          label: 'Dev Tools',
+          type: 'submenu',
+          submenu: Menu.buildFromTemplate([
+            {
+              label: 'Test tiến trình cập nhật',
+              type: 'normal',
+              click: () => UpdateManager.runDevDownloadProgressTest(),
+            },
+            {type: 'separator'},
+            {
+              label: 'Test check update (giả lập có code signing)',
+              type: 'normal',
+              click: () => UpdateManager.runDevSignedUpdateCheckTest(),
+            },
+            {
+              label: 'Test check update (giả lập không code signing)',
+              type: 'normal',
+              click: () => UpdateManager.runDevUnsignedUpdateCheckTest(),
+            },
+            {
+              label: 'Giả lập có phiên bản mới (auto updater)',
+              type: 'normal',
+              click: () => UpdateManager.runDevMockUpdateAvailableAuto(),
+            },
+            {
+              label: 'Giả lập có phiên bản mới (thủ công)',
+              type: 'normal',
+              click: () => UpdateManager.runDevMockUpdateAvailableManual(),
+            },
+            {type: 'separator'},
+            {
+              label: 'Auto',
+              type: 'radio',
+              checked: devSigningMode === 'auto',
+              click: () => UpdateManager.setDevSigningMode('auto'),
+            },
+            {
+              label: 'Giả lập signed',
+              type: 'radio',
+              checked: devSigningMode === 'signed',
+              click: () => UpdateManager.setDevSigningMode('signed'),
+            },
+            {
+              label: 'Giả lập unsigned',
+              type: 'radio',
+              checked: devSigningMode === 'unsigned',
+              click: () => UpdateManager.setDevSigningMode('unsigned'),
+            },
+          ]),
+        });
+      }
+
+      menuTemplate.push(
         {
           label: 'Thông tin thanh toán',
           type: 'normal',
           click: () => createPaymentWindow(true),
         },
         {label: 'Thoát', type: 'normal', click: () => app.exit()},
-      ]);
+      );
+
+      return Menu.buildFromTemplate(menuTemplate);
     };
 
     nativeTheme.on('updated', () => forceRefreshTray(appTray));

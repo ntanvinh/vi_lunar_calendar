@@ -209,6 +209,10 @@ function parseCSV(csvContent: string): Omit<CalendarEvent, 'id'>[] {
   return events;
 }
 
+function getEventDeduplicateKey(event: Pick<CalendarEvent, 'title' | 'type' | 'day' | 'month'>) {
+  return `${event.title.trim().toLocaleLowerCase()}|${event.type}|${event.day}|${event.month}`;
+}
+
 function sanitizeReadOnlyEventUpdate(existingEvent: CalendarEvent, incomingEvent: Omit<CalendarEvent, 'id'> & { id?: string }) {
   return {
     ...existingEvent,
@@ -324,11 +328,23 @@ export const EventManager = {
       if (!canceled && filePaths.length > 0) {
         try {
           const csvContent = fs.readFileSync(filePaths[0], 'utf-8');
-          const importedEvents = parseCSV(csvContent).map(event => ({
+          const existingEvents = loadEvents();
+          const deduplicateKeys = new Set(existingEvents.map(event => getEventDeduplicateKey(event)));
+          const importedEvents = parseCSV(csvContent)
+            .filter(event => {
+              const key = getEventDeduplicateKey(event as Pick<CalendarEvent, 'title' | 'type' | 'day' | 'month'>);
+              if (deduplicateKeys.has(key)) {
+                return false;
+              }
+              deduplicateKeys.add(key);
+              return true;
+            })
+            .map(event => ({
             ...event,
             id: uuidv4(),
           })) as CalendarEvent[];
-          const syncedEvents = ensureEventsForCurrentYear(importedEvents);
+          const mergedEvents = [...existingEvents, ...importedEvents];
+          const syncedEvents = ensureEventsForCurrentYear(mergedEvents);
           saveEvents(syncedEvents);
           broadcastEventsUpdated(syncedEvents);
           return syncedEvents;
