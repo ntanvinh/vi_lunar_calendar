@@ -14,8 +14,30 @@ export interface EventManagerApi {
   onEventsUpdated: (callback: (events: CalendarEvent[]) => void) => () => void;
 }
 
+type UpdateDialogAction = 'primary' | 'secondary';
+
+type UpdateDialogPayload = {
+  title: string;
+  heading: string;
+  message: string;
+  currentVersion: string;
+  latestVersion: string;
+  releaseNotesHtml: string;
+  primaryButtonLabel: string;
+  secondaryButtonLabel: string;
+  iconDataUrl?: string;
+};
+
+interface IpcApi {
+  onPaymentRequested: (callback: () => void) => () => void;
+  openPaymentWindow: () => Promise<void>;
+  getUpdateDialogData: () => Promise<UpdateDialogPayload | null>;
+  performUpdateDialogAction: (action: UpdateDialogAction) => Promise<void>;
+}
+
 declare global {
   interface Window {
     eventManager: EventManagerApi;
+    ipc: IpcApi;
   }
 }

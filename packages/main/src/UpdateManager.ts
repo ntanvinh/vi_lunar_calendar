@@ -1,10 +1,24 @@
 import { autoUpdater, type UpdateInfo } from 'electron-updater';
-import { app, BrowserWindow, dialog, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, nativeImage, shell } from 'electron';
 import log from 'electron-log';
 import * as fs from 'fs';
 import * as path from 'path';
-import {spawnSync} from 'child_process';
+import { spawnSync } from 'child_process';
 import * as https from 'https';
+
+type UpdateDialogAction = 'primary' | 'secondary';
+
+type UpdateDialogPayload = {
+  title: string;
+  heading: string;
+  message: string;
+  currentVersion: string;
+  latestVersion: string;
+  releaseNotesHtml: string;
+  primaryButtonLabel: string;
+  secondaryButtonLabel: string;
+  iconDataUrl?: string | null;
+};
 
 /**
  * UpdateManager - Quản lý cập nhật tự động cho ứng dụng Electron.
@@ -42,6 +56,7 @@ import * as https from 'https';
  *      "type": "git",
  *      "url": "git+https://github.com/username/repo-name.git"
  *    }
+
  *    ```
  *
  * 5. Cấu hình Electron Builder (ví dụ `.electron-builder.config.js`):
@@ -77,6 +92,7 @@ export class UpdateManager {
   private static devSigningMode: 'auto' | 'signed' | 'unsigned' = 'auto';
   private isManualCheck = false;
   private pendingReleaseNotes = '';
+  private pendingReleaseNotesHtml = '';
   private pendingVersion = '';
   private hasConfiguredFallbackFeed = false;
   private lastProgressPercent = -1;
@@ -84,6 +100,11 @@ export class UpdateManager {
   private progressWindowReady = false;
   private pendingProgressPercent = 0;
   private canUseAutoUpdater = true;
+  private updateDialogWindow: BrowserWindow | null = null;
+  private updateDialogPayload: UpdateDialogPayload | null = null;
+  private updateDialogResolver: ((action: UpdateDialogAction) => void) | null = null;
+  private updateDialogResolved = false;
+  private updateDialogIconDataUrl: string | null = null;
 
   private constructor() {
     // Configure logging
@@ -100,14 +121,37 @@ export class UpdateManager {
       autoUpdater.forceDevUpdateConfig = true;
     }
 
+    this.initUpdateDialogIpc();
     this.initListeners();
+  }
+  private getUpdateDialogIcon() {
+    if (this.updateDialogIconDataUrl) {
+      return this.updateDialogIconDataUrl;
+    }
+
+    try {
+      const iconPath = path.join(app.getAppPath(), 'buildResources', 'icon.png');
+      if (!fs.existsSync(iconPath)) {
+        return null;
+      }
+      const image = nativeImage.createFromPath(iconPath);
+      if (image.isEmpty()) {
+        return null;
+      }
+      const resized = image.resize({ width: 128, height: 128 });
+      this.updateDialogIconDataUrl = resized.toDataURL();
+      return this.updateDialogIconDataUrl;
+    } catch (error) {
+      log.warn('Failed to load update dialog icon', error);
+      return null;
+    }
   }
 
   public static init() {
     if (!UpdateManager.instance) {
       UpdateManager.instance = new UpdateManager();
     }
-    
+
     // Check for updates immediately on startup (only in production)
     if (import.meta.env.PROD) {
       UpdateManager.instance.checkForUpdates();
@@ -175,6 +219,7 @@ export class UpdateManager {
 
     this.isManualCheck = isManual;
     this.pendingReleaseNotes = '';
+    this.pendingReleaseNotesHtml = '';
     this.pendingVersion = '';
     log.info(`Checking for updates (Manual: ${isManual})...`);
     this.ensureUpdateFeedConfig();
@@ -232,7 +277,7 @@ export class UpdateManager {
     return true;
   }
 
-  private formatReleaseNotes(info: UpdateInfo) {
+  private formatReleaseNotesHtml(info: UpdateInfo) {
     if (!info.releaseNotes) {
       return '';
     }
@@ -240,7 +285,44 @@ export class UpdateManager {
       ? info.releaseNotes
       : info.releaseNotes.map(note => note.note).join('\n');
 
-    return this.htmlToPlainText(rawNotes);
+    return this.normalizeReleaseNotesHtml(rawNotes);
+  }
+
+  private escapeHtml(value: string) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private sanitizeHtml(value: string) {
+    return value
+      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
+      .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, '')
+      .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, '')
+      .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, '')
+      .replace(/javascript:/gi, '');
+  }
+
+  private normalizeReleaseNotesHtml(rawNotes: string) {
+    const input = rawNotes.trim();
+    if (!input) {
+      return '';
+    }
+    const sanitized = this.sanitizeHtml(input);
+    if (/<[^>]+>/.test(sanitized)) {
+      return sanitized;
+    }
+
+    return sanitized
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(line => `<p>${this.escapeHtml(line)}</p>`)
+      .join('');
   }
 
   private htmlToPlainText(html: string) {
@@ -300,23 +382,27 @@ export class UpdateManager {
   private runMockUpdateAvailableAutoDialog() {
     const mockVersion = this.getDevMockVersion();
     this.pendingVersion = mockVersion;
-    this.pendingReleaseNotes = [
+    const mockReleaseNotes = [
       '• Cải thiện trải nghiệm cập nhật trên macOS.',
       '• Sửa lỗi hiển thị release notes HTML.',
       '• Tối ưu hiệu năng và độ ổn định.',
     ].join('\n');
 
-    dialog.showMessageBox({
-      type: 'info',
+    this.pendingReleaseNotes = mockReleaseNotes;
+    this.pendingReleaseNotesHtml = this.normalizeReleaseNotesHtml(mockReleaseNotes);
+
+    this.showUpdatePromptDialog({
       title: 'Dev Preview',
-      message: `Mô phỏng có bản cập nhật mới ${mockVersion}`,
-      detail: this.getReleaseNotesDetail(),
-      buttons: ['Mô phỏng tải update', 'Đóng'],
-      defaultId: 0,
-      cancelId: 1,
-      noLink: true,
-    }).then(({response}) => {
-      if (response === 0) {
+      heading: 'A new version of VLunar Calendar is available!',
+      message: `Phiên bản ${mockVersion} đã sẵn sàng. Bạn có muốn tải xuống và cài đặt ngay không?`,
+      currentVersion: app.getVersion(),
+      latestVersion: mockVersion,
+      releaseNotesHtml: this.pendingReleaseNotesHtml,
+      primaryButtonLabel: 'Mô phỏng tải update',
+      secondaryButtonLabel: 'Để sau',
+      iconDataUrl: this.getUpdateDialogIcon(),
+    }).then(action => {
+      if (action === 'primary') {
         this.runProgressSimulation();
       }
     });
@@ -331,17 +417,18 @@ export class UpdateManager {
       '• Tối ưu hiệu năng và độ ổn định.',
     ].join('\n');
 
-    dialog.showMessageBox({
-      type: 'info',
+    this.showUpdatePromptDialog({
       title: 'Dev Preview',
-      message: `Mô phỏng có phiên bản mới ${mockVersion}`,
-      detail,
-      buttons: ['Mở link tải', 'Đóng'],
-      defaultId: 0,
-      cancelId: 1,
-      noLink: true,
-    }).then(({response}) => {
-      if (response === 0) {
+      heading: 'A new version of VLunar Calendar is available!',
+      message: `Phiên bản ${mockVersion} đã sẵn sàng. Vui lòng tải và cài đặt thủ công từ trang release.`,
+      currentVersion: app.getVersion(),
+      latestVersion: mockVersion,
+      releaseNotesHtml: this.normalizeReleaseNotesHtml(detail),
+      primaryButtonLabel: 'Mở link tải',
+      secondaryButtonLabel: 'Để sau',
+      iconDataUrl: this.getUpdateDialogIcon(),
+    }).then(action => {
+      if (action === 'primary') {
         shell.openExternal(mockReleaseUrl);
       }
     });
@@ -356,7 +443,7 @@ export class UpdateManager {
     }
 
     try {
-      const result = spawnSync('codesign', ['-dv', process.execPath], {encoding: 'utf-8'});
+      const result = spawnSync('codesign', ['-dv', process.execPath], { encoding: 'utf-8' });
       if (result.status !== 0) {
         return false;
       }
@@ -385,21 +472,21 @@ export class UpdateManager {
         return;
       }
 
-      const detail = this.htmlToPlainText(release.body ?? '');
-      dialog.showMessageBox({
-        type: 'info',
+      const releaseNotesHtml = this.normalizeReleaseNotesHtml(release.body ?? '');
+      const action = await this.showUpdatePromptDialog({
         title: 'Có phiên bản mới',
-        message: `Phiên bản mới ${latestVersion} đã sẵn sàng.`,
-        detail: detail || 'Phiên bản hiện tại chưa hỗ trợ tự cập nhật trên máy này. Vui lòng tải và cài đặt thủ công.',
-        buttons: ['Mở trang tải', 'Để sau'],
-        defaultId: 0,
-        cancelId: 1,
-        noLink: true,
-      }).then(({response: action}) => {
-        if (action === 0 && release.html_url) {
-          shell.openExternal(release.html_url);
-        }
+        heading: 'A new version of VLunar Calendar is available!',
+        message: `Phiên bản mới ${latestVersion} đã sẵn sàng. Bạn đang dùng ${currentVersion}.`,
+        currentVersion,
+        latestVersion,
+        releaseNotesHtml: releaseNotesHtml || '<p>Phiên bản hiện tại chưa hỗ trợ tự cập nhật trên máy này. Vui lòng tải và cài đặt thủ công.</p>',
+        primaryButtonLabel: 'Mở trang tải',
+        secondaryButtonLabel: 'Để sau',
+        iconDataUrl: this.getUpdateDialogIcon(),
       });
+      if (action === 'primary' && release.html_url) {
+        shell.openExternal(release.html_url);
+      }
     } catch (error) {
       log.error('Manual update fallback failed', error);
       dialog.showMessageBox({
@@ -411,7 +498,7 @@ export class UpdateManager {
         defaultId: 0,
         cancelId: 1,
         noLink: true,
-      }).then(({response}) => {
+      }).then(({ response }) => {
         if (response === 0) {
           shell.openExternal('https://github.com/ntanvinh/vi_lunar_calendar_releases/releases');
         }
@@ -605,18 +692,18 @@ export class UpdateManager {
   }
 
   private showUpdateAvailableDialog(version: string) {
-    const detail = this.getReleaseNotesDetail();
-    return dialog.showMessageBox({
-      type: 'info',
+    return this.showUpdatePromptDialog({
       title: 'Bản cập nhật mới',
-      message: `Đã có phiên bản ${version}`,
-      detail,
-      buttons: ['Tải và cài đặt', 'Để sau'],
-      defaultId: 0,
-      cancelId: 1,
-      noLink: true,
-    }).then(({ response }) => {
-      if (response === 0) {
+      heading: 'A new version of VLunar Calendar is available!',
+      message: `Phiên bản ${version} đã sẵn sàng — bạn đang dùng ${app.getVersion()}. Bạn có muốn tải và cài đặt ngay bây giờ không?`,
+      currentVersion: app.getVersion(),
+      latestVersion: version,
+      releaseNotesHtml: this.pendingReleaseNotesHtml || this.normalizeReleaseNotesHtml(this.pendingReleaseNotes),
+      primaryButtonLabel: 'Install Update',
+      secondaryButtonLabel: 'Skip This Version',
+      iconDataUrl: this.getUpdateDialogIcon(),
+    }).then(action => {
+      if (action === 'primary') {
         log.info('User accepted update. Downloading...');
         autoUpdater.downloadUpdate();
       } else {
@@ -625,15 +712,97 @@ export class UpdateManager {
     });
   }
 
-  private showManualDownloadStartedDialog(version: string) {
-    const detail = this.getReleaseNotesDetail();
-    return dialog.showMessageBox({
-      type: 'info',
-      title: 'Đang tải bản cập nhật',
-      message: `Đang tải phiên bản ${version}`,
-      detail,
-      buttons: ['OK'],
-      noLink: true,
+  private initUpdateDialogIpc() {
+    ipcMain.removeHandler('update-dialog:get-data');
+    ipcMain.removeHandler('update-dialog:perform-action');
+
+    ipcMain.handle('update-dialog:get-data', () => {
+      return this.updateDialogPayload;
+    });
+
+    ipcMain.handle('update-dialog:perform-action', (_event, action: UpdateDialogAction) => {
+      if (action !== 'primary' && action !== 'secondary') {
+        return;
+      }
+      this.resolveUpdateDialog(action);
+    });
+  }
+
+  private resolveUpdateDialog(action: UpdateDialogAction) {
+    if (this.updateDialogResolved) {
+      return;
+    }
+
+    this.updateDialogResolved = true;
+    const resolve = this.updateDialogResolver;
+    this.updateDialogResolver = null;
+    this.updateDialogPayload = null;
+    if (resolve) {
+      resolve(action);
+    }
+
+    if (this.updateDialogWindow && !this.updateDialogWindow.isDestroyed()) {
+      this.updateDialogWindow.close();
+    }
+  }
+
+  private showUpdatePromptDialog(payload: UpdateDialogPayload): Promise<UpdateDialogAction> {
+    if (this.updateDialogWindow && !this.updateDialogWindow.isDestroyed()) {
+      this.resolveUpdateDialog('secondary');
+    }
+
+    this.updateDialogPayload = {
+      ...payload,
+      iconDataUrl: payload.iconDataUrl ?? this.getUpdateDialogIcon(),
+    };
+    this.updateDialogResolved = false;
+
+    const pageUrl = import.meta.env.DEV && import.meta.env.VITE_DEV_SERVER_URL !== undefined
+      ? `${import.meta.env.VITE_DEV_SERVER_URL}#/update-dialog`
+      : new URL('../renderer/dist/index.html#/update-dialog', 'file://' + __dirname).toString();
+
+    return new Promise(resolve => {
+      this.updateDialogResolver = resolve;
+      const isMacOS = process.platform === 'darwin';
+
+      this.updateDialogWindow = new BrowserWindow({
+        width: 980,
+        height: 700,
+        minWidth: 860,
+        minHeight: 620,
+        show: false,
+        title: payload.title,
+        autoHideMenuBar: true,
+        titleBarStyle: isMacOS ? 'hiddenInset' : 'default',
+        backgroundColor: isMacOS ? '#00000000' : '#f3f3f3',
+        vibrancy: isMacOS ? 'window' : undefined,
+        visualEffectState: isMacOS ? 'active' : undefined,
+        resizable: true,
+        minimizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          sandbox: false,
+          preload: path.join(app.getAppPath(), 'packages/preload/dist/index.cjs'),
+        },
+      });
+
+      this.updateDialogWindow.on('closed', () => {
+        this.updateDialogWindow = null;
+        if (!this.updateDialogResolved) {
+          this.resolveUpdateDialog('secondary');
+        }
+      });
+
+      this.updateDialogWindow.loadURL(pageUrl).then(() => {
+        this.updateDialogWindow?.show();
+        this.updateDialogWindow?.focus();
+      }).catch(error => {
+        log.error('Failed to open update prompt window', error);
+        this.resolveUpdateDialog('secondary');
+      });
     });
   }
 
@@ -701,15 +870,13 @@ export class UpdateManager {
 
     autoUpdater.on('update-available', (info: UpdateInfo) => {
       log.info('Update available:', info);
-      const releaseNotes = this.formatReleaseNotes(info);
-      this.pendingReleaseNotes = releaseNotes;
+      const releaseNotesHtml = this.formatReleaseNotesHtml(info);
+      this.pendingReleaseNotesHtml = releaseNotesHtml;
+      this.pendingReleaseNotes = this.htmlToPlainText(releaseNotesHtml);
       this.pendingVersion = info.version;
 
       if (this.isManualCheck) {
         this.isManualCheck = false;
-        this.showManualDownloadStartedDialog(info.version);
-        autoUpdater.downloadUpdate();
-        return;
       }
 
       this.showUpdateAvailableDialog(info.version);

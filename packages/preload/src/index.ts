@@ -2,14 +2,14 @@
  * @module preload
  */
 
-import {contextBridge, ipcRenderer} from 'electron';
+import {contextBridge, ipcRenderer, type IpcRendererEvent} from 'electron';
 import {sha256sum} from './nodeCrypto';
 import {versions} from './versions';
 import {eventManager} from './eventManager';
 
 const ipc = {
   onPaymentRequested: (callback: () => void) => {
-    const subscription = (_event: any) => callback();
+    const subscription = (_event: IpcRendererEvent) => callback();
     ipcRenderer.on('show-payment-modal', subscription);
     // Return a cleanup function
     return () => {
@@ -17,6 +17,8 @@ const ipc = {
     };
   },
   openPaymentWindow: () => ipcRenderer.invoke('open-payment-window'),
+  getUpdateDialogData: () => ipcRenderer.invoke('update-dialog:get-data'),
+  performUpdateDialogAction: (action: 'primary' | 'secondary') => ipcRenderer.invoke('update-dialog:perform-action', action),
 };
 
 console.log('Preload script loaded!');
@@ -39,9 +41,15 @@ if (process.contextIsolated) {
   }
 } else {
   // Fallback for when contextIsolation is disabled (not recommended)
-  (window as any).versions = versions;
-  (window as any).sha256sum = sha256sum;
-  (window as any).eventManager = eventManager;
-  (window as any).ipc = ipc;
+  const unsafeWindow = window as Window & typeof globalThis & {
+    versions: typeof versions;
+    sha256sum: typeof sha256sum;
+    eventManager: typeof eventManager;
+    ipc: typeof ipc;
+  };
+  unsafeWindow.versions = versions;
+  unsafeWindow.sha256sum = sha256sum;
+  unsafeWindow.eventManager = eventManager;
+  unsafeWindow.ipc = ipc;
   console.log('APIs exposed via window object');
 }

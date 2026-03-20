@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import AppCalendar from '/@/components/calendar/AppCalendar';
 import EventManagement from '/@/components/EventManagement';
 import { LicenseProvider, LicenseConfig, TrustModal } from '/@/lib/trust-license';
+import UpdateDialogWindow from '/@/components/UpdateDialogWindow';
 
 const licenseConfig: LicenseConfig = {
   appName: 'VLunar Calendar',
@@ -44,6 +45,10 @@ export default function App() {
   }, []);
 
   const renderContent = () => {
+    if (hash === '#/update-dialog') {
+      return <UpdateDialogWindow />;
+    }
+
     if (hash === '#/events') {
       return <EventManagement />;
     }
