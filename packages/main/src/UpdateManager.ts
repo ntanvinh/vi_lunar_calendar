@@ -18,6 +18,7 @@ type UpdateDialogPayload = {
   primaryButtonLabel: string;
   secondaryButtonLabel: string;
   iconDataUrl?: string | null;
+  downloadProgressPercent?: number | null;
 };
 
 /**
@@ -56,8 +57,6 @@ type UpdateDialogPayload = {
  *      "type": "git",
  *      "url": "git+https://github.com/username/repo-name.git"
  *    }
-
- *    ```
  *
  * 5. Cấu hình Electron Builder (ví dụ `.electron-builder.config.js`):
  *    Thêm cấu hình publish:
@@ -96,15 +95,14 @@ export class UpdateManager {
   private pendingVersion = '';
   private hasConfiguredFallbackFeed = false;
   private lastProgressPercent = -1;
-  private progressWindow: BrowserWindow | null = null;
-  private progressWindowReady = false;
-  private pendingProgressPercent = 0;
+  private pendingProgressPercent: number | null = null;
   private canUseAutoUpdater = true;
   private updateDialogWindow: BrowserWindow | null = null;
   private updateDialogPayload: UpdateDialogPayload | null = null;
   private updateDialogResolver: ((action: UpdateDialogAction) => void) | null = null;
   private updateDialogResolved = false;
   private updateDialogIconDataUrl: string | null = null;
+  private updateDialogWindowReady = false;
 
   private constructor() {
     // Configure logging
@@ -611,7 +609,7 @@ export class UpdateManager {
     });
     app.setBadgeCount(Math.round(normalized));
     this.pendingProgressPercent = normalized;
-    this.showOrUpdateProgressWindow(normalized);
+    this.pushUpdateDialogPayload({downloadProgressPercent: normalized});
   }
 
   private clearDownloadProgress() {
@@ -622,73 +620,8 @@ export class UpdateManager {
     });
     app.setBadgeCount(0);
     this.lastProgressPercent = -1;
-    if (this.progressWindow && !this.progressWindow.isDestroyed()) {
-      this.progressWindow.close();
-    }
-    this.progressWindow = null;
-    this.progressWindowReady = false;
-    this.pendingProgressPercent = 0;
-  }
-
-  private getProgressWindowHtml(percent: number) {
-    const normalized = Math.max(0, Math.min(100, Math.round(percent)));
-    return `
-      <html>
-        <body style="margin:0;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;color:#1d1d1f;">
-          <div style="font-size:15px;font-weight:600;margin-bottom:10px;">Đang tải bản cập nhật</div>
-          <div style="font-size:13px;color:#6e6e73;margin-bottom:12px;">${normalized}%</div>
-          <div style="width:100%;height:8px;background:#dedee2;border-radius:999px;overflow:hidden;">
-            <div style="width:${normalized}%;height:100%;background:#0a84ff;"></div>
-          </div>
-        </body>
-      </html>
-    `;
-  }
-
-  private showOrUpdateProgressWindow(percent: number) {
-    if (!this.progressWindow || this.progressWindow.isDestroyed()) {
-      this.progressWindow = new BrowserWindow({
-        width: 380,
-        height: 140,
-        show: false,
-        resizable: false,
-        maximizable: false,
-        minimizable: false,
-        fullscreenable: false,
-        autoHideMenuBar: true,
-        alwaysOnTop: true,
-        title: 'Đang tải bản cập nhật',
-        webPreferences: {
-          sandbox: false,
-          contextIsolation: false,
-          nodeIntegration: true,
-        },
-      });
-
-      this.progressWindow.on('closed', () => {
-        this.progressWindow = null;
-        this.progressWindowReady = false;
-      });
-
-      const html = this.getProgressWindowHtml(percent);
-      this.progressWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(html)}`).then(() => {
-        this.progressWindowReady = true;
-        this.progressWindow?.show();
-        this.progressWindow?.focus();
-      });
-      return;
-    }
-
-    const normalized = Math.max(0, Math.min(100, Math.round(percent)));
-    this.progressWindow.setTitle(`Đang tải bản cập nhật - ${normalized}%`);
-    this.progressWindow.setProgressBar(normalized / 100);
-    if (!this.progressWindowReady || this.progressWindow.webContents.isLoading()) {
-      return;
-    }
-    const html = this.getProgressWindowHtml(normalized);
-    this.progressWindow.webContents.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(html)}`).catch(error => {
-      log.error('Failed to render progress window UI', error);
-    });
+    this.pendingProgressPercent = null;
+    this.pushUpdateDialogPayload({downloadProgressPercent: null});
   }
 
   private showUpdateAvailableDialog(version: string) {
@@ -715,6 +648,7 @@ export class UpdateManager {
   private initUpdateDialogIpc() {
     ipcMain.removeHandler('update-dialog:get-data');
     ipcMain.removeHandler('update-dialog:perform-action');
+    ipcMain.removeAllListeners('update-dialog:ready');
 
     ipcMain.handle('update-dialog:get-data', () => {
       return this.updateDialogPayload;
@@ -725,6 +659,12 @@ export class UpdateManager {
         return;
       }
       this.resolveUpdateDialog(action);
+    });
+
+    ipcMain.on('update-dialog:ready', () => {
+      if (this.updateDialogPayload && this.updateDialogWindow && !this.updateDialogWindow.isDestroyed()) {
+        this.updateDialogWindow.webContents.send('update-dialog:payload', this.updateDialogPayload);
+      }
     });
   }
 
@@ -737,12 +677,26 @@ export class UpdateManager {
     const resolve = this.updateDialogResolver;
     this.updateDialogResolver = null;
     this.updateDialogPayload = null;
+    this.updateDialogWindowReady = false;
     if (resolve) {
       resolve(action);
     }
 
     if (this.updateDialogWindow && !this.updateDialogWindow.isDestroyed()) {
       this.updateDialogWindow.close();
+    }
+  }
+
+  private pushUpdateDialogPayload(patch: Partial<UpdateDialogPayload>) {
+    if (!this.updateDialogPayload) {
+      return;
+    }
+    this.updateDialogPayload = {
+      ...this.updateDialogPayload,
+      ...patch,
+    };
+    if (this.updateDialogWindow && !this.updateDialogWindow.isDestroyed() && this.updateDialogWindowReady) {
+      this.updateDialogWindow.webContents.send('update-dialog:payload', this.updateDialogPayload);
     }
   }
 
@@ -754,6 +708,7 @@ export class UpdateManager {
     this.updateDialogPayload = {
       ...payload,
       iconDataUrl: payload.iconDataUrl ?? this.getUpdateDialogIcon(),
+      downloadProgressPercent: payload.downloadProgressPercent ?? this.pendingProgressPercent ?? null,
     };
     this.updateDialogResolved = false;
 
@@ -764,6 +719,7 @@ export class UpdateManager {
     return new Promise(resolve => {
       this.updateDialogResolver = resolve;
       const isMacOS = process.platform === 'darwin';
+      this.updateDialogWindowReady = false;
 
       this.updateDialogWindow = new BrowserWindow({
         width: 980,
@@ -791,12 +747,17 @@ export class UpdateManager {
 
       this.updateDialogWindow.on('closed', () => {
         this.updateDialogWindow = null;
+        this.updateDialogWindowReady = false;
         if (!this.updateDialogResolved) {
           this.resolveUpdateDialog('secondary');
         }
       });
 
       this.updateDialogWindow.loadURL(pageUrl).then(() => {
+        this.updateDialogWindowReady = true;
+        if (this.updateDialogPayload) {
+          this.updateDialogWindow?.webContents.send('update-dialog:payload', this.updateDialogPayload);
+        }
         this.updateDialogWindow?.show();
         this.updateDialogWindow?.focus();
       }).catch(error => {

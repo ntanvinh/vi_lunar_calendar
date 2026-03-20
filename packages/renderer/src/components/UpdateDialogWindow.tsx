@@ -15,28 +15,25 @@ export default function UpdateDialogWindow() {
   useEffect(() => {
     let mounted = true;
 
-    window.ipc.getUpdateDialogData()
-      .then(payload => {
-        if (!mounted) {
-          return;
-        }
-        setViewState({
-          isLoading: false,
-          payload,
-        });
-      })
-      .catch(() => {
-        if (!mounted) {
-          return;
-        }
-        setViewState({
-          isLoading: false,
-          payload: null,
-        });
+    const applyPayload = (payload: Awaited<ReturnType<typeof window.ipc.getUpdateDialogData>>) => {
+      if (!mounted) {
+        return;
+      }
+      setViewState({
+        isLoading: false,
+        payload,
       });
+    };
+
+    window.ipc.notifyUpdateDialogReady();
+    window.ipc.getUpdateDialogData().then(applyPayload).catch(() => applyPayload(null));
+    const unsubscribe = window.ipc.onUpdateDialogPayload(payload => {
+      applyPayload(payload);
+    });
 
     return () => {
       mounted = false;
+      unsubscribe?.();
     };
   }, []);
 
@@ -130,6 +127,21 @@ export default function UpdateDialogWindow() {
             />
           </div>
         </div>
+
+        {typeof viewState.payload.downloadProgressPercent === 'number' && (
+          <div className="mt-5 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="mb-2 flex items-center justify-between text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <span>Đang tải bản cập nhật</span>
+              <span>{Math.round(viewState.payload.downloadProgressPercent)}%</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-blue-600 transition-all"
+                style={{width: `${Math.min(100, Math.max(0, viewState.payload.downloadProgressPercent ?? 0))}%`}}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 flex flex-wrap justify-end gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
           <button

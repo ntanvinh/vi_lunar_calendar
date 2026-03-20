@@ -25,7 +25,8 @@ type UpdateDialogPayload = {
   releaseNotesHtml: string;
   primaryButtonLabel: string;
   secondaryButtonLabel: string;
-  iconDataUrl?: string;
+  iconDataUrl?: string | null;
+  downloadProgressPercent?: number | null;
 };
 
 interface IpcApi {
@@ -33,6 +34,8 @@ interface IpcApi {
   openPaymentWindow: () => Promise<void>;
   getUpdateDialogData: () => Promise<UpdateDialogPayload | null>;
   performUpdateDialogAction: (action: UpdateDialogAction) => Promise<void>;
+  onUpdateDialogPayload: (callback: (payload: UpdateDialogPayload) => void) => () => void;
+  notifyUpdateDialogReady: () => void;
 }
 
 declare global {

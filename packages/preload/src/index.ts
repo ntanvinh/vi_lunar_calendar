@@ -19,6 +19,16 @@ const ipc = {
   openPaymentWindow: () => ipcRenderer.invoke('open-payment-window'),
   getUpdateDialogData: () => ipcRenderer.invoke('update-dialog:get-data'),
   performUpdateDialogAction: (action: 'primary' | 'secondary') => ipcRenderer.invoke('update-dialog:perform-action', action),
+  onUpdateDialogPayload: (callback: (payload: Awaited<ReturnType<typeof ipcRenderer.invoke>>) => void) => {
+    const listener = (_event: IpcRendererEvent, payload: unknown) => {
+      callback(payload as never);
+    };
+    ipcRenderer.on('update-dialog:payload', listener);
+    return () => {
+      ipcRenderer.removeListener('update-dialog:payload', listener);
+    };
+  },
+  notifyUpdateDialogReady: () => ipcRenderer.send('update-dialog:ready'),
 };
 
 console.log('Preload script loaded!');
