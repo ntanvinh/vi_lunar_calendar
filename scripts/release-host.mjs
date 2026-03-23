@@ -180,6 +180,24 @@ function validateChangelogVersion(packageVersion) {
 }
 
 function getRepoInfo() {
+  // Priority 1: app-update.yml (release target repo)
+  if (existsSync('app-update.yml')) {
+    try {
+      const yamlContent = readFileSync('app-update.yml', 'utf-8');
+      const ownerMatch = yamlContent.match(/owner:\s*(.+)/);
+      const repoMatch = yamlContent.match(/repo:\s*(.+)/);
+      if (ownerMatch && repoMatch) {
+        const owner = ownerMatch[1].trim();
+        const repo = repoMatch[1].trim();
+        console.log(`[RELEASE] Using repo from app-update.yml: ${owner}/${repo}`);
+        return {owner, repo};
+      }
+    } catch {
+      // Fall through to next option
+    }
+  }
+
+  // Priority 2: Environment variables
   const owner = process.env.RELEASE_GITHUB_OWNER;
   const repo = process.env.RELEASE_GITHUB_REPO;
 
@@ -187,7 +205,7 @@ function getRepoInfo() {
     return {owner, repo};
   }
 
-  // Try to get from git remote
+  // Priority 3: Git remote
   try {
     const remoteUrl = execSync('git remote get-url origin', {encoding: 'utf-8'}).trim();
     // Handle both HTTPS and SSH formats
@@ -408,8 +426,8 @@ async function main() {
     console.log('[BUILD] Building app...');
     run('pnpm', ['run', 'build'], env);
 
-    // Use 'onTag' - electron-builder will publish when it sees the tag
-    const configArgs = ['--config', '.electron-builder.config.js', '--publish', 'onTag'];
+    // Use 'always' - electron-builder will always try to upload artifacts
+    const configArgs = ['--config', '.electron-builder.config.js', '--publish', 'always'];
     const platform = process.env.RELEASE_PLATFORM || process.platform;
     const arch = process.env.RELEASE_ARCH || process.arch;
 
