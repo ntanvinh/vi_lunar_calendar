@@ -155,6 +155,8 @@ const StyledCalendar = styled(Calendar).attrs({
   $weekendText: '#FF3B30',
   $activeBgColor: '#007AFF', // macOS Blue
   $activeBgColor_Hover: '#0062CC',
+  $neighboringMonthText: '#757575', // Light mode
+  $neighboringMonthTextDark: '#a0a0a0', // Dark mode - brighter for visibility
 })`
   button:focus {
     outline: none;
@@ -260,7 +262,11 @@ const StyledCalendar = styled(Calendar).attrs({
   }
 
   .react-calendar__month-view__days__day--neighboringMonth {
-    color: #757575;
+    color: ${props => props.$neighboringMonthText};
+  }
+
+  :global(.dark) .react-calendar__month-view__days__day--neighboringMonth {
+    color: ${props => props.$neighboringMonthTextDark};
   }
 
   .react-calendar__year-view .react-calendar__tile,

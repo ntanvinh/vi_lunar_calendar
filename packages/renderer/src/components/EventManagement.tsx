@@ -309,9 +309,9 @@ export default function EventManagement() {
     const api = getEventManager();
     if (api) {
       const modeChoice = await api.showChoiceDialog({
-        title: 'Chế độ nhập dữ liệu CSV',
+        title: 'Nhập dữ liệu từ CSV',
         message: 'Chọn cách nhập sự kiện từ file CSV.',
-        detail: 'Thay thế: xóa toàn bộ dữ liệu hiện tại rồi nhập mới.\nGhép: giữ dữ liệu hiện tại và chỉ thêm sự kiện chưa trùng.',
+        detail: '⚠️ Thay thế hoàn toàn: Xóa toàn bộ dữ liệu hiện tại, thay bằng dữ liệu từ file CSV.\n\n✓ Ghép sự kiện: Giữ dữ liệu hiện tại, chỉ thêm sự kiện chưa tồn tại (bỏ qua trùng lặp).',
         choices: ['Thay thế hoàn toàn', 'Ghép sự kiện'],
         cancelLabel: 'Hủy',
       });
@@ -319,24 +319,17 @@ export default function EventManagement() {
       if (modeChoice === null) return;
 
       const importMode: 'replace' | 'merge' = modeChoice === 0 ? 'replace' : 'merge';
-      const confirmed = await api.showConfirmDialog({
-        title: 'Nhập dữ liệu',
-        message: importMode === 'replace'
-          ? 'Toàn bộ sự kiện hiện tại sẽ bị thay thế bởi dữ liệu trong file CSV.'
-          : 'Dữ liệu từ file CSV sẽ được ghép vào dữ liệu hiện tại. Các sự kiện trùng sẽ bị bỏ qua.',
-        detail: importMode === 'replace'
-          ? 'Bạn có chắc chắn muốn tiếp tục chế độ thay thế hoàn toàn?'
-          : 'Bạn có chắc chắn muốn tiếp tục chế độ ghép sự kiện?',
-        type: 'warning',
-      });
-
-      if (!confirmed) return;
 
       try {
-        const updated = await api.importEventsCSV(importMode);
-        if (updated) {
-          setEvents(updated);
-          showNotification(importMode === 'replace' ? 'Đã thay thế dữ liệu từ file CSV!' : 'Đã ghép dữ liệu từ file CSV!', 'success');
+        const result = await api.importEventsCSV(importMode);
+        if (result && result.events) {
+          setEvents(result.events);
+          const stats = result.stats;
+          const modeText = importMode === 'replace' ? 'thay thế' : 'ghép';
+          showNotification(
+            `Đã ${modeText} dữ liệu: ${stats.created} mới, ${stats.updated} cập nhật, ${stats.skipped} bỏ qua${importMode === 'replace' ? `, ${stats.deleted} xóa` : ''}`,
+            'success',
+          );
         }
       } catch (e) {
         console.error('Import failed', e);

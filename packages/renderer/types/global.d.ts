@@ -8,12 +8,19 @@ export interface EventManagerApi {
   deleteEvent: (id: string) => Promise<CalendarEvent[]>;
   resetDefaultEvents: () => Promise<CalendarEvent[]>;
   exportEventsCSV: () => Promise<boolean>;
-  importEventsCSV: (mode?: 'merge' | 'replace') => Promise<CalendarEvent[] | null>;
+  importEventsCSV: (mode?: 'merge' | 'replace') => Promise<{ events: CalendarEvent[]; stats: ImportStats } | null>;
   showChoiceDialog: (options: { title: string; message: string; detail?: string; choices: string[]; cancelLabel?: string }) => Promise<number | null>;
   showConfirmDialog: (options: { title: string; message: string; type?: 'question' | 'warning' | 'info' | 'error'; detail?: string }) => Promise<boolean>;
   testNotification: (event: CalendarEvent) => Promise<void>;
   onEventsUpdated: (callback: (events: CalendarEvent[]) => void) => () => void;
 }
+
+type ImportStats = {
+  created: number;
+  updated: number;
+  skipped: number;
+  deleted: number;
+};
 
 type UpdateDialogAction = 'primary' | 'secondary';
 

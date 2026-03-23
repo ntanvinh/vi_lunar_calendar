@@ -330,25 +330,41 @@ export const EventManager = {
         try {
           const csvContent = fs.readFileSync(filePaths[0], 'utf-8');
           const existingEvents = mode === 'replace' ? [] : loadEvents();
+          const existingCount = existingEvents.length;
           const deduplicateKeys = new Set(existingEvents.map(event => getEventDeduplicateKey(event)));
+
+          let created = 0;
+          let skipped = 0;
+
           const importedEvents = parseCSV(csvContent)
             .filter(event => {
               const key = getEventDeduplicateKey(event as Pick<CalendarEvent, 'title' | 'type' | 'day' | 'month'>);
               if (deduplicateKeys.has(key)) {
+                skipped++;
                 return false;
               }
               deduplicateKeys.add(key);
+              created++;
               return true;
             })
             .map(event => ({
-            ...event,
-            id: uuidv4(),
-          })) as CalendarEvent[];
+              ...event,
+              id: uuidv4(),
+            })) as CalendarEvent[];
+
           const mergedEvents = [...existingEvents, ...importedEvents];
           const syncedEvents = ensureEventsForCurrentYear(mergedEvents);
           saveEvents(syncedEvents);
           broadcastEventsUpdated(syncedEvents);
-          return syncedEvents;
+
+          const stats = {
+            created,
+            updated: 0, // CSV import doesn't update existing events currently
+            skipped,
+            deleted: mode === 'replace' ? existingCount : 0,
+          };
+
+          return { events: syncedEvents, stats };
         } catch (error) {
           console.error('Import failed:', error);
           throw error;
