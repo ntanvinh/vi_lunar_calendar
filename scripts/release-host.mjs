@@ -116,7 +116,9 @@ function getReleaseNotes(version) {
     console.log('[RELEASE] Reading from CHANGELOG.md...');
     const changelog = readFileSync('CHANGELOG.md', 'utf-8');
     // Try to find section for this version
-    const versionHeader = new RegExp(`##\\s*\\[?${version.replace(/\./g, '\\.')}]\\?`, 'i');
+    // Match ## [1.8.1] or ## 1.8.1
+    const versionPattern = version.replace(/\./g, '\\.');
+    const versionHeader = new RegExp(`##\\s*\\[?${versionPattern}\\]?`, 'i');
     const match = changelog.match(versionHeader);
     if (match) {
       const start = match.index;
