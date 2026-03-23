@@ -308,20 +308,35 @@ export default function EventManagement() {
   const handleImport = async () => {
     const api = getEventManager();
     if (api) {
+      const modeChoice = await api.showChoiceDialog({
+        title: 'Chế độ nhập dữ liệu CSV',
+        message: 'Chọn cách nhập sự kiện từ file CSV.',
+        detail: 'Thay thế: xóa toàn bộ dữ liệu hiện tại rồi nhập mới.\nGhép: giữ dữ liệu hiện tại và chỉ thêm sự kiện chưa trùng.',
+        choices: ['Thay thế hoàn toàn', 'Ghép sự kiện'],
+        cancelLabel: 'Hủy',
+      });
+
+      if (modeChoice === null) return;
+
+      const importMode: 'replace' | 'merge' = modeChoice === 0 ? 'replace' : 'merge';
       const confirmed = await api.showConfirmDialog({
         title: 'Nhập dữ liệu',
-        message: 'Hành động này sẽ xóa toàn bộ dữ liệu sự kiện hiện tại và thay thế bằng dữ liệu từ file.',
-        detail: 'Bạn có chắc chắn muốn tiếp tục?',
+        message: importMode === 'replace'
+          ? 'Toàn bộ sự kiện hiện tại sẽ bị thay thế bởi dữ liệu trong file CSV.'
+          : 'Dữ liệu từ file CSV sẽ được ghép vào dữ liệu hiện tại. Các sự kiện trùng sẽ bị bỏ qua.',
+        detail: importMode === 'replace'
+          ? 'Bạn có chắc chắn muốn tiếp tục chế độ thay thế hoàn toàn?'
+          : 'Bạn có chắc chắn muốn tiếp tục chế độ ghép sự kiện?',
         type: 'warning',
       });
 
       if (!confirmed) return;
 
       try {
-        const updated = await api.importEventsCSV();
+        const updated = await api.importEventsCSV(importMode);
         if (updated) {
           setEvents(updated);
-          showNotification('Nhập file thành công!', 'success');
+          showNotification(importMode === 'replace' ? 'Đã thay thế dữ liệu từ file CSV!' : 'Đã ghép dữ liệu từ file CSV!', 'success');
         }
       } catch (e) {
         console.error('Import failed', e);
@@ -662,9 +677,6 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="flex justify-end gap-1">
-                          {isDynamicYearlyEvent(event) && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">Tự động theo năm</span>
-                          )}
                           <button 
                             onClick={() => setNotificationModal({visible: true, event})} 
                             className={clsx('p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#007AFF]/60 dark:focus:ring-[#0A84FF]/60 focus:ring-offset-white dark:focus:ring-offset-[#1E1E1E]', {

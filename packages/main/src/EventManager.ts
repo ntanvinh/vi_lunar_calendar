@@ -8,6 +8,7 @@ import {buildYearlySolarTermEvents, SOLAR_TERM_EVENT_DEFINITIONS} from '../../co
 
 const EVENTS_FILE_NAME = 'events.json';
 const DYNAMIC_EVENT_IDS = new Set(SOLAR_TERM_EVENT_DEFINITIONS.map(definition => definition.id));
+type CsvImportMode = 'merge' | 'replace';
 
 function getEventsPath() {
   return path.join(app.getPath('userData'), EVENTS_FILE_NAME);
@@ -318,7 +319,7 @@ export const EventManager = {
       return false;
     });
 
-    ipcMain.handle('import-events-csv', async () => {
+    ipcMain.handle('import-events-csv', async (_event, mode: CsvImportMode = 'merge') => {
       const {canceled, filePaths} = await dialog.showOpenDialog({
         title: 'Import Events from CSV',
         properties: ['openFile'],
@@ -328,7 +329,7 @@ export const EventManager = {
       if (!canceled && filePaths.length > 0) {
         try {
           const csvContent = fs.readFileSync(filePaths[0], 'utf-8');
-          const existingEvents = loadEvents();
+          const existingEvents = mode === 'replace' ? [] : loadEvents();
           const deduplicateKeys = new Set(existingEvents.map(event => getEventDeduplicateKey(event)));
           const importedEvents = parseCSV(csvContent)
             .filter(event => {
@@ -354,6 +355,37 @@ export const EventManager = {
         }
       }
       return null;
+    });
+
+    ipcMain.handle('show-choice-dialog', async (_, {
+      title,
+      message,
+      detail,
+      choices,
+      cancelLabel = 'Cancel',
+    }: {
+      title: string;
+      message: string;
+      detail?: string;
+      choices: string[];
+      cancelLabel?: string;
+    }) => {
+      if (!Array.isArray(choices) || choices.length === 0) {
+        return null;
+      }
+
+      const {response} = await dialog.showMessageBox({
+        type: 'question',
+        title,
+        message,
+        detail,
+        buttons: [...choices, cancelLabel],
+        defaultId: 0,
+        cancelId: choices.length,
+        noLink: true,
+      });
+
+      return response >= 0 && response < choices.length ? response : null;
     });
 
     ipcMain.handle('show-confirm-dialog', async (_, {title, message, type = 'question', detail}: { title: string; message: string; type?: string; detail?: string }) => {

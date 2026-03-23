@@ -128,6 +128,7 @@ export class UpdateManager {
     }
 
     const candidatePaths = [
+      path.join(process.resourcesPath, 'icon.png'),
       path.join(process.resourcesPath, 'buildResources', 'icon.png'),
       path.join(app.getAppPath(), 'buildResources', 'icon.png'),
     ];
@@ -286,11 +287,23 @@ export class UpdateManager {
     if (!info.releaseNotes) {
       return '';
     }
-    const rawNotes = typeof info.releaseNotes === 'string'
-      ? info.releaseNotes
-      : info.releaseNotes.map(note => note.note).join('\n');
+    if (typeof info.releaseNotes === 'string') {
+      return this.normalizeReleaseNotesHtml(info.releaseNotes);
+    }
 
-    return this.normalizeReleaseNotesHtml(rawNotes);
+    const aggregated = info.releaseNotes
+      .map(entry => {
+        if (typeof entry === 'string') {
+          return entry;
+        }
+        if (entry && typeof entry === 'object' && 'note' in entry) {
+          return entry.note ?? '';
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join('\n');
+    return this.normalizeReleaseNotesHtml(aggregated);
   }
 
   private escapeHtml(value: string) {

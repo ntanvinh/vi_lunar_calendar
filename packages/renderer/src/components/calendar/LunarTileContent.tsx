@@ -38,7 +38,7 @@ const LunarTileContent: React.FC<LunarTileContentProps> = ({date, events = []}) 
   const tooltipContent = eventNames ? `${canChi} • ${eventNames}` : canChi;
 
   return (
-    <Tooltip tip={tooltipContent} position="tl">
+    <Tooltip tip={tooltipContent}>
       <div className="flex flex-col items-center">
         {
           isMiddleDay ?
