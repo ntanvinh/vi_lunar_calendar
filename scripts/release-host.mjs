@@ -222,15 +222,24 @@ async function requestGitHub(url, token, method = 'GET', body, retries = 3) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`GitHub API ${method} ${url} failed: ${response.status} ${errorText}`);
+        const error = new Error(`GitHub API ${method} ${url} failed: ${response.status} ${errorText}`);
+        // Don't retry on 404 - it's expected when release doesn't exist
+        if (response.status === 404) {
+          throw error;
+        }
+        throw error;
       }
 
       return response.json();
     } catch (error) {
       lastError = error;
+      // Don't retry on 404 errors
+      if (error.message.includes('404')) {
+        throw error;
+      }
       console.log(`[RETRY] Attempt ${attempt}/${retries} failed: ${error.message}`);
       if (attempt < retries) {
-        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
+        const delay = Math.pow(2, attempt) * 1000;
         console.log(`[RETRY] Waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
