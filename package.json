@@ -1,7 +1,7 @@
 {
   "name": "vi_lunar_calendar",
   "description": "Lunar Calendar for Vietnamese",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "private": true,
   "author": {
     "email": "ntanvinh@gmail.com",
@@ -25,10 +25,10 @@
     "compile:win32": "cross-env MODE=production npm run build && electron-builder --win --ia32 --config .electron-builder.config.js",
     "release": "dotenv -e .env -- node scripts/release-host.mjs",
     "release:host": "dotenv -e .env -- node scripts/release-host.mjs",
-    "release:mac:arm64": "dotenv -e .env -- cross-env MODE=production pnpm run build && dotenv -e .env -- electron-builder --mac --arm64 --config .electron-builder.config.js --publish always",
-    "release:mac:x64": "dotenv -e .env -- cross-env MODE=production pnpm run build && dotenv -e .env -- electron-builder --mac --x64 --config .electron-builder.config.js --publish always",
-    "release:win:x64": "dotenv -e .env -- cross-env MODE=production pnpm run build && dotenv -e .env -- electron-builder --win --x64 --config .electron-builder.config.js --publish always",
-    "release:linux:x64": "dotenv -e .env -- cross-env MODE=production pnpm run build && dotenv -e .env -- electron-builder --linux --x64 --config .electron-builder.config.js --publish always",
+    "release:mac:arm64": "dotenv -e .env -- cross-env RELEASE_PLATFORM=darwin RELEASE_ARCH=arm64 node scripts/release-host.mjs",
+    "release:mac:x64": "dotenv -e .env -- cross-env RELEASE_PLATFORM=darwin RELEASE_ARCH=x64 node scripts/release-host.mjs",
+    "release:win:x64": "dotenv -e .env -- cross-env RELEASE_PLATFORM=win32 RELEASE_ARCH=x64 node scripts/release-host.mjs",
+    "release:linux:x64": "dotenv -e .env -- cross-env RELEASE_PLATFORM=linux RELEASE_ARCH=x64 node scripts/release-host.mjs",
     "pack": "cross-env MODE=production && electron-builder build --config .electron-builder.config.js",
     "test": "pnpm run test:common && pnpm run test:main && pnpm run test:preload && pnpm run test:renderer && pnpm run test:e2e",
     "test:e2e": "pnpm run build && vitest run",
