@@ -1,5 +1,4 @@
 import {spawnSync, execSync} from 'child_process';
-import {createInterface} from 'readline';
 import {readFileSync, existsSync} from 'fs';
 
 function run(command, args, env, silent = false) {
@@ -104,11 +103,30 @@ function createGitTag(version, message) {
   return tag;
 }
 
+function stripVersionHeading(notes, version) {
+  if (!notes) {
+    return notes;
+  }
+
+  const lines = notes.split('\n');
+  const versionPattern = version.replace(/\./g, '\\.');
+  const headingRegex = new RegExp(`^##\\s*\\[?${versionPattern}\\]?\\s*$`, 'i');
+  if (lines.length > 0 && headingRegex.test(lines[0].trim())) {
+    // Remove heading line and any immediately following blank lines
+    lines.shift();
+    while (lines.length > 0 && lines[0].trim() === '') {
+      lines.shift();
+    }
+  }
+
+  return lines.join('\n').trim();
+}
+
 function getReleaseNotes(version) {
   // Priority 1: RELEASE_NOTES env var
   if (process.env.RELEASE_NOTES) {
     console.log('[RELEASE] Using RELEASE_NOTES from environment');
-    return process.env.RELEASE_NOTES;
+    return stripVersionHeading(process.env.RELEASE_NOTES, version);
   }
 
   // Priority 2: CHANGELOG.md
@@ -127,7 +145,7 @@ function getReleaseNotes(version) {
       const notes = nextVersion > 0
         ? changelog.slice(start, nextVersion).trim()
         : changelog.slice(start).trim();
-      return notes;
+      return stripVersionHeading(notes, version);
     }
   }
 
@@ -135,7 +153,7 @@ function getReleaseNotes(version) {
   console.log('[RELEASE] Generating release notes from git commits...');
   const commits = getCommitsSinceLastTag();
   if (commits) {
-    return `## Changes in v${version}\n\n${commits}`;
+    return stripVersionHeading(`## Changes in v${version}\n\n${commits}`, version);
   }
 
   return null;
@@ -269,114 +287,63 @@ async function requestGitHub(url, token, method = 'GET', body, retries = 3) {
   throw lastError;
 }
 
-async function _promptReleaseNotes(version) {
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  console.log(`\nNhập release notes cho v${version}.`);
-  console.log('Kết thúc bằng một dòng chỉ chứa :end\n');
-
-  const lines = [];
-  let isDone = false;
-  while (!isDone) {
-    const line = await new Promise(resolve => rl.question('', resolve));
-    if (line.trim() === ':end') {
-      isDone = true;
-      continue;
-    }
-    lines.push(line);
-  }
-
-  rl.close();
-  return lines.join('\n').trim();
-}
-
-async function ensureDraftRelease(owner, repo, tag, version, token) {
-  // Try to get existing draft release
-  try {
-    const release = await requestGitHub(
-      `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`,
-      token,
-    );
-    if (release.draft) {
-      console.log(`[RELEASE] Found existing draft release: ${tag}`);
-      return release;
-    }
-    // If already published, return it (will add artifacts)
-    console.log(`[RELEASE] Release ${tag} already published`);
-    return release;
-  } catch (err) {
-    if (!err.message.includes('404')) {
-      throw err;
-    }
-    // 404 - create draft release
-  }
-
-  // Get release notes from CHANGELOG.md
-  let notes = getReleaseNotes(version);
-  if (!notes) {
-    console.log('[RELEASE] No CHANGELOG.md entry, using default release notes');
-    notes = `Release ${version}`;
-  }
-
-  console.log(`[RELEASE] Creating draft release: ${tag}`);
-  const release = await requestGitHub(
-    `https://api.github.com/repos/${owner}/${repo}/releases`,
-    token,
-    'POST',
-    {
-      tag_name: tag,
-      name: `v${version}`,
-      draft: true,
-      prerelease: false,
-      body: notes,
-    },
-  );
-  console.log(`[RELEASE] Created draft release: ${release.id}`);
-  return release;
-}
-
-async function publishRelease(owner, repo, tag, token) {
+async function ensureRelease(owner, repo, tag, version, token) {
   if (!token) {
-    console.log('[RELEASE] No GH_TOKEN, skipping publish step');
-    return;
+    console.warn('[RELEASE] GH_TOKEN is required to manage releases. Skipping ensureRelease.');
+    return null;
   }
 
-  console.log(`[RELEASE] Looking up release ${tag} to publish...`);
   let release;
   try {
     release = await requestGitHub(
       `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`,
       token,
     );
+    console.log(`[RELEASE] Found existing release: ${tag} (draft=${release.draft})`);
   } catch (err) {
-    if (err.message.includes('404')) {
-      console.log(`[RELEASE] No release found for ${tag}, nothing to publish`);
-      return;
+    if (!err.message.includes('404')) {
+      throw err;
     }
-    throw err;
   }
 
-  // If already published, just log
-  if (!release.draft) {
-    console.log(`[RELEASE] Release ${tag} is already published`);
-    console.log(`\n✅ Release ready: ${release.html_url}`);
-    return;
+  if (release) {
+    if (release.draft) {
+      console.log(`[RELEASE] Release ${tag} is draft. Converting to published release before upload...`);
+      release = await requestGitHub(
+        `https://api.github.com/repos/${owner}/${repo}/releases/${release.id}`,
+        token,
+        'PATCH',
+        {
+          draft: false,
+        },
+      );
+      console.log(`[RELEASE] Release ${tag} is now published.`);
+    }
+    return release;
   }
 
-  // Publish the draft
-  console.log(`[RELEASE] Publishing release ${tag}...`);
-  const updated = await requestGitHub(
-    `https://api.github.com/repos/${owner}/${repo}/releases/${release.id}`,
+  // Need to create a brand-new release (published) so electron-builder can attach assets
+  let notes = getReleaseNotes(version);
+  if (!notes) {
+    console.log('[RELEASE] No CHANGELOG.md entry, using default release notes');
+    notes = `Release ${version}`;
+  }
+
+  console.log(`[RELEASE] Creating published release: ${tag}`);
+  release = await requestGitHub(
+    `https://api.github.com/repos/${owner}/${repo}/releases`,
     token,
-    'PATCH',
+    'POST',
     {
+      tag_name: tag,
+      name: `v${version}`,
       draft: false,
+      prerelease: false,
+      body: notes,
     },
   );
-  console.log(`\n✅ Published release: ${updated.html_url}`);
+  console.log(`[RELEASE] Created release: ${release.html_url}`);
+  return release;
 }
 
 async function main() {
@@ -406,13 +373,10 @@ async function main() {
       console.log(`[GIT] Tag ${tag} already exists`);
     }
 
-    // Step 5: Ensure draft release exists with release notes from CHANGELOG
-    // This must happen BEFORE electron-builder so it uploads to this draft
+    // Step 5: Ensure release exists (published) before running electron-builder
     const token = process.env.GH_TOKEN;
     const {owner, repo} = getRepoInfo();
-    if (token) {
-      await ensureDraftRelease(owner, repo, tag, version, token);
-    }
+    await ensureRelease(owner, repo, tag, version, token);
 
     // Step 6: Build with electron-builder
     console.log('[BUILD] Building app...');
@@ -429,20 +393,20 @@ async function main() {
     if (platform === 'darwin') {
       const macArch = arch === 'arm64' ? '--arm64' : '--x64';
       run('electron-builder', ['--mac', macArch, ...configArgs], env);
-      await publishRelease(owner, repo, tag, token);
+      console.log(`[RELEASE] mac ${macArch} build finished.`);
       process.exit(0);
     }
 
     if (platform === 'win32') {
       const winArch = arch === 'arm64' ? '--arm64' : '--x64';
       run('electron-builder', ['--win', winArch, ...configArgs], env);
-      await publishRelease(owner, repo, tag, token);
+      console.log('[RELEASE] Windows build finished.');
       process.exit(0);
     }
 
     if (platform === 'linux') {
       run('electron-builder', ['--linux', ...configArgs], env);
-      await publishRelease(owner, repo, tag, token);
+      console.log('[RELEASE] Linux build finished.');
       process.exit(0);
     }
 
