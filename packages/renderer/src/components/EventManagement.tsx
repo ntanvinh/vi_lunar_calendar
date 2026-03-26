@@ -603,7 +603,7 @@ export default function EventManagement() {
                   onClick={() => handleSort('nextSolarDate')}
                 >
                   <div className="flex items-center gap-1">
-                    Lần tới (dương lịch)
+                    Ngày sự kiện tới 
                     {sortConfig?.key === 'nextSolarDate' ? (
                       sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
                     ) : (
