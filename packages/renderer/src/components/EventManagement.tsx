@@ -1,5 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {DEFAULT_EVENTS, type CalendarEvent} from '../../../common/src/EventData';
+import {convertLunar2Solar} from '../../../common/src/LunarUtil';
+import {getTimeZone} from '../../../common/src/MiscUtil';
 import {BiTrash} from '@react-icons/all-files/bi/BiTrash';
 import {BiEdit} from '@react-icons/all-files/bi/BiEdit';
 import {BiPlus} from '@react-icons/all-files/bi/BiPlus';
@@ -31,6 +33,56 @@ function removeAccents(str: string) {
     .replace(/Đ/g, 'D');
 }
 
+type SortKey = keyof CalendarEvent | 'nextSolarDate';
+
+const WEEKDAY_LABELS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+function pad2(num: number) {
+  return String(num).padStart(2, '0');
+}
+
+function formatSolarDateLabel(date: Date) {
+  return `${WEEKDAY_LABELS[date.getDay()]} ${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`;
+}
+
+function getStartOfToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function getNextSolarDateForEvent(event: CalendarEvent, today: Date) {
+  if (event.type === 'solar') {
+    let candidate = new Date(today.getFullYear(), event.month - 1, event.day);
+    if (candidate.getTime() < today.getTime()) {
+      candidate = new Date(today.getFullYear() + 1, event.month - 1, event.day);
+    }
+    return candidate;
+  }
+
+  const timeZone = getTimeZone();
+  const toSolarDate = (year: number) => {
+    const [day, month, convertedYear] = convertLunar2Solar(event.day, event.month, year, 0, timeZone);
+    if (!day || !month || !convertedYear) {
+      return null;
+    }
+    return new Date(convertedYear, month - 1, day);
+  };
+
+  const thisYear = toSolarDate(today.getFullYear());
+  if (thisYear && thisYear.getTime() >= today.getTime()) {
+    return thisYear;
+  }
+
+  return toSolarDate(today.getFullYear() + 1);
+}
+
+interface EventWithNextDate extends CalendarEvent {
+  nextSolarDate: Date | null;
+  nextSolarDateLabel: string;
+  nextSolarTimestamp: number;
+}
+
 export default function EventManagement() {
   const isMac = navigator.userAgent.includes('Mac');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -48,7 +100,7 @@ export default function EventManagement() {
   const [filterImportant, setFilterImportant] = useState<'all' | 'true' | 'false'>('all');
 
   // Sort states
-  const [sortConfig, setSortConfig] = useState<{key: keyof CalendarEvent; direction: 'asc' | 'desc'} | null>(null);
+  const [sortConfig, setSortConfig] = useState<{key: SortKey; direction: 'asc' | 'desc'} | null>(null);
   
   const addFormRef = useRef<HTMLTableRowElement>(null);
 
@@ -338,7 +390,7 @@ export default function EventManagement() {
     }
   };
 
-  const handleSort = (key: keyof CalendarEvent) => {
+  const handleSort = (key: SortKey) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
@@ -346,8 +398,21 @@ export default function EventManagement() {
     setSortConfig({key, direction});
   };
 
+  const eventsWithNextDate = useMemo<EventWithNextDate[]>(() => {
+    const today = getStartOfToday();
+    return events.map(event => {
+      const nextSolarDate = getNextSolarDateForEvent(event, today);
+      return {
+        ...event,
+        nextSolarDate,
+        nextSolarDateLabel: nextSolarDate ? formatSolarDateLabel(nextSolarDate) : '-',
+        nextSolarTimestamp: nextSolarDate ? nextSolarDate.getTime() : Number.POSITIVE_INFINITY,
+      };
+    });
+  }, [events]);
+
   const getFilteredEvents = () => {
-    const filtered = events.filter(event => {
+    const filtered = eventsWithNextDate.filter(event => {
       const matchText = searchText === '' || removeAccents(event.title.toLowerCase()).includes(removeAccents(searchText.toLowerCase()));
       const matchType = filterType === 'all' || event.type === filterType;
       const matchImportant = filterImportant === 'all' || 
@@ -359,6 +424,12 @@ export default function EventManagement() {
     if (sortConfig) {
       filtered.sort((a, b) => {
         const key = sortConfig.key;
+        if (key === 'nextSolarDate') {
+          return sortConfig.direction === 'asc'
+            ? a.nextSolarTimestamp - b.nextSolarTimestamp
+            : b.nextSolarTimestamp - a.nextSolarTimestamp;
+        }
+
         const valA = a[key];
         const valB = b[key];
 
@@ -527,6 +598,19 @@ export default function EventManagement() {
                     )}
                   </div>
                 </th>
+                <th
+                  className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-44 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
+                  onClick={() => handleSort('nextSolarDate')}
+                >
+                  <div className="flex items-center gap-1">
+                    Lần tới (dương lịch)
+                    {sortConfig?.key === 'nextSolarDate' ? (
+                      sortConfig.direction === 'asc' ? <BiCaretUp size={14} /> : <BiCaretDown size={14} />
+                    ) : (
+                      <BiSort size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
+                </th>
                 <th 
                   className="sticky top-0 z-10 bg-gray-50 dark:bg-[#2c2c2e] px-4 py-3 font-semibold w-28 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#3a3a3c] transition-colors group select-none"
                   onClick={() => handleSort('isImportant')}
@@ -571,7 +655,7 @@ export default function EventManagement() {
                     </select>
                   </div>
                 </td>
-                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')} colSpan={2}></td>
+                <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none')} colSpan={3}></td>
                 <td className={clsx('px-4 transition-all duration-300 ease-in-out', showFilters ? 'py-2' : 'py-0 border-none text-center')}>
                   <div className={clsx('overflow-hidden transition-all duration-300 ease-in-out', showFilters ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0')}>
                     <select
@@ -624,6 +708,7 @@ export default function EventManagement() {
                           onChange={e => setEditForm({...editForm, month: parseInt(e.target.value)})}
                         />
                       </td>
+                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">-</td>
                       <td className="px-4 py-3 text-center">
                         <input
                           type="checkbox"
@@ -665,6 +750,7 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3">{event.day}</td>
                       <td className="px-4 py-3">{event.month}</td>
+                      <td className="px-4 py-3 text-sm">{event.nextSolarDateLabel}</td>
                       <td className="px-4 py-3 text-center">
                         {event.isImportant && <span className="text-red-500">★</span>}
                       </td>
@@ -729,6 +815,7 @@ export default function EventManagement() {
                       onChange={e => setEditForm({...editForm, month: parseInt(e.target.value)})}
                     />
                   </td>
+                  <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">-</td>
                   <td className="px-4 py-3 text-center">
                     <input
                       type="checkbox"
