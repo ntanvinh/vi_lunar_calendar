@@ -458,6 +458,24 @@ export default function EventManagement() {
 
   const filteredEvents = getFilteredEvents();
 
+  const handleJumpToEventDate = async (event: EventWithNextDate) => {
+    if (!event.nextSolarDate) {
+      showNotification('Không xác định được ngày sự kiện tiếp theo', 'error');
+      return;
+    }
+
+    const api = getEventManager();
+    if (!api?.navigateCalendarToDate) {
+      showNotification('Không thể điều hướng lịch', 'error');
+      return;
+    }
+
+    const success = await api.navigateCalendarToDate(event.nextSolarDate.toISOString());
+    if (!success) {
+      showNotification('Điều hướng lịch thất bại', 'error');
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col text-gray-900 dark:text-gray-100 drag-region overflow-hidden">
       <div className="pt-10 px-6 pb-2 shrink-0">
@@ -750,7 +768,22 @@ export default function EventManagement() {
                       </td>
                       <td className="px-4 py-3">{event.day}</td>
                       <td className="px-4 py-3">{event.month}</td>
-                      <td className="px-4 py-3 text-sm">{event.nextSolarDateLabel}</td>
+                      <td className="px-4 py-3 text-sm">
+                        {event.nextSolarDate ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleJumpToEventDate(event);
+                            }}
+                            className="text-[#007AFF] dark:text-[#0A84FF]"
+                            title="Đi tới ngày này trên lịch"
+                          >
+                            {event.nextSolarDateLabel}
+                          </button>
+                        ) : (
+                          event.nextSolarDateLabel
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-center">
                         {event.isImportant && <span className="text-red-500">★</span>}
                       </td>

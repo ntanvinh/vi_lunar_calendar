@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import {type CalendarEvent, DEFAULT_EVENTS} from '../../common/src/EventData';
 import {v4 as uuidv4} from 'uuid';
 import {NotificationManager} from './NotificationManager';
+import {showCalendarWindowForDateNavigation} from './CalendarWindow';
 import {buildYearlySolarTermEvents, SOLAR_TERM_EVENT_DEFINITIONS} from '../../common/src/SolarTermEventCalculator';
 
 const EVENTS_FILE_NAME = 'events.json';
@@ -420,6 +421,21 @@ export const EventManager = {
 
     ipcMain.handle('test-notification', (_, event: CalendarEvent) => {
       NotificationManager.sendTestNotification(event);
+    });
+
+    ipcMain.handle('navigate-calendar-to-date', async (_event, dateIso: string) => {
+      const targetDate = new Date(dateIso);
+      if (Number.isNaN(targetDate.getTime())) {
+        return false;
+      }
+
+      const window = await showCalendarWindowForDateNavigation();
+      if (!window || window.isDestroyed()) {
+        return false;
+      }
+
+      window.webContents.send('calendar-navigate-to-date', targetDate.toISOString());
+      return true;
     });
   },
 };

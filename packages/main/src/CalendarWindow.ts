@@ -137,6 +137,23 @@ export async function showCalendarWindow(bounds: Electron.Rectangle) {
   return calendarWindow;
 }
 
+export async function showCalendarWindowForDateNavigation() {
+  if (!calendarWindow || calendarWindow.isDestroyed()) {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const fallbackBounds = {
+      x: primaryDisplay.bounds.x + primaryDisplay.bounds.width - 200,
+      y: 0,
+      width: 0,
+      height: 0,
+    } as Electron.Rectangle;
+    await createWindow(fallbackBounds, true);
+  } else {
+    fadeInWindow(calendarWindow);
+  }
+
+  return calendarWindow;
+}
+
 export function getCalendarWindow() {
   return calendarWindow;
 }

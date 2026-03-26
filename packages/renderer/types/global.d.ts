@@ -12,6 +12,8 @@ export interface EventManagerApi {
   showChoiceDialog: (options: { title: string; message: string; detail?: string; choices: string[]; cancelLabel?: string }) => Promise<number | null>;
   showConfirmDialog: (options: { title: string; message: string; type?: 'question' | 'warning' | 'info' | 'error'; detail?: string }) => Promise<boolean>;
   testNotification: (event: CalendarEvent) => Promise<void>;
+  navigateCalendarToDate: (dateIso: string) => Promise<boolean>;
+  onCalendarNavigateToDate: (callback: (dateIso: string) => void) => () => void;
   onEventsUpdated: (callback: (events: CalendarEvent[]) => void) => () => void;
 }
 

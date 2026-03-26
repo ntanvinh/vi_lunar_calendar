@@ -12,6 +12,14 @@ export const eventManager = {
   showChoiceDialog: (options: { title: string; message: string; detail?: string; choices: string[]; cancelLabel?: string }): Promise<number | null> => ipcRenderer.invoke('show-choice-dialog', options),
   showConfirmDialog: (options: { title: string; message: string; type?: 'question' | 'warning' | 'info' | 'error'; detail?: string }): Promise<boolean> => ipcRenderer.invoke('show-confirm-dialog', options),
   testNotification: (event: CalendarEvent): Promise<void> => ipcRenderer.invoke('test-notification', event),
+  navigateCalendarToDate: (dateIso: string): Promise<boolean> => ipcRenderer.invoke('navigate-calendar-to-date', dateIso),
+  onCalendarNavigateToDate: (callback: (dateIso: string) => void) => {
+    const subscription = (_event: IpcRendererEvent, dateIso: string) => callback(dateIso);
+    ipcRenderer.on('calendar-navigate-to-date', subscription);
+    return () => {
+      ipcRenderer.removeListener('calendar-navigate-to-date', subscription);
+    };
+  },
   onEventsUpdated: (callback: (events: CalendarEvent[]) => void) => {
     const subscription = (_event: IpcRendererEvent, events: CalendarEvent[]) => callback(events);
     ipcRenderer.on('events-updated', subscription);

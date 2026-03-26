@@ -49,6 +49,22 @@ const AppCalendar: React.FC<AppCalendarProps> = () => {
   }, []);
 
   useEffect(() => {
+    const api = window.eventManager;
+    const unsubscribe = api?.onCalendarNavigateToDate((dateIso) => {
+      const targetDate = new Date(dateIso);
+      if (Number.isNaN(targetDate.getTime())) {
+        return;
+      }
+      setActiveStartDate(targetDate);
+      setCalendarValue(targetDate);
+    });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, []);
+
+  useEffect(() => {
     const timerId = setInterval(() => {
       const nextDay = getNextDay(currentDay);
 
