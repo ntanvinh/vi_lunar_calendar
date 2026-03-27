@@ -140,10 +140,12 @@ function getReleaseNotes(version) {
     const match = changelog.match(versionHeader);
     if (match) {
       const start = match.index;
-      // Find next version header or end
-      const nextVersion = changelog.indexOf('## [', start + match[0].length);
-      const notes = nextVersion > 0
-        ? changelog.slice(start, nextVersion).trim()
+      // Find next version header (either ## [X.Y.Z] or ## X.Y.Z)
+      const nextVersionRegex = /##\s*\[?\d+\.\d+\.\d+/g;
+      nextVersionRegex.lastIndex = start + match[0].length;
+      const nextMatch = nextVersionRegex.exec(changelog);
+      const notes = nextMatch
+        ? changelog.slice(start, nextMatch.index).trim()
         : changelog.slice(start).trim();
       return stripVersionHeading(notes, version);
     }
