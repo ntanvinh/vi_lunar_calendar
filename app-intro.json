@@ -1,0 +1,98 @@
+{
+  "slug": "vlunar",
+  "sortOrder": 1,
+  "icon": "https://raw.githubusercontent.com/ntanvinh/vi_lunar_calendar/main/build/icon.png",
+  "platforms": ["macOS", "Windows", "Linux"],
+  "name": {
+    "en": "VLunar Calendar",
+    "vi": "Lịch Vạn Niên VLunar"
+  },
+  "tagline": {
+    "en": "Your complete lunar calendar companion.",
+    "vi": "Lịch âm dương toàn diện cho mọi nhu cầu"
+  },
+  "description": {
+    "en": "A comprehensive Vietnamese lunar calendar app with event management, date conversion, and holiday tracking. Convert between solar and lunar dates, manage custom events, and get notifications for important occasions.",
+    "vi": "Ứng dụng lịch âm dương toàn diện với quản lý sự kiện, chuyển đổi ngày tháng và theo dõi ngày lễ. Chuyển đổi giữa ngày dương và âm lịch, quản lý sự kiện tùy chỉnh và nhận thông báo cho các dịp quan trọng."
+  },
+  "seo": {
+    "keywords": {
+      "en": [
+        "vietnamese lunar calendar",
+        "lunar calendar app",
+        "lunar to solar converter",
+        "vietnam calendar",
+        "lunar date converter",
+        "event calendar app",
+        "holiday tracker",
+        "desktop calendar",
+        "lunar new year calendar",
+        "am lich viet nam"
+      ],
+      "vi": [
+        "lịch âm dương",
+        "lịch vạn niên",
+        "chuyển đổi âm dương lịch",
+        "lịch việt nam",
+        "xem ngày âm lịch",
+        "quản lý sự kiện",
+        "theo dõi ngày lễ",
+        "ứng dụng lịch desktop",
+        "tết nguyên đán",
+        "ngày giỗ cúng"
+      ]
+    }
+  },
+  "features": [
+    {
+      "image": "/apps/vlunar/feat01.png",
+      "text": {
+        "en": "Dual calendar display",
+        "vi": "Hiển thị lịch kép âm dương"
+      },
+      "description": {
+        "en": "View both solar and lunar dates simultaneously. Easy navigation between months with beautiful, clean interface.",
+        "vi": "Xem ngày dương và âm lịch đồng thời. Dễ dàng điều hướng giữa các tháng với giao diện đẹp và gọn gàng."
+      }
+    },
+    {
+      "image": "/apps/vlunar/feat02.png",
+      "text": {
+        "en": "Instant date conversion",
+        "vi": "Chuyển đổi ngày tức thì"
+      },
+      "description": {
+        "en": "Convert any date between solar and lunar calendars with a single click. Accurate astronomical calculations.",
+        "vi": "Chuyển đổi bất kỳ ngày nào giữa dương lịch và âm lịch chỉ với một click. Tính toán thiên văn chính xác."
+      }
+    },
+    {
+      "image": "/apps/vlunar/feat03.png",
+      "text": {
+        "en": "Smart event management",
+        "vi": "Quản lý sự kiện thông minh"
+      },
+      "description": {
+        "en": "Create and manage events for both solar and lunar dates. Sort by next occurrence date and jump to any event instantly.",
+        "vi": "Tạo và quản lý sự kiện cho cả ngày dương và âm lịch. Sắp xếp theo ngày xảy ra tiếp theo và nhảy đến bất kỳ sự kiện nào."
+      }
+    },
+    {
+      "image": "/apps/vlunar/feat04.png",
+      "text": {
+        "en": "Smart notifications",
+        "vi": "Thông báo thông minh"
+      },
+      "description": {
+        "en": "Customize notification settings for all events. Toggle on/off status, set advance notice days, and enable daily reminders until the event occurs. Apply selectively to important events only.",
+        "vi": "Tùy chỉnh cài đặt thông báo cho tất cả sự kiện. Bật/tắt trạng thái, thiết lập số ngày báo trước và kích hoạt nhắc nhở hàng ngày cho đến khi sự kiện diễn ra. Chỉ áp dụng cho các sự kiện quan trọng."
+      }
+    }
+  ],
+  "links": {
+    "appStore": "#",
+    "googlePlay": "#",
+    "website": "https://github.com/ntanvinh/vi_lunar_calendar",
+    "privacyPolicy": "/privacy"
+  }
+}
