@@ -787,7 +787,7 @@ export default function EventManagement() {
                       <td className="px-4 py-3 text-center">
                         {event.isImportant && <span className="text-red-500">★</span>}
                       </td>
-                      <td className="px-4 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
                           <button 
                             onClick={() => setNotificationModal({visible: true, event})} 
