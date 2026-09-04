@@ -8,14 +8,78 @@ import {isMacOS, fadeInWindow} from '/@/MainUtil';
 
 let calendarWindow: BrowserWindow | null = null;
 
-function calcWindowPosition(bounds: Electron.Rectangle) {
+function hasUsableBounds(bounds: Electron.Rectangle | undefined): bounds is Electron.Rectangle {
+  return Boolean(
+    bounds
+      && Number.isFinite(bounds.x)
+      && Number.isFinite(bounds.y)
+      && Number.isFinite(bounds.width)
+      && Number.isFinite(bounds.height)
+      && bounds.width > 0
+      && bounds.height > 0,
+  );
+}
+
+function getFallbackBounds(): Electron.Rectangle {
+  // Tray#click may provide an empty rectangle on macOS. At click time the
+  // cursor is still over the tray icon, so it gives us a useful anchor point.
+  const cursor = screen.getCursorScreenPoint();
   return {
-    x: bounds.x - CALENDAR_WIDTH + bounds.width,
-    y: bounds.y <= CALENDAR_HEIGHT ? bounds.y : bounds.y - CALENDAR_HEIGHT,
+    x: cursor.x,
+    y: cursor.y,
+    width: 1,
+    height: 1,
   };
 }
 
-async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function showAtPosition(window: BrowserWindow | null, x: number, y: number) {
+  if (!window || window.isDestroyed()) return;
+
+  window.setPosition(x, y);
+  fadeInWindow(window, false);
+
+  // macOS may finish showing a hidden window asynchronously and overwrite its
+  // position. Re-apply the anchor after the native show transition completes.
+  setTimeout(() => {
+    if (!window.isDestroyed()) {
+      window.setPosition(x, y);
+    }
+  }, 100);
+}
+
+function calcWindowPosition(bounds: Electron.Rectangle | undefined) {
+  const safeBounds = hasUsableBounds(bounds) ? bounds : getFallbackBounds();
+  const anchorPoint = {
+    x: safeBounds.x + safeBounds.width / 2,
+    y: safeBounds.y + safeBounds.height / 2,
+  };
+  const display = screen.getDisplayNearestPoint(anchorPoint);
+  const workArea = display.workArea;
+
+  const minX = workArea.x;
+  const maxX = Math.max(minX, workArea.x + workArea.width - CALENDAR_WIDTH);
+  const minY = workArea.y;
+  const maxY = Math.max(minY, workArea.y + workArea.height - CALENDAR_HEIGHT);
+
+  const desiredX = safeBounds.x + safeBounds.width - CALENDAR_WIDTH;
+  const displayMiddleY = display.bounds.y + display.bounds.height / 2;
+  const desiredY = anchorPoint.y <= displayMiddleY
+    ? safeBounds.y + safeBounds.height
+    : safeBounds.y - CALENDAR_HEIGHT;
+
+  const position = {
+    x: Math.round(clamp(desiredX, minX, maxX)),
+    y: Math.round(clamp(desiredY, minY, maxY)),
+  };
+
+  return position;
+}
+
+async function createWindow(bounds: Electron.Rectangle | undefined, showWhenReady = true) {
   console.log(bounds);
   const {x, y} = calcWindowPosition(bounds);
   calendarWindow = new BrowserWindow({
@@ -51,7 +115,7 @@ async function createWindow(bounds: Electron.Rectangle, showWhenReady = true) {
    */
   calendarWindow.on('ready-to-show', () => {
     if (showWhenReady) {
-      fadeInWindow(calendarWindow);
+      showAtPosition(calendarWindow, x, y);
     }
     calendarWindow?.setSkipTaskbar(true);
 
@@ -101,8 +165,8 @@ export async function preloadCalendarWindow() {
     const dummyBounds = {
       x: primaryDisplay.bounds.x + primaryDisplay.bounds.width - 200,
       y: 0,
-      width: 0,
-      height: 0,
+      width: 1,
+      height: 1,
     } as Electron.Rectangle;
     await createWindow(dummyBounds, false);
   }
@@ -111,7 +175,7 @@ export async function preloadCalendarWindow() {
 /**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
-export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
+export async function toggleCalendarWindow(bounds: Electron.Rectangle | undefined) {
   if (!calendarWindow || calendarWindow.isDestroyed()) {
     await createWindow(bounds, true);
   } else {
@@ -119,20 +183,18 @@ export async function toggleCalendarWindow(bounds: Electron.Rectangle) {
       calendarWindow.hide();
     } else {
       const {x, y} = calcWindowPosition(bounds);
-      calendarWindow.setPosition(x, y);
-      fadeInWindow(calendarWindow);
+      showAtPosition(calendarWindow, x, y);
     }
   }
   return calendarWindow;
 }
 
-export async function showCalendarWindow(bounds: Electron.Rectangle) {
+export async function showCalendarWindow(bounds: Electron.Rectangle | undefined) {
   if (!calendarWindow || calendarWindow.isDestroyed()) {
     await createWindow(bounds, true);
   } else {
     const {x, y} = calcWindowPosition(bounds);
-    calendarWindow.setPosition(x, y);
-    fadeInWindow(calendarWindow);
+    showAtPosition(calendarWindow, x, y);
   }
   return calendarWindow;
 }
@@ -143,8 +205,8 @@ export async function showCalendarWindowForDateNavigation() {
     const fallbackBounds = {
       x: primaryDisplay.bounds.x + primaryDisplay.bounds.width - 200,
       y: 0,
-      width: 0,
-      height: 0,
+      width: 1,
+      height: 1,
     } as Electron.Rectangle;
     await createWindow(fallbackBounds, true);
   } else {

@@ -24,7 +24,9 @@ module.exports = async function() {
       electronLanguages: ['en', 'vi'],
       darkModeSupport: true,
       target: 'default',
-      identity: null,
+      // Let electron-builder discover the appropriate identity from Keychain.
+      // CSC_NAME can still be provided explicitly when multiple identities exist.
+      identity: process.env.CSC_NAME || undefined,
       hardenedRuntime: true,
       gatekeeperAssess: false,
     },

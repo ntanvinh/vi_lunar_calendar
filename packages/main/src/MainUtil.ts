@@ -19,10 +19,14 @@ export const isMacOS = platform === 'darwin';
 
 export const isTemplateAsset = isMacOS || !nativeTheme.shouldUseDarkColors;
 
-export function fadeInWindow(window: BrowserWindow | null) {
+export function fadeInWindow(window: BrowserWindow | null, activate = true) {
   if (!window || window.isDestroyed()) return;
   window.setOpacity(0);
-  window.show();
+  if (activate) {
+    window.show();
+  } else {
+    window.showInactive();
+  }
   
   let opacity = 0;
   const step = 0.1;

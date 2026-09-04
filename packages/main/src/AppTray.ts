@@ -1,4 +1,4 @@
-import {app, Menu, nativeImage, nativeTheme, Tray} from 'electron';
+import {app, Menu, nativeImage, nativeTheme, screen, Tray} from 'electron';
 import * as path from 'path';
 import {getAssetName, getMainAssetsPath, isTemplateAsset} from './MainUtil';
 import {getDateWithoutTime, getNextDay, getTimeZone, getToday} from '../../common/src/MiscUtil';
@@ -12,6 +12,46 @@ import {ThemeManager} from './ThemeManager';
 import {UpdateManager} from './UpdateManager';
 
 let appTray: Tray;
+
+function hasUsableBounds(bounds: Electron.Rectangle | undefined): bounds is Electron.Rectangle {
+  return Boolean(
+    bounds
+      && Number.isFinite(bounds.x)
+      && Number.isFinite(bounds.y)
+      && Number.isFinite(bounds.width)
+      && Number.isFinite(bounds.height)
+      && bounds.width > 0
+      && bounds.height > 0,
+  );
+}
+
+function getTrayBounds(eventBounds: Electron.Rectangle) {
+  // On macOS, Tray#click's `position` is not a screen coordinate. Use the
+  // native tray bounds, which are already in the coordinate system expected by
+  // BrowserWindow#setPosition.
+  const liveBounds = appTray.getBounds();
+  if (hasUsableBounds(liveBounds)) {
+    return liveBounds;
+  }
+
+  if (hasUsableBounds(eventBounds)) {
+    return eventBounds;
+  }
+
+  const cursorPosition = screen.getCursorScreenPoint();
+  console.warn('[AppTray] Invalid tray bounds; using the click position.', {
+    liveBounds,
+    eventBounds,
+    cursorPosition,
+  });
+
+  return {
+    x: cursorPosition.x,
+    y: cursorPosition.y,
+    width: 1,
+    height: 1,
+  };
+}
 
 function getLunarDateIcon(lunarDay: number) {
   const iconFolder = isTemplateAsset ? 'template' : 'dark';
@@ -220,13 +260,19 @@ export function showAppTray() {
     appTray.setToolTip(getTooltipText(currentLunar));
 
     // set events
-    appTray.on('click', (_event, bounds) => {
-      const eventWindow = getEventWindow();
-      if (eventWindow && !eventWindow.isDestroyed() && eventWindow.isVisible()) {
-        eventWindow.close();
-        showCalendarWindow(bounds).then();
-      } else {
-        toggleCalendarWindow(bounds).then();
+    appTray.on('click', (_event, bounds, position) => {
+      try {
+        const trayBounds = getTrayBounds(bounds);
+        const eventWindow = getEventWindow();
+        const windowPromise = eventWindow && !eventWindow.isDestroyed() && eventWindow.isVisible()
+          ? (eventWindow.close(), showCalendarWindow(trayBounds))
+          : toggleCalendarWindow(trayBounds);
+
+        windowPromise.catch(error => {
+          console.error('[AppTray] Failed to toggle calendar window', error);
+        });
+      } catch (error) {
+        console.error('[AppTray] Failed to handle left click', error);
       }
     });
 
